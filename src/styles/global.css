@@ -82,8 +82,112 @@ a:hover { text-decoration-thickness: 2px; }
 .punkte li { margin-bottom: 0.3rem; }
 .punkte li::marker { color: var(--akzent); }
 
-.kopf { display: flex; justify-content: flex-end; padding-top: 1.25rem; }
-.sprachen { display: flex; gap: 0.25rem; font-size: 0.9rem; }
-.sprachen a { padding: 0.3rem 0.7rem; border-radius: 999px; color: var(--text-leise); text-decoration: none; }
-.sprachen a:hover { color: var(--text); }
-.sprachen a[aria-current] { background: var(--flaeche); color: var(--wald); font-weight: 600; box-shadow: inset 0 0 0 1px var(--linie); }
+.kopf { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem; padding-top: 1.25rem; }
+.sprachen, .schalter { display: flex; gap: 0.25rem; font-size: 0.9rem; }
+.sprachen a, .schalter button {
+  padding: 0.3rem 0.7rem; border: 0; border-radius: 999px; background: none;
+  color: var(--text-leise); font: inherit; text-decoration: none; cursor: pointer;
+}
+.sprachen a:hover, .schalter button:hover { color: var(--text); }
+.sprachen a[aria-current], .schalter button[aria-pressed='true'] {
+  background: var(--flaeche); color: var(--wald); font-weight: 600; box-shadow: inset 0 0 0 1px var(--linie);
+}
+
+/* ---------- Darstellung „Modern“: Aurora-Hintergrund, Glas-Karten, Farbverläufe, Einblenden beim Scrollen ---------- */
+
+:root[data-stil='modern'] {
+  --bg: #0a0c18;
+  --flaeche: rgb(255 255 255 / 0.06);
+  --text: #eef0ff;
+  --text-leise: #a9aecb;
+  --linie: rgb(255 255 255 / 0.12);
+  --wald: #8ff3d2;
+  --akzent: #ff8fd9;
+  --verlauf: linear-gradient(100deg, #7cf5d6, #8b9dff 35%, #ff8ad8 65%, #7cf5d6);
+  color-scheme: dark;
+}
+
+[data-stil='modern'] body { position: relative; isolation: isolate; overflow-x: hidden; }
+
+/* Farbwolken, die langsam wandern */
+[data-stil='modern'] body::before {
+  content: ''; position: fixed; inset: -20vmax; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(30vmax 30vmax at 20% 25%, rgb(124 245 214 / 0.35), transparent 70%),
+    radial-gradient(35vmax 35vmax at 80% 20%, rgb(139 157 255 / 0.35), transparent 70%),
+    radial-gradient(30vmax 30vmax at 60% 85%, rgb(255 138 216 / 0.30), transparent 70%);
+  filter: blur(40px);
+  animation: wolken 24s ease-in-out infinite alternate;
+}
+/* Lichtkegel an der Mausposition */
+[data-stil='modern'] body::after {
+  content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 30%), rgb(255 255 255 / 0.07), transparent 60%);
+}
+@keyframes wolken {
+  from { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  to { transform: translate3d(4vmax, -3vmax, 0) rotate(25deg) scale(1.15); }
+}
+
+[data-stil='modern'] h1, [data-stil='modern'] h2 { font-family: var(--sans); letter-spacing: -0.03em; }
+[data-stil='modern'] h1 {
+  font-size: clamp(3rem, 11vw, 5.5rem); font-weight: 800; line-height: 1;
+  background: var(--verlauf); background-size: 300% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: schimmern 10s linear infinite;
+}
+@keyframes schimmern { to { background-position: 300% 0; } }
+[data-stil='modern'] h2 { font-weight: 700; color: var(--text); margin-top: 0; }
+[data-stil='modern'] h2::before {
+  content: ''; display: inline-block; width: 0.6em; height: 0.6em; margin-right: 0.5em; border-radius: 50%;
+  background: var(--verlauf); box-shadow: 0 0 14px rgb(139 157 255 / 0.8);
+}
+
+/* Schreibmaschinen-Cursor hinter dem Untertitel */
+[data-stil='modern'] .untertitel::after { content: '▍'; margin-left: 0.15em; color: var(--wald); animation: blinken 1s steps(1) infinite; }
+@keyframes blinken { 50% { opacity: 0; } }
+
+/* Glas-Karten */
+[data-stil='modern'] .block {
+  margin-top: 1.5rem; padding: 1.4rem 1.6rem;
+  background: var(--flaeche); border: 1px solid var(--linie); border-radius: 22px;
+  backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 20px 50px -25px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  transition: transform 0.4s cubic-bezier(.2,.8,.2,1), border-color 0.4s;
+}
+[data-stil='modern'] .block:hover { transform: translateY(-3px); border-color: rgb(139 157 255 / 0.45); }
+[data-stil='modern'] .einleitung { font-size: 1.15rem; }
+
+/* Einblenden beim Scrollen (wo der Browser es kann) */
+@supports (animation-timeline: view()) {
+  [data-stil='modern'] .block { animation: auftauchen linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
+  @keyframes auftauchen { from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); } }
+}
+
+[data-stil='modern'] .zeitleiste dt {
+  align-self: start; justify-self: start; padding: 0.05rem 0.6rem; border-radius: 999px;
+  background: var(--verlauf); color: #0a0c18; font-size: 0.85rem;
+}
+[data-stil='modern'] .liste, [data-stil='modern'] .liste li { border-color: var(--linie); }
+[data-stil='modern'] .liste li { transition: transform 0.3s, padding-left 0.3s; }
+[data-stil='modern'] .liste li:hover { transform: translateX(6px); }
+[data-stil='modern'] .liste li:last-child { border-bottom: 0; }
+[data-stil='modern'] .liste a, [data-stil='modern'] .block p a {
+  background: var(--verlauf); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  text-decoration: none; transition: background-position 0.6s;
+}
+[data-stil='modern'] .liste a:hover, [data-stil='modern'] .block p a:hover { background-position: 100% 0; }
+[data-stil='modern'] .punkte { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+[data-stil='modern'] .punkte li {
+  margin: 0; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid var(--linie);
+  background: rgb(255 255 255 / 0.04); font-size: 0.95rem; transition: transform 0.25s, border-color 0.25s;
+}
+[data-stil='modern'] .punkte li:hover { transform: translateY(-2px) rotate(-1deg); border-color: var(--akzent); }
+[data-stil='modern'] .fuss { border-color: var(--linie); background: rgb(10 12 24 / 0.4); backdrop-filter: blur(10px); }
+[data-stil='modern'] .schalter button[aria-pressed='true'] { background: var(--verlauf); color: #0a0c18; box-shadow: none; }
+[data-stil='modern'] .sprachen a[aria-current] { color: var(--text); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-stil='modern'] *, [data-stil='modern'] body::before { animation: none !important; transition: none !important; }
+}

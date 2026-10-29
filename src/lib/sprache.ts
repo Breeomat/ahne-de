@@ -23,6 +23,7 @@ export const ui = {
     rechtliches: 'Rechtliches',
     startseite: 'Startseite',
     sprachwahl: 'Sprache',
+    stilwahl: 'Darstellung',
   },
   en: {
     locale: 'en_GB',
@@ -37,5 +38,6 @@ export const ui = {
     rechtliches: 'Legal',
     startseite: 'Home',
     sprachwahl: 'Language',
+    stilwahl: 'Style',
   },
 } satisfies Record<Sprache, Record<string, string>>;

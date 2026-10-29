@@ -6,6 +6,9 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 ## Inhalte pflegen
 - Zweisprachig: Deutsch unter `/`, Englisch unter `/en/`. Umschalter oben rechts springt auf das Gegenstück
   (Seitenpaare in `seiten`, Beschriftungen in `ui`: `src/lib/sprache.ts`). Jede Änderung immer in beiden Sprachen.
+- Darstellung „Oldschool“ (Standard) / „Modern“: Umschalter oben links, Wahl in localStorage (`stil`), gesetzt als
+  `data-stil="modern"` am `<html>`. Modern-Stil komplett in `src/styles/global.css` (Abschnitt „Darstellung Modern“);
+  Abschnitte der Startseite stehen dafür in `<section class="block">`. Bewegung aus bei `prefers-reduced-motion`.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Werdegang, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`.
 - Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und

@@ -15,8 +15,9 @@ const t = ui[sprache];
   <h1>{person.name}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
-  <p class="einleitung">{einleitung[sprache]}</p>
+  <p class="einleitung block">{einleitung[sprache]}</p>
 
+  <section class="block">
   <h2>{t.beruf}</h2>
   <dl class="zeitleiste">
     {werdegang.map(({ zeit, text }) => (
@@ -26,7 +27,9 @@ const t = ui[sprache];
       </>
     ))}
   </dl>
+  </section>
 
+  <section class="block">
   <h2>{t.ehrenamt}</h2>
   <ul class="liste">
     {ehrenamt.map(({ name, rolle, href }) => (
@@ -36,12 +39,17 @@ const t = ui[sprache];
       </li>
     ))}
   </ul>
+  </section>
 
+  <section class="block">
   <h2>{t.gernMache}</h2>
   <ul class="punkte">
     {gernMache.map((eintrag) => <li>{eintrag[sprache]}</li>)}
   </ul>
+  </section>
 
+  <section class="block">
   <h2>{t.kontakt}</h2>
   <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
+  </section>
 </Basis>
