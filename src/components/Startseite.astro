@@ -1,5 +1,6 @@
 ---
 import Basis from '../layouts/Basis.astro';
+import Drohnenflug from './Drohnenflug.astro';
 import { person } from '../lib/site';
 import { ui, type Sprache } from '../lib/sprache';
 import { einleitung, werdegang, ehrenamt, gernMache } from '../lib/ueber-mich';
@@ -12,6 +13,7 @@ const { sprache } = Astro.props;
 const t = ui[sprache];
 ---
 <Basis sprache={sprache} seite="start">
+  <Drohnenflug sprache={sprache} />
   <h1>{person.name}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
@@ -52,4 +54,9 @@ const t = ui[sprache];
   <h2>{t.kontakt}</h2>
   <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
   </section>
+
+  <p class="drohne-quelle">
+    {sprache === 'de' ? 'Drohnenflug über Stockhausen – Kartendaten' : 'Drone flight over Stockhausen – map data'}
+    © <a href="https://www.openstreetmap.org/copyright">{sprache === 'de' ? 'OpenStreetMap-Mitwirkende' : 'OpenStreetMap contributors'}</a>
+  </p>
 </Basis>

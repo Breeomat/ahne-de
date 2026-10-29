@@ -191,3 +191,88 @@ a:hover { text-decoration-thickness: 2px; }
 @media (prefers-reduced-motion: reduce) {
   [data-stil='modern'] *, [data-stil='modern'] body::before { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Drohnenflug (Modern, Startseite): Komponente src/components/Drohnenflug.astro ---------- */
+
+.drohne, .drohne-hud, .drohne-quelle { display: none; }
+[data-stil='modern'] .drohne, [data-stil='modern'] .drohne-hud { display: block; }
+[data-stil='modern'] .drohne-quelle { display: block; margin-top: 2rem; font-size: 0.8rem; color: var(--text-leise); }
+[data-stil='modern'] .drohne-quelle a { color: inherit; }
+
+.drohne { position: fixed; inset: 0; z-index: -3; overflow: hidden; background: #0d181b; pointer-events: none; }
+.drohne__karte { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; animation: schweben 7s ease-in-out infinite; }
+.drohne.bereit .drohne__karte { opacity: 0.9; }
+.drohne__karte svg { position: absolute; left: 50%; top: 50%; will-change: transform; }
+@keyframes schweben {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(3px, -2px) rotate(0.25deg); }
+  66% { transform: translate(-2px, 2px) rotate(-0.2deg); }
+}
+/* Vignette wie bei einer Kameralinse, dazu leichte Bildzeilen */
+.drohne::after {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 35%, rgb(5 8 16 / 0.85) 100%),
+    repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
+}
+.drohne__fadenkreuz {
+  position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; translate: -50% -50%; z-index: 1;
+  border: 1px solid rgb(159 245 220 / 0.35); border-radius: 50%;
+  background:
+    linear-gradient(rgb(159 245 220 / 0.45), rgb(159 245 220 / 0.45)) center / 1px 34px no-repeat,
+    linear-gradient(90deg, rgb(159 245 220 / 0.45), rgb(159 245 220 / 0.45)) center / 34px 1px no-repeat;
+}
+
+.drohne-hud {
+  position: fixed; inset: 0; z-index: 5; pointer-events: none;
+  font: 600 0.72rem/1.2 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; letter-spacing: 0.08em;
+  color: #9ff5dc; text-shadow: 0 0 8px rgb(159 245 220 / 0.6);
+}
+.drohne-hud b { font-weight: 700; font-size: 1.35rem; color: #eafff8; }
+.drohne-hud small { opacity: 0.7; }
+.ecke { position: absolute; width: 28px; height: 28px; border: 2px solid rgb(159 245 220 / 0.7); }
+.ecke--lo { left: 12px; top: 12px; border-right: 0; border-bottom: 0; }
+.ecke--ro { right: 12px; top: 12px; border-left: 0; border-bottom: 0; }
+.ecke--lu { left: 12px; bottom: 12px; border-right: 0; border-top: 0; }
+.ecke--ru { right: 12px; bottom: 12px; border-left: 0; border-top: 0; }
+
+.drohne-hud__seite {
+  position: absolute; top: 50%; translate: 0 -50%; display: none;
+  grid-template-columns: auto auto auto; align-items: baseline; gap: 0.3rem 0.5rem;
+}
+.drohne-hud__seite--links { left: 28px; }
+.drohne-hud__seite--rechts { right: 28px; }
+
+.drohne-hud__leiste {
+  position: absolute; left: 50%; bottom: 14px; translate: -50% 0; width: min(100% - 80px, 52rem);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 0.45rem 0.9rem; border-radius: 999px;
+  background: rgb(5 10 18 / 0.6); border: 1px solid rgb(159 245 220 / 0.25);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); white-space: nowrap;
+}
+.rec { display: inline-flex; align-items: center; gap: 0.4rem; color: #ffd1d6; }
+.rec i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d61; box-shadow: 0 0 8px #ff4d61; animation: blinken 1.2s steps(1) infinite; }
+.ort { display: inline-flex; gap: 0.8rem; overflow: hidden; text-overflow: ellipsis; }
+.kompass {
+  position: relative; width: 9.6em; overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+}
+.kompass::after { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: #ff8fd9; }
+.kompass > span { display: inline-flex; }
+.kompass i { width: 3.2em; flex: none; text-align: center; font-style: normal; }
+.nur-breit { display: none; }
+.nur-schmal { display: inline; }
+
+[data-stil='modern'] body:has(.drohne) { padding-bottom: 4.5rem; }
+
+@media (min-width: 760px) {
+  .nur-breit { display: inline-flex; }
+  .nur-schmal { display: none; }
+}
+@media (min-width: 1150px) {
+  .drohne-hud__seite { display: grid; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drohne__karte, .rec i { animation: none; }
+}

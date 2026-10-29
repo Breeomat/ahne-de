@@ -1,0 +1,168 @@
+---
+// Drohnenflug (nur Darstellung „Modern“, Startseite): Beim Scrollen fliegt die Kamera über Stockhausen,
+// von der Altfellhalle übers Dorf bis zur Übersicht. Karte: public/drohne/stockhausen.svg (scripts/drohnenkarte.py),
+// wird erst geladen, wenn „Modern“ aktiv ist. Kartendaten © OpenStreetMap-Mitwirkende.
+import { url } from '../lib/site';
+import type { Sprache } from '../lib/sprache';
+
+interface Props {
+  sprache: Sprache;
+}
+
+const { sprache } = Astro.props;
+const de = sprache === 'de';
+
+// Flugroute in Kartenkoordinaten (0–1000 × 0–853, siehe Rahmen); p = Anteil der Seite, z = Zoom, kurs in Grad
+const route = [
+  { p: 0, x: 817.5, y: 429.5, z: 5, kurs: 285, ort: de ? 'Sportplatz · Altfellhalle' : 'Sports ground · Altfellhalle' },
+  { p: 0.2, x: 675.2, y: 380, z: 4.5, kurs: 300, ort: de ? 'Gefrierhaus' : 'Freezer house' },
+  { p: 0.4, x: 600, y: 343.4, z: 4, kurs: 295, ort: de ? 'Feuerwehrhaus' : 'Fire station' },
+  { p: 0.6, x: 480, y: 289.9, z: 3.4, kurs: 320, ort: de ? 'Schloss Stockhausen' : 'Stockhausen castle' },
+  { p: 0.78, x: 535.7, y: 244.7, z: 2.8, kurs: 25, ort: de ? 'Ev. Kirche' : 'Church' },
+  { p: 1, x: 579, y: 349.9, z: 1, kurs: 0, ort: de ? 'Stockhausen von oben' : 'Stockhausen from above' },
+];
+const rahmen = { west: 9.4325, sued: 50.555, ost: 9.4565, nord: 50.568, breite: 1000, hoehe: 853 };
+const status = de ? ['STARTBEREIT', 'IM FLUG', 'ÜBERSICHT'] : ['READY', 'IN FLIGHT', 'OVERVIEW'];
+const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r : r.replace('O', 'E')));
+---
+<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)}>
+  <div class="drohne__karte"></div>
+  <div class="drohne__fadenkreuz"></div>
+</div>
+<div class="drohne-hud" aria-hidden="true">
+  <span class="ecke ecke--lo"></span><span class="ecke ecke--ro"></span><span class="ecke ecke--lu"></span><span class="ecke ecke--ru"></span>
+  <div class="drohne-hud__seite drohne-hud__seite--links">
+    <span>ALT</span><b data-hud="hoehe">0</b><small>m</small>
+    <span>SPD</span><b data-hud="tempo">0.0</b><small>m/s</small>
+  </div>
+  <div class="drohne-hud__seite drohne-hud__seite--rechts">
+    <span>HDG</span><b data-hud="kurs">000</b><small>°</small>
+    <span>BAT</span><b data-hud="akku">100</b><small>%</small>
+  </div>
+  <div class="drohne-hud__leiste">
+    <span class="rec"><i></i>REC <span data-hud="zeit">00:00</span></span>
+    <span class="nur-breit" data-hud="status">{status[0]}</span>
+    <span class="nur-schmal">ALT <span data-hud="hoehe2">0</span> m</span>
+    <span class="kompass nur-breit"><span data-hud="kompass">{[0, 1, 2].map(() => kompass.map((r) => <i>{r}</i>))}</span></span>
+    <span class="ort"><span data-hud="ort">{route[0].ort}</span><span class="nur-breit" data-hud="gps"></span></span>
+  </div>
+</div>
+
+<script>
+  const wurzel = document.documentElement;
+  const ebene = document.querySelector<HTMLElement>('.drohne')!;
+  const flaeche = ebene.querySelector<HTMLElement>('.drohne__karte')!;
+  const hud: Record<string, HTMLElement> = {};
+  document.querySelectorAll<HTMLElement>('[data-hud]').forEach((el) => (hud[el.dataset.hud!] = el));
+
+  type Punkt = { p: number; x: number; y: number; z: number; kurs: number; ort: string };
+  const route: Punkt[] = JSON.parse(ebene.dataset.route!);
+  const rahmen = JSON.parse(ebene.dataset.rahmen!);
+  const status: string[] = JSON.parse(ebene.dataset.status!);
+  const zMax = route[0].z;
+  // Meter je Karteneinheit (für die Geschwindigkeit)
+  const meterJeEinheit = ((rahmen.ost - rahmen.west) * 111320 * Math.cos(((rahmen.sued + rahmen.nord) / 2) * (Math.PI / 180))) / rahmen.breite;
+
+  let svg: SVGSVGElement | null = null;
+  let laedt = false;
+  let geplant = false;
+  let vorher = { x: route[0].x, y: route[0].y, t: performance.now() };
+  let tempo = 0;
+  let flugbeginn = performance.now();
+  let uhr: number | undefined;
+
+  const modern = () => wurzel.dataset.stil === 'modern';
+  const glatt = (t: number) => t * t * (3 - 2 * t);
+  const winkel = (a: number, b: number, t: number) => a + ((((b - a) % 360) + 540) % 360 - 180) * t;
+
+  function stelle(p: number) {
+    let i = 0;
+    while (i < route.length - 2 && p > route[i + 1].p) i++;
+    const a = route[i], b = route[i + 1];
+    const t = glatt(Math.min(1, Math.max(0, (p - a.p) / (b.p - a.p))));
+    return {
+      x: a.x + (b.x - a.x) * t,
+      y: a.y + (b.y - a.y) * t,
+      z: a.z + (b.z - a.z) * t,
+      kurs: (winkel(a.kurs, b.kurs, t) + 360) % 360,
+      ort: t < 0.5 ? a.ort : b.ort,
+    };
+  }
+
+  function zeichnen() {
+    geplant = false;
+    if (!svg || !modern()) return;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+    const s = stelle(p);
+
+    // Kamera: quadratisches SVG mit Bildschirmdiagonale, damit beim Drehen keine Ecken fehlen
+    const diag = Math.ceil(Math.hypot(innerWidth, innerHeight));
+    const pxJeEinheit = Math.max(innerWidth / rahmen.breite, innerHeight / rahmen.hoehe) * 1.05 * s.z;
+    const sicht = diag / pxJeEinheit;
+    svg.style.width = svg.style.height = diag + 'px';
+    svg.setAttribute('viewBox', `${(s.x - sicht / 2).toFixed(2)} ${(s.y - sicht / 2).toFixed(2)} ${sicht.toFixed(2)} ${sicht.toFixed(2)}`);
+    svg.style.transform = `translate(-50%, -50%) rotate(${(-s.kurs).toFixed(2)}deg)`;
+
+    // Anzeige
+    const jetzt = performance.now();
+    const dt = Math.max(16, jetzt - vorher.t) / 1000;
+    const strecke = Math.hypot(s.x - vorher.x, s.y - vorher.y) * meterJeEinheit;
+    tempo = tempo * 0.8 + Math.min(18, strecke / dt) * 0.2;
+    vorher = { x: s.x, y: s.y, t: jetzt };
+    const hoehe = Math.round(4 + ((zMax - s.z) / (zMax - 1)) * 116);
+    const lat = rahmen.nord - (s.y / rahmen.hoehe) * (rahmen.nord - rahmen.sued);
+    const lon = rahmen.west + (s.x / rahmen.breite) * (rahmen.ost - rahmen.west);
+    hud.hoehe.textContent = hud.hoehe2.textContent = String(hoehe);
+    hud.tempo.textContent = tempo.toFixed(1);
+    hud.kurs.textContent = String(Math.round(s.kurs) % 360).padStart(3, '0');
+    hud.akku.textContent = String(Math.round(100 - p * 37));
+    hud.ort.textContent = s.ort;
+    hud.gps.textContent = `${lat.toFixed(4)} N  ${lon.toFixed(4)} E`;
+    hud.status.textContent = p < 0.02 ? status[0] : p > 0.97 ? status[2] : status[1];
+    // Kompassband: 8 Richtungen à 45°, je 3.2em breit, dreifach hintereinander
+    hud.kompass.style.transform = `translateX(${(-(8 + s.kurs / 45) * 3.2 + 3.2 * 1.5).toFixed(3)}em)`;
+    if (tempo > 0.2) planen();
+  }
+
+  function planen() {
+    if (!geplant) {
+      geplant = true;
+      requestAnimationFrame(zeichnen);
+    }
+  }
+
+  function uhrStellen() {
+    const sek = Math.floor((performance.now() - flugbeginn) / 1000);
+    hud.zeit.textContent = `${String(Math.floor(sek / 60)).padStart(2, '0')}:${String(sek % 60).padStart(2, '0')}`;
+  }
+
+  async function laden() {
+    if (svg || laedt) return;
+    laedt = true;
+    try {
+      const text = await (await fetch(ebene.dataset.quelle!)).text();
+      svg = new DOMParser().parseFromString(text, 'image/svg+xml').documentElement as unknown as SVGSVGElement;
+      flaeche.append(svg);
+      ebene.classList.add('bereit');
+      planen();
+    } catch {
+      laedt = false;
+    }
+  }
+
+  function umschalten() {
+    clearInterval(uhr);
+    if (!modern()) return;
+    laden();
+    flugbeginn = performance.now();
+    uhrStellen();
+    uhr = window.setInterval(uhrStellen, 1000);
+    planen();
+  }
+
+  addEventListener('scroll', planen, { passive: true });
+  addEventListener('resize', planen);
+  new MutationObserver(umschalten).observe(wurzel, { attributes: true, attributeFilter: ['data-stil'] });
+  umschalten();
+</script>
