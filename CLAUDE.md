@@ -4,10 +4,14 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 (Workflow `.github/workflows/deploy.yml`, baut bei jedem Push auf `main`).
 
 ## Inhalte pflegen
-- Name, Untertitel, E-Mail, Anschrift (nur Impressum) und Links: `src/lib/site.ts`.
-- Text „über mich“: `src/pages/index.astro`.
-- Impressum und Datenschutz: `src/pages/impressum/`, `src/pages/datenschutz/`. Bei neuen externen Diensten
-  (Formulare, Statistik, eingebettete Inhalte) die Datenschutzerklärung anpassen.
+- Zweisprachig: Deutsch unter `/`, Englisch unter `/en/`. Umschalter oben rechts springt auf das Gegenstück
+  (Seitenpaare in `seiten`, Beschriftungen in `ui`: `src/lib/sprache.ts`). Jede Änderung immer in beiden Sprachen.
+- Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
+- Texte „über mich“ (Einleitung, Werdegang, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`.
+- Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und
+  `src/pages/en/` binden sie nur mit `sprache` ein. Neue Seite: Komponente + beide Seiten + Eintrag in `seiten`.
+- Impressum und Datenschutz: bei neuen externen Diensten (Formulare, Statistik, eingebettete Inhalte)
+  die Datenschutzerklärung in beiden Sprachen anpassen; die deutsche Fassung ist maßgeblich.
 - Nichts erfinden. Fehlende Angaben als `<span class="fehlt">[fehlt: …]</span>` markieren.
 - Später erweiterbar (Blog, Profilseiten): neue Seiten unter `src/pages/`, gleiches Layout `src/layouts/Basis.astro`.
 

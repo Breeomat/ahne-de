@@ -1,16 +1,22 @@
 ---
 import '../styles/global.css';
 import { url, person } from '../lib/site';
+import { seiten, ui, type Seite, type Sprache } from '../lib/sprache';
 
 interface Props {
+  sprache?: Sprache;
+  // Seitenpaar für den Sprachumschalter; ohne Angabe (404) springt er auf die Startseiten
+  seite?: Seite;
   titel?: string;
   beschreibung?: string;
 }
 
-const { titel, beschreibung = `Persönliche Seite von ${person.name}.` } = Astro.props;
+const { sprache = 'de', seite = 'start', titel, beschreibung = ui[sprache].beschreibung } = Astro.props;
+const t = ui[sprache];
 const seitentitel = titel ? `${titel} · ${person.name}` : person.name;
 const kanonisch = new URL(Astro.url.pathname, Astro.site).href;
 const fehlerseite = Astro.url.pathname.startsWith(url('404'));
+const fassungen = (['de', 'en'] as const).map((s) => ({ sprache: s, href: url(seiten[seite][s]) }));
 // Strukturierte Daten (schema.org) für Suchmaschinen: wer hinter der Seite steht
 const strukturiert = {
   '@context': 'https://schema.org',
@@ -19,11 +25,11 @@ const strukturiert = {
   jobTitle: 'Solutions Analyst',
   worksFor: { '@type': 'Organization', name: 'BW Converting' },
   address: { '@type': 'PostalAddress', addressLocality: 'Herbstein-Stockhausen', addressCountry: 'DE' },
-  url: new URL(url(''), Astro.site).href,
+  url: new URL(url(seiten.start[sprache]), Astro.site).href,
 };
 ---
 <!doctype html>
-<html lang="de">
+<html lang={sprache}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,23 +39,34 @@ const strukturiert = {
     <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
     <meta property="og:title" content={seitentitel} />
     <meta property="og:description" content={beschreibung} />
-    <meta property="og:locale" content="de_DE" />
+    <meta property="og:locale" content={t.locale} />
     <meta property="og:url" content={kanonisch} />
     <meta property="og:type" content="website" />
     <meta name="author" content={person.name} />
     {fehlerseite ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={kanonisch} />}
+    {!fehlerseite && fassungen.map((f) => <link rel="alternate" hreflang={f.sprache} href={new URL(f.href, Astro.site).href} />)}
+    {!fehlerseite && <link rel="alternate" hreflang="x-default" href={new URL(fassungen[0].href, Astro.site).href} />}
     {!fehlerseite && <script type="application/ld+json" set:html={JSON.stringify(strukturiert)} />}
   </head>
   <body>
+    <header class="kopf huelle">
+      <nav class="sprachen" aria-label={t.sprachwahl}>
+        {fassungen.map((f) => (
+          <a href={f.href} hreflang={f.sprache} lang={f.sprache} aria-current={f.sprache === sprache ? 'true' : undefined}>
+            {f.sprache === 'de' ? 'Deutsch' : 'English'}
+          </a>
+        ))}
+      </nav>
+    </header>
     <main id="inhalt" class="huelle">
       <slot />
     </main>
     <footer class="fuss">
       <div class="huelle">
         <span>© {new Date().getFullYear()} {person.name}</span>
-        <nav aria-label="Rechtliches">
-          <a href={url('impressum/')}>Impressum</a>
-          <a href={url('datenschutz/')}>Datenschutz</a>
+        <nav aria-label={t.rechtliches}>
+          <a href={url(seiten.impressum[sprache])}>{t.impressum}</a>
+          <a href={url(seiten.datenschutz[sprache])}>{t.datenschutz}</a>
         </nav>
       </div>
     </footer>

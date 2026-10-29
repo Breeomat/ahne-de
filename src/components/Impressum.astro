@@ -1,0 +1,30 @@
+---
+import Basis from '../layouts/Basis.astro';
+import { url, person } from '../lib/site';
+import { seiten, ui, type Sprache } from '../lib/sprache';
+
+interface Props {
+  sprache: Sprache;
+}
+
+const { sprache } = Astro.props;
+const t = ui[sprache];
+const de = sprache === 'de';
+---
+<Basis sprache={sprache} seite="impressum" titel={t.impressum} beschreibung={de ? `Impressum der Seite von ${person.name}.` : `Legal notice for the website of ${person.name}.`}>
+  <a class="zurueck" href={url(seiten.start[sprache])}>← {t.startseite}</a>
+  <h1>{t.impressum}</h1>
+
+  <h2>{de ? 'Angaben gemäß § 5 DDG' : 'Information pursuant to § 5 DDG (German Digital Services Act)'}</h2>
+  <p>
+    {person.name}<br />
+    {person.anschrift.map((zeile) => <>{zeile}<br /></>)}
+    {!de && <>Germany<br /></>}
+  </p>
+
+  <h2>{t.kontakt}</h2>
+  <p>{de ? 'E-Mail' : 'Email'}: <a href={`mailto:${person.email}`}>{person.email}</a></p>
+
+  <h2>{de ? 'Verantwortlich für den Inhalt' : 'Responsible for the content'}</h2>
+  <p>{person.name}, {de ? 'Anschrift wie oben' : 'address as above'}</p>
+</Basis>

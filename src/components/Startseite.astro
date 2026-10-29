@@ -1,0 +1,47 @@
+---
+import Basis from '../layouts/Basis.astro';
+import { person } from '../lib/site';
+import { ui, type Sprache } from '../lib/sprache';
+import { einleitung, werdegang, ehrenamt, gernMache } from '../lib/ueber-mich';
+
+interface Props {
+  sprache: Sprache;
+}
+
+const { sprache } = Astro.props;
+const t = ui[sprache];
+---
+<Basis sprache={sprache} seite="start">
+  <h1>{person.name}</h1>
+  <p class="untertitel">{t.untertitel}</p>
+
+  <p class="einleitung">{einleitung[sprache]}</p>
+
+  <h2>{t.beruf}</h2>
+  <dl class="zeitleiste">
+    {werdegang.map(({ zeit, text }) => (
+      <>
+        <dt>{zeit[sprache]}</dt>
+        <dd>{text[sprache]}</dd>
+      </>
+    ))}
+  </dl>
+
+  <h2>{t.ehrenamt}</h2>
+  <ul class="liste">
+    {ehrenamt.map(({ name, rolle, href }) => (
+      <li>
+        {href ? <a href={href}>{name[sprache]}</a> : <strong>{name[sprache]}</strong>}
+        <span>{rolle[sprache]}</span>
+      </li>
+    ))}
+  </ul>
+
+  <h2>{t.gernMache}</h2>
+  <ul class="punkte">
+    {gernMache.map((eintrag) => <li>{eintrag[sprache]}</li>)}
+  </ul>
+
+  <h2>{t.kontakt}</h2>
+  <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
+</Basis>
