@@ -151,10 +151,8 @@ a:hover { text-decoration-thickness: 2px; }
 /* Glas-Karten */
 [data-stil='modern'] .block {
   margin-top: 1.5rem; padding: 1.4rem 1.6rem;
-  background: rgb(10 14 24 / 0.22); border: 1px solid rgb(242 210 122 / 0.22); border-radius: 22px;
-  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
-  box-shadow: 0 20px 50px -30px rgb(0 0 0 / 0.7);
-  text-shadow: 0 1px 3px rgb(0 0 0 / 0.75);
+  background: rgb(10 14 24 / 0.08); border: 1px solid rgb(242 210 122 / 0.25); border-radius: 22px;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.95), 0 0 10px rgb(0 0 0 / 0.7);
   transition: transform 0.4s cubic-bezier(.2,.8,.2,1), border-color 0.4s;
 }
 [data-stil='modern'] .block:hover { transform: translateY(-3px); border-color: rgb(242 210 122 / 0.55); }
@@ -184,7 +182,7 @@ a:hover { text-decoration-thickness: 2px; }
 [data-stil='modern'] .punkte { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
 [data-stil='modern'] .punkte li {
   margin: 0; padding: 0.35rem 0.85rem; border-radius: 999px; border: 1px solid var(--linie);
-  background: rgb(10 14 24 / 0.25); font-size: 0.95rem; transition: transform 0.25s, border-color 0.25s;
+  background: rgb(10 14 24 / 0.12); font-size: 0.95rem; transition: transform 0.25s, border-color 0.25s;
 }
 [data-stil='modern'] .punkte li:hover { transform: translateY(-2px) rotate(-1deg); border-color: var(--akzent); }
 [data-stil='modern'] .fuss { border-color: var(--linie); background: rgb(10 12 24 / 0.4); backdrop-filter: blur(10px); }
@@ -218,6 +216,9 @@ a:hover { text-decoration-thickness: 2px; }
     radial-gradient(ellipse at center, transparent 35%, rgb(5 8 16 / 0.85) 100%),
     repeating-linear-gradient(0deg, rgb(255 255 255 / 0.025) 0 1px, transparent 1px 3px);
 }
+.drohne .zuhause { opacity: var(--naehe, 0); }
+.zuhause__haus { fill: #ffd76a; stroke: #fff4c2; stroke-width: 0.6; }
+.zuhause__ring { fill: none; stroke: #ffd76a; stroke-width: 1.2; }
 .drohne__fadenkreuz {
   position: absolute; left: 50%; top: 50%; width: 120px; height: 120px; translate: -50% -50%; z-index: 1;
   border: 1px solid rgb(159 245 220 / 0.35); border-radius: 50%;
@@ -255,7 +256,8 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .rec { display: inline-flex; align-items: center; gap: 0.4rem; color: #ffd1d6; }
 .rec i { width: 8px; height: 8px; border-radius: 50%; background: #ff4d61; box-shadow: 0 0 8px #ff4d61; animation: blinken 1.2s steps(1) infinite; }
-.ort { display: inline-flex; gap: 0.8rem; overflow: hidden; text-overflow: ellipsis; }
+.ort { display: inline-flex; gap: 0.8rem; min-width: 0; overflow: hidden; }
+.ort > span:first-child { overflow: hidden; text-overflow: ellipsis; }
 .kompass {
   position: relative; width: 9.6em; overflow: hidden;
   mask-image: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);

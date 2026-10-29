@@ -12,7 +12,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Drohnenflug (Modern, nur Startseite): `src/components/Drohnenflug.astro` – Flugroute (`route`: Kartenpunkte,
   Zoom, Kurs, Ortsnamen je Sprache) und Anzeige; Karte `public/drohne/stockhausen.svg` aus der Grundkarte von
   stockhausen-online (`python3 scripts/drohnenkarte.py <pfad>/basis.svg`). Hinweis „© OpenStreetMap-Mitwirkende“
-  unter dem Kontakt bleibt stehen. Keine Wohnadresse als Wegpunkt.
+  unter dem Kontakt bleibt stehen. Ziel des Flugs ist auf Wunsch Mühlweg 11a (`zuhause`, Haus leuchtet am Ende).
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Werdegang, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`.
 - Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und
