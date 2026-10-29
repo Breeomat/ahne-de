@@ -10,6 +10,6 @@ export const person = {
 
 // Links auf der Startseite. Reihenfolge = Anzeige.
 export const links: { href: string; label: string; hinweis?: string }[] = [
-  { href: 'https://www.bwconverting.com', label: 'BW Converting', hinweis: 'Maschinen und Lösungen für die Verarbeitung von Papier, Folie und Vliesstoffen' },
+  { href: 'https://www.bwconverting.com', label: 'BW Converting', hinweis: 'Maschinen für Tissue, Hygiene, Druck, Verpackung und Mailing' },
   { href: 'https://stockhausen-online.de', label: 'stockhausen-online.de', hinweis: 'Dorfseite für Herbstein-Stockhausen' },
 ];
