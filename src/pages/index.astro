@@ -1,0 +1,29 @@
+---
+import Basis from '../layouts/Basis.astro';
+import { person, links } from '../lib/site';
+---
+<Basis>
+  <h1>{person.name}</h1>
+  <p class="untertitel">
+    {person.untertitel || <span class="fehlt">[fehlt: Untertitel, z. B. Beruf oder Tätigkeit]</span>}
+  </p>
+
+  <p class="einleitung"><span class="fehlt">[fehlt: zwei, drei Sätze über mich]</span></p>
+
+  <h2>Kontakt</h2>
+  <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
+
+  {links.length > 0 && (
+    <>
+      <h2>Im Netz</h2>
+      <ul class="liste">
+        {links.map(({ href, label, hinweis }) => (
+          <li>
+            <a href={href}>{label}</a>
+            {hinweis && <span>{hinweis}</span>}
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</Basis>

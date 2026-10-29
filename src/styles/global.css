@@ -1,0 +1,75 @@
+@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/inter';
+
+:root {
+  --bg: #f4efe6;
+  --flaeche: #fbf8f2;
+  --text: #22261f;
+  --text-leise: #626a5d;
+  --linie: #ddd5c6;
+  --wald: #2f4a3a;
+  --akzent: #a24d2a;
+  --radius: 14px;
+  --serif: 'Source Serif 4 Variable', Georgia, serif;
+  --sans: 'Inter Variable', system-ui, sans-serif;
+  --breite: 42rem;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161917;
+    --flaeche: #1f2320;
+    --text: #e8e6df;
+    --text-leise: #a3a99f;
+    --linie: #343a35;
+    --wald: #a9c9b3;
+    --akzent: #e59a75;
+    color-scheme: dark;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+
+.huelle { width: min(100% - 2rem, var(--breite)); margin-inline: auto; }
+
+main { flex: 1; padding-block: clamp(3rem, 10vw, 7rem) 4rem; }
+
+h1, h2 { font-family: var(--serif); font-weight: 600; line-height: 1.15; color: var(--wald); }
+h1 { font-size: clamp(2.4rem, 7vw, 3.6rem); margin: 0 0 0.4rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.35rem; margin: 2.5rem 0 0.75rem; }
+
+a { color: var(--akzent); text-underline-offset: 0.18em; }
+a:hover { text-decoration-thickness: 2px; }
+
+.untertitel { margin: 0; font-size: 1.15rem; color: var(--text-leise); }
+
+.einleitung { margin-top: 2rem; font-size: 1.15rem; }
+
+.liste { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--linie); }
+.liste li { padding: 0.85rem 0; border-bottom: 1px solid var(--linie); }
+.liste a { font-weight: 600; }
+.liste span { display: block; color: var(--text-leise); font-size: 0.95rem; }
+
+.fuss { padding-block: 1.5rem 2rem; border-top: 1px solid var(--linie); font-size: 0.9rem; color: var(--text-leise); }
+.fuss .huelle { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; justify-content: space-between; }
+.fuss nav { display: flex; gap: 1.25rem; }
+.fuss a { color: inherit; }
+
+.zurueck { display: inline-block; margin-bottom: 2rem; font-size: 0.95rem; }
+
+.fehlt { background: #fff1a8; color: #3b3000; padding: 0 0.25em; border-radius: 3px; }

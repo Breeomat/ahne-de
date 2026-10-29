@@ -1,0 +1,45 @@
+---
+import '../styles/global.css';
+import { url, person } from '../lib/site';
+
+interface Props {
+  titel?: string;
+  beschreibung?: string;
+}
+
+const { titel, beschreibung = `Persönliche Seite von ${person.name}.` } = Astro.props;
+const seitentitel = titel ? `${titel} · ${person.name}` : person.name;
+const kanonisch = new URL(Astro.url.pathname, Astro.site).href;
+const fehlerseite = Astro.url.pathname.startsWith(url('404'));
+---
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{seitentitel}</title>
+    <meta name="description" content={beschreibung} />
+    <meta name="theme-color" content="#2f4a3a" />
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <meta property="og:title" content={seitentitel} />
+    <meta property="og:description" content={beschreibung} />
+    <meta property="og:locale" content="de_DE" />
+    <meta property="og:url" content={kanonisch} />
+    <meta property="og:type" content="website" />
+    {fehlerseite ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={kanonisch} />}
+  </head>
+  <body>
+    <main id="inhalt" class="huelle">
+      <slot />
+    </main>
+    <footer class="fuss">
+      <div class="huelle">
+        <span>© {new Date().getFullYear()} {person.name}</span>
+        <nav aria-label="Rechtliches">
+          <a href={url('impressum/')}>Impressum</a>
+          <a href={url('datenschutz/')}>Datenschutz</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,22 @@
+---
+import Basis from '../../layouts/Basis.astro';
+import { url, person } from '../../lib/site';
+---
+<Basis titel="Impressum" beschreibung={`Impressum der Seite von ${person.name}.`}>
+  <a class="zurueck" href={url('')}>← Startseite</a>
+  <h1>Impressum</h1>
+
+  <h2>Angaben gemäß § 5 DDG</h2>
+  <p>
+    {person.name}<br />
+    {person.anschrift.length
+      ? person.anschrift.map((zeile) => <>{zeile}<br /></>)
+      : <span class="fehlt">[fehlt: Anschrift (Straße, PLZ Ort)]</span>}
+  </p>
+
+  <h2>Kontakt</h2>
+  <p>E-Mail: <a href={`mailto:${person.email}`}>{person.email}</a></p>
+
+  <h2>Verantwortlich für den Inhalt</h2>
+  <p>{person.name}, Anschrift wie oben</p>
+</Basis>
