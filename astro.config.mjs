@@ -1,10 +1,11 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Eigene Domain: www.ahne.de (GitHub Pages, Custom Domain; DNS siehe CLAUDE.md)
+// Übergang: Vorschau unter https://breeomat.github.io/ahne-de/
+// Nach der DNS-Umstellung bei Ionos: site 'https://www.ahne.de', base '/' (siehe CLAUDE.md)
 export default defineConfig({
-  site: 'https://www.ahne.de',
-  base: '/',
+  site: 'https://breeomat.github.io',
+  base: '/ahne-de/',
   trailingSlash: 'always',
   integrations: [sitemap()],
 });

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.ahne.de/sitemap-index.xml
+Sitemap: https://breeomat.github.io/ahne-de/sitemap-index.xml
