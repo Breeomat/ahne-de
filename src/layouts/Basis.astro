@@ -29,7 +29,7 @@ const strukturiert = {
 };
 ---
 <!doctype html>
-<html lang={sprache}>
+<html lang={sprache} data-stil="modern">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -47,18 +47,9 @@ const strukturiert = {
     {!fehlerseite && fassungen.map((f) => <link rel="alternate" hreflang={f.sprache} href={new URL(f.href, Astro.site).href} />)}
     {!fehlerseite && <link rel="alternate" hreflang="x-default" href={new URL(fassungen[0].href, Astro.site).href} />}
     {!fehlerseite && <script type="application/ld+json" set:html={JSON.stringify(strukturiert)} />}
-    <!-- Darstellung „Oldschool“ (Standard) oder „Modern“; Wahl bleibt im Browser gespeichert (localStorage, kein Cookie).
-         Steht im <head>, damit beim Laden nichts flackert. -->
-    <script is:inline>
-      try { if (localStorage.getItem('stil') === 'modern') document.documentElement.dataset.stil = 'modern'; } catch {}
-    </script>
   </head>
   <body>
     <header class="kopf huelle">
-      <div class="schalter" role="group" aria-label={t.stilwahl}>
-        <button type="button" data-stil-wahl="oldschool">Oldschool</button>
-        <button type="button" data-stil-wahl="modern">Modern</button>
-      </div>
       <nav class="sprachen" aria-label={t.sprachwahl}>
         {fassungen.map((f) => (
           <a href={f.href} hreflang={f.sprache} lang={f.sprache} aria-current={f.sprache === sprache ? 'true' : undefined}>
@@ -80,23 +71,11 @@ const strukturiert = {
       </div>
     </footer>
     <script is:inline>
-      (() => {
-        const wurzel = document.documentElement;
-        const knoepfe = document.querySelectorAll('[data-stil-wahl]');
-        const zeigen = () => knoepfe.forEach((k) => k.setAttribute('aria-pressed', String((wurzel.dataset.stil || 'oldschool') === k.dataset.stilWahl)));
-        knoepfe.forEach((k) => k.addEventListener('click', () => {
-          const stil = k.dataset.stilWahl;
-          if (stil === 'modern') wurzel.dataset.stil = 'modern'; else delete wurzel.dataset.stil;
-          try { localStorage.setItem('stil', stil); } catch {}
-          zeigen();
-        }));
-        zeigen();
-        // Modern: Lichtkegel folgt der Maus
-        addEventListener('pointermove', (e) => {
-          wurzel.style.setProperty('--mx', e.clientX + 'px');
-          wurzel.style.setProperty('--my', e.clientY + 'px');
-        }, { passive: true });
-      })();
+      // Lichtkegel folgt der Maus
+      addEventListener('pointermove', (e) => {
+        document.documentElement.style.setProperty('--mx', e.clientX + 'px');
+        document.documentElement.style.setProperty('--my', e.clientY + 'px');
+      }, { passive: true });
     </script>
   </body>
 </html>

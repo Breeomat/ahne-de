@@ -6,9 +6,10 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 ## Inhalte pflegen
 - Zweisprachig: Deutsch unter `/`, Englisch unter `/en/`. Umschalter oben rechts springt auf das Gegenstück
   (Seitenpaare in `seiten`, Beschriftungen in `ui`: `src/lib/sprache.ts`). Jede Änderung immer in beiden Sprachen.
-- Darstellung „Oldschool“ (Standard) / „Modern“: Umschalter oben links, Wahl in localStorage (`stil`), gesetzt als
-  `data-stil="modern"` am `<html>`. Modern-Stil komplett in `src/styles/global.css` (Abschnitt „Darstellung Modern“);
-  Abschnitte der Startseite stehen dafür in `<section class="block">`. Bewegung aus bei `prefers-reduced-motion`.
+- Darstellung: fest „Modern“ (`data-stil="modern"` am `<html>` in `src/layouts/Basis.astro`, kein Umschalter mehr).
+  Stil in `src/styles/global.css`: Grundregeln oben (frühere „Oldschool“-Ansicht, Fallback ohne das Attribut),
+  darunter Abschnitt „Darstellung Modern“. Startseiten-Abschnitte in `<section class="block">`. Bewegung aus bei
+  `prefers-reduced-motion`.
 - Drohnenflug (Modern, nur Startseite): `src/components/Drohnenflug.astro` – Flugroute (`route`: Kartenpunkte,
   Zoom, Kurs, Ortsnamen je Sprache) und Anzeige; Karte `public/drohne/stockhausen.svg` aus der Grundkarte von
   stockhausen-online (`python3 scripts/drohnenkarte.py <pfad>/basis.svg`). Hinweis „© OpenStreetMap-Mitwirkende“
