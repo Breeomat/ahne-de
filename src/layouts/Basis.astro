@@ -11,6 +11,16 @@ const { titel, beschreibung = `Persönliche Seite von ${person.name}.` } = Astro
 const seitentitel = titel ? `${titel} · ${person.name}` : person.name;
 const kanonisch = new URL(Astro.url.pathname, Astro.site).href;
 const fehlerseite = Astro.url.pathname.startsWith(url('404'));
+// Strukturierte Daten (schema.org) für Suchmaschinen: wer hinter der Seite steht
+const strukturiert = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: person.name,
+  jobTitle: 'Solutions Analyst',
+  worksFor: { '@type': 'Organization', name: 'BW Converting' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Herbstein-Stockhausen', addressCountry: 'DE' },
+  url: new URL(url(''), Astro.site).href,
+};
 ---
 <!doctype html>
 <html lang="de">
@@ -26,7 +36,9 @@ const fehlerseite = Astro.url.pathname.startsWith(url('404'));
     <meta property="og:locale" content="de_DE" />
     <meta property="og:url" content={kanonisch} />
     <meta property="og:type" content="website" />
+    <meta name="author" content={person.name} />
     {fehlerseite ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={kanonisch} />}
+    {!fehlerseite && <script type="application/ld+json" set:html={JSON.stringify(strukturiert)} />}
   </head>
   <body>
     <main id="inhalt" class="huelle">
