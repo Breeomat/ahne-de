@@ -5,5 +5,5 @@ export const person = {
   name: 'Marc Ahne',
   untertitel: 'Solutions Analyst · Stockhausen im Vogelsberg',
   email: 'marc@ahne.de',
-  anschrift: [] as string[], // Straße, PLZ Ort – nur fürs Impressum
+  anschrift: ['Mühlweg 11a', '36358 Herbstein-Stockhausen'], // nur fürs Impressum
 };
