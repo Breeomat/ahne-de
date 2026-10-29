@@ -1,29 +1,43 @@
 ---
 import Basis from '../layouts/Basis.astro';
-import { person, links } from '../lib/site';
+import { person } from '../lib/site';
+import { werdegang, ehrenamt, gernMache } from '../lib/ueber-mich';
 ---
 <Basis>
   <h1>{person.name}</h1>
-  <p class="untertitel">
-    {person.untertitel || <span class="fehlt">[fehlt: Untertitel, z. B. Beruf oder Tätigkeit]</span>}
+  <p class="untertitel">{person.untertitel}</p>
+
+  <p class="einleitung">
+    Ich lebe in Stockhausen, einem Ortsteil von Herbstein im Vogelsberg. Seit 1988 arbeite ich im selben Unternehmen
+    in Lauterbach: angefangen als Auszubildender bei Ahlbrandt System, heute als Solutions Analyst bei BW Converting.
+    In meiner freien Zeit bin ich viel im Dorf unterwegs, bei der Feuerwehr, im Ortsbeirat und in der Gefriergemeinschaft.
   </p>
 
-  <p class="einleitung"><span class="fehlt">[fehlt: zwei, drei Sätze über mich]</span></p>
+  <h2>Beruf</h2>
+  <dl class="zeitleiste">
+    {werdegang.map(({ zeit, text }) => (
+      <>
+        <dt>{zeit}</dt>
+        <dd>{text}</dd>
+      </>
+    ))}
+  </dl>
+
+  <h2>Ehrenamt</h2>
+  <ul class="liste">
+    {ehrenamt.map(({ name, rolle, href }) => (
+      <li>
+        {href ? <a href={href}>{name}</a> : <strong>{name}</strong>}
+        <span>{rolle}</span>
+      </li>
+    ))}
+  </ul>
+
+  <h2>Was ich gern mache</h2>
+  <ul class="punkte">
+    {gernMache.map((eintrag) => <li>{eintrag}</li>)}
+  </ul>
 
   <h2>Kontakt</h2>
   <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
-
-  {links.length > 0 && (
-    <>
-      <h2>Im Netz</h2>
-      <ul class="liste">
-        {links.map(({ href, label, hinweis }) => (
-          <li>
-            <a href={href}>{label}</a>
-            {hinweis && <span>{hinweis}</span>}
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
 </Basis>

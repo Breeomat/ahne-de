@@ -3,13 +3,7 @@ export const url = (pfad = '') => `${import.meta.env.BASE_URL.replace(/\/$/, '')
 // Angaben für Startseite, Impressum und Seitenfuß. Leere Felder erscheinen als [fehlt: …].
 export const person = {
   name: 'Marc Ahne',
-  untertitel: 'Solutions Analyst bei BW Converting, einem Unternehmen von Barry-Wehmiller',
+  untertitel: 'Solutions Analyst · Stockhausen im Vogelsberg',
   email: 'marc@ahne.de',
   anschrift: [] as string[], // Straße, PLZ Ort – nur fürs Impressum
 };
-
-// Links auf der Startseite. Reihenfolge = Anzeige.
-export const links: { href: string; label: string; hinweis?: string }[] = [
-  { href: 'https://www.bwconverting.com', label: 'BW Converting', hinweis: 'Maschinen für Tissue, Hygiene, Druck, Verpackung und Mailing' },
-  { href: 'https://stockhausen-online.de', label: 'stockhausen-online.de', hinweis: 'Dorfseite für Herbstein-Stockhausen' },
-];
