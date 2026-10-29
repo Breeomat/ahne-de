@@ -15,6 +15,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Links immer über `url()` aus `src/lib/site.ts` (Basis-Pfad).
 - Farben/Schriften: Tokens in `src/styles/global.css`, Schriften lokal (Fontsource), keine externen Dienste.
 - Vor dem Push: `npm run build` muss fehlerfrei laufen.
+- Veröffentlichen bricht ohne Meldung ab („veroeffentlichen“ nach 1–2 s, keine Schritte)? Dann erlaubt die Umgebung
+  `github-pages` (Settings → Environments → Deployment branches) den Zweig `main` nicht.
 
 ## Domain (noch nicht umgestellt)
 Derzeit Vorschau unter https://breeomat.github.io/ahne-de/ (`astro.config.mjs`: `site: 'https://breeomat.github.io'`, `base: '/ahne-de/'`).
