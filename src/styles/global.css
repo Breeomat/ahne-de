@@ -315,33 +315,18 @@ a:hover { text-decoration-thickness: 2px; }
   100% { opacity: 0; transform: scale(1.4); }
 }
 
-dialog.grill, dialog.rezept {
+dialog.rezept {
   width: min(420px, calc(100% - 32px)); padding: 1.2rem 1.4rem; border: 1px solid rgb(242 210 122 / 0.5); border-radius: 20px;
   background: #11131c; color: #f2f0e8; box-shadow: 0 30px 80px -20px #000;
 }
 dialog::backdrop { background: rgb(4 6 14 / 0.6); backdrop-filter: blur(3px); }
 dialog h2 { margin: 0 0 0.3rem; color: #ffd76a !important; }
-.grill__hinweis { margin: 0 0 0.6rem; color: #b9b4a4; font-size: 0.9rem; }
-.grill__bild { width: 100%; height: auto; display: block; }
-.grill__glut { animation: glut 1.8s ease-in-out infinite alternate; }
-@keyframes glut { to { filter: brightness(1.3) saturate(1.2); } }
-.grill__rost line { stroke: #6d6d6d; stroke-width: 3; stroke-linecap: round; }
-.grill__wurst { --wurst: rgb(232 160 150); transform-box: fill-box; transform-origin: center; }
-.grill__wurst rect { fill: var(--wurst); stroke: rgb(0 0 0 / 0.35); stroke-width: 1.5; transition: fill 0.3s; }
-.grill__wurst path { stroke: rgb(0 0 0 / 0.25); stroke-width: 3; stroke-linecap: round; }
-.grill__wurst.dreht { animation: wenden 0.45s ease-in-out; }
-@keyframes wenden { 50% { transform: translateY(-22px) scaleY(-1); } }
-.grill__rauch circle { fill: rgb(200 200 200 / 0.35); opacity: 0; }
-.grill.qualm .grill__rauch circle { animation: qualm 1.4s ease-out infinite; }
-@keyframes qualm { 0% { opacity: 0.6; transform: translateY(0) scale(0.6); } 100% { opacity: 0; transform: translateY(-50px) scale(1.6); } }
-.grill__stand { display: flex; justify-content: space-between; font: 600 0.85rem ui-monospace, Menlo, Consolas, monospace; color: #9ff5dc; }
-.grill__ergebnis { min-height: 1.4em; font-weight: 600; color: #ffd76a; }
-.grill__knoepfe { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.grill__knoepfe button, .rezept button {
+.dialog__knoepfe { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.dialog__knoepfe button, .rezept button {
   padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgb(242 210 122 / 0.5);
   background: rgb(255 255 255 / 0.05); color: #f2f0e8; font: inherit; cursor: pointer;
 }
-.grill__knoepfe button:first-child { background: var(--verlauf, #d4a63a); color: #1a1406; border: 0; font-weight: 700; }
+.dialog__knoepfe button:first-child { background: var(--verlauf, #d4a63a); color: #1a1406; border: 0; font-weight: 700; }
 
 @media (prefers-reduced-motion: reduce) {
   .im-einsatz .blaulicht { animation: none; opacity: 0.5; background: radial-gradient(60vmax 60vmax at 50% 0%, rgb(30 90 255 / 0.4), transparent 60%); }
@@ -450,3 +435,26 @@ dialog.rezept[open] {
 
 /* Vorname in der Überschrift: 5× antippen öffnet die Visitenkarte */
 .vorname { cursor: default; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+/* KI-Terminal (Überraschung „KI-Werkzeuge“) */
+.ki-terminal {
+  position: fixed; right: 16px; bottom: 64px; z-index: 40; width: min(520px, calc(100% - 32px));
+  border: 1px solid rgb(159 245 220 / 0.35); border-radius: 12px; overflow: hidden;
+  background: rgb(8 10 16 / 0.92); box-shadow: 0 30px 70px -25px #000;
+  font: 500 0.82rem/1.5 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #d8e6e1;
+  opacity: 0; translate: 0 20px; pointer-events: none; transition: opacity 0.35s, translate 0.35s;
+}
+.ki-terminal.offen { opacity: 1; translate: 0 0; pointer-events: auto; }
+.ki-terminal__kopf { display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.7rem; background: rgb(255 255 255 / 0.05); border-bottom: 1px solid rgb(255 255 255 / 0.08); }
+.ki-terminal__kopf i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+.ki-terminal__kopf i:nth-child(2) { background: #febc2e; }
+.ki-terminal__kopf i:nth-child(3) { background: #28c840; }
+.ki-terminal__kopf span { margin-left: 0.5rem; color: #9aa6a2; font-size: 0.75rem; }
+.ki-terminal__text { padding: 0.7rem 0.9rem 0.9rem; min-height: 7rem; }
+.ki-terminal__prompt { color: #9ff5dc; }
+.ki-terminal__befehl { color: #fff; }
+.ki-terminal__befehl::after, .ki-terminal__zeile:last-child::after { content: '▍'; color: #9ff5dc; animation: blinken 1s steps(1) infinite; }
+.ki-terminal__befehl:not(:last-child)::after { content: none; }
+.ki-terminal__zeile { color: #c9d6d2; }
+.ki-terminal__fertig { color: #ffd76a; font-weight: 700; }
+@media (max-width: 600px) { .ki-terminal { right: 16px; left: 16px; width: auto; font-size: 0.74rem; } }

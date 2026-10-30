@@ -72,6 +72,19 @@ const ausfluege = {
       { t: 10.8, x: 500, y: 500, z: 0.9, ort: 'Gelsenkirchen' },
     ],
   },
+  // KI-Überraschung: eine Runde übers Dorf und nach Hause (gleiche Karte wie der Hauptflug)
+  dorfrunde: {
+    quelle: url('drohne/stockhausen.svg'), rahmen: rahmenAus(rahmen), status: de ? 'KI-STEUERUNG' : 'AI CONTROL', genordet: false,
+    route: [
+      { t: 0, x: 579, y: 349.9, z: 1, ort: de ? 'Stockhausen von oben' : 'Stockhausen from above' },
+      { t: 2, x: 817.5, y: 429.5, z: 3.5, ort: de ? 'Sportplatz' : 'Sports ground' },
+      { t: 4.3, x: 535.7, y: 244.7, z: 3.2, ort: de ? 'Ev. Kirche' : 'Church' },
+      { t: 5.8, x: 480, y: 289.9, z: 3.5, ort: de ? 'Schloss Stockhausen' : 'Stockhausen castle' },
+      { t: 7.3, x: 600, y: 343.4, z: 3.5, ort: de ? 'Feuerwehrhaus' : 'Fire station' },
+      { t: 9.2, x: zuhause.x, y: zuhause.y, z: 5, ort: de ? 'Zuhause · Mühlweg 11a' : 'Home · Mühlweg 11a' },
+      { t: 10.6, x: zuhause.x, y: zuhause.y, z: 5.5, ort: de ? 'Zuhause · Mühlweg 11a' : 'Home · Mühlweg 11a' },
+    ],
+  },
   england: {
     quelle: url('drohne/europa.svg'), rahmen: rahmenAus(europa), status: de ? 'SPRACHWECHSEL' : 'LANGUAGE SWITCH', genordet: true,
     route: [
@@ -179,6 +192,7 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   });
   addEventListener('drohne:urlaub', () => ausfliegen('korsika'));
   addEventListener('drohne:schalke', () => ausfliegen('schalke'));
+  addEventListener('drohne:ki', async () => { if (!(await ausfliegen('dorfrunde'))) dispatchEvent(new CustomEvent('drohne:dorfrunde-ende')); });
   // Sprachwechsel (Basis.astro): Drohne fliegt erst nach England bzw. Deutschland, dann geht es zur anderen Sprache
   addEventListener('drohne:reise', (e) => {
     const { nach, weiter } = (e as CustomEvent<{ nach: string; weiter: () => void }>).detail;

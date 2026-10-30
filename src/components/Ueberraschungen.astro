@@ -1,7 +1,8 @@
 ---
 // Überraschungen auf der Startseite:
 // - Einsatz 112: „112“ tippen oder dreimal schnell auf „aktives Mitglied, Kassenwart“ (Feuerwehr) → Blaulicht, Drohne rückt aus
-// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Flug über Korsika), Schalke (Tor + Flug übers Stadion), Wurstbude (Grill),
+// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Flug über Korsika), Schalke (Tor + Flug übers Stadion), KI (Terminal: Claude Code, Gemini und Copilot
+//   steuern die Drohne einmal übers Dorf nach Hause),
 //   Kochen (Rezept des Tages aus src/lib/rezepte.ts, nur wenn dort Rezepte stehen)
 import type { Sprache } from '../lib/sprache';
 import { rezepte } from '../lib/rezepte';
@@ -17,49 +18,43 @@ const texte = de
       meldungEnde: 'Einsatz beendet – Kassenwart zufrieden',
       meldungAlarm: 'EINSATZ · Drohne rückt aus',
       tor: 'TOOOR!',
-      wurstPerfekt: 'Bratwurst perfekt gegrillt. Beschluss: ab ins Brötchen. Abstimmung: einstimmig.',
-      wurstKohle: 'Bratwurst leicht angekohlt – wie beim Dorffest. Sie wird trotzdem verzehrt.',
-      wurstRoh: 'Noch roh – zurück auf den Grill!',
-      stufen: ['roh', 'angebraten', 'perfekt', 'angekohlt'],
-      oben: 'Oben',
-      unten: 'Unten',
+      ki: {
+        titel: 'Terminal – KI-Steuerung',
+        befehl: 'claude "Flieg die Drohne eine Runde übers Dorf und dann nach Hause"',
+        zeilen: [
+          '● Claude Code: Route geplant – Sportplatz → Kirche → Schloss → Feuerwehrhaus → Mühlweg 11a',
+          '● Gemini: Route gegengeprüft ✓',
+          '● Copilot: Kommentar ergänzt  // Drohne kommt nach Hause',
+          '▶ Drohne startet …',
+        ],
+        fertig: '✓ Drohne ist zu Hause gelandet.',
+      },
     }
   : {
       meldungEnde: 'Callout finished – treasurer satisfied',
       meldungAlarm: 'CALLOUT · drone responding',
       tor: 'GOAAAL!',
-      wurstPerfekt: 'Bratwurst grilled to perfection. Resolution: into the bun. Vote: unanimous.',
-      wurstKohle: 'Bratwurst slightly charred – just like at the village festival. It is eaten anyway.',
-      wurstRoh: 'Still raw – back on the grill!',
-      stufen: ['raw', 'seared', 'perfect', 'charred'],
-      oben: 'Top',
-      unten: 'Bottom',
+      ki: {
+        titel: 'Terminal – AI control',
+        befehl: 'claude "Fly the drone once around the village and then home"',
+        zeilen: [
+          '● Claude Code: route planned – sports ground → church → castle → fire station → Mühlweg 11a',
+          '● Gemini: route double-checked ✓',
+          '● Copilot: comment added  // drone is coming home',
+          '▶ Drone taking off …',
+        ],
+        fertig: '✓ Drone has landed at home.',
+      },
     };
 ---
 <div class="blaulicht" aria-hidden="true"></div>
 <div class="meldung" role="status" aria-live="polite"></div>
 <div class="tor" aria-hidden="true"><canvas></canvas><strong>{texte.tor}</strong></div>
 
-<dialog class="grill" aria-labelledby="grill-titel">
-  <h2 id="grill-titel">{de ? 'Bratwurst vom Dorffest' : 'Village festival bratwurst'}</h2>
-  <p class="grill__hinweis">{de ? 'Wenden nicht vergessen – und rechtzeitig runter vom Grill!' : 'Don’t forget to turn it – and take it off in time!'}</p>
-  <svg class="grill__bild" viewBox="0 0 300 150" role="img" aria-label={de ? 'Bratwurst auf dem Grill' : 'Bratwurst on the grill'}>
-    <defs>
-      <radialGradient id="glut" cx="50%" cy="100%" r="80%"><stop offset="0" stop-color="#ffb347" /><stop offset="0.5" stop-color="#e2531c" /><stop offset="1" stop-color="#2a0d05" /></radialGradient>
-    </defs>
-    <rect class="grill__glut" x="20" y="100" width="260" height="40" rx="10" fill="url(#glut)" />
-    <g class="grill__rost">{[40, 70, 100, 130, 160, 190, 220, 250].map((x) => <line x1={x} y1="62" x2={x} y2="104" />)}<line x1="25" y1="100" x2="275" y2="100" /></g>
-    <g class="grill__rauch">{[110, 150, 190].map((x, i) => <circle cx={x} cy="60" r="10" style={`animation-delay:${i * 0.4}s`} />)}</g>
-    <g class="grill__wurst"><rect x="55" y="62" width="190" height="34" rx="17" /><path d="M95 66 L105 92 M135 66 L145 92 M175 66 L185 92 M215 66 L225 92" /></g>
-  </svg>
-  <p class="grill__stand"><span>{texte.oben}: <b data-seite="oben"></b></span><span>{texte.unten}: <b data-seite="unten"></b></span></p>
-  <p class="grill__ergebnis" aria-live="polite"></p>
-  <div class="grill__knoepfe">
-    <button type="button" data-grill="wenden">{de ? 'Wenden' : 'Turn'}</button>
-    <button type="button" data-grill="runter">{de ? 'Vom Grill nehmen' : 'Take off the grill'}</button>
-    <button type="button" data-grill="zu">{de ? 'Schließen' : 'Close'}</button>
-  </div>
-</dialog>
+<div class="ki-terminal" aria-live="polite">
+  <div class="ki-terminal__kopf" aria-hidden="true"><i></i><i></i><i></i><span>{texte.ki.titel}</span></div>
+  <div class="ki-terminal__text"></div>
+</div>
 
 {rezepte.length > 0 && (
   <dialog class="rezept" aria-labelledby="rezept-titel">
@@ -75,7 +70,7 @@ const texte = de
       </article>
     ))}
     </div>
-    <div class="grill__knoepfe rezept__fuss">
+    <div class="dialog__knoepfe rezept__fuss">
       <button type="button" data-rezept-kopieren data-fertig={de ? 'Kopiert ✓' : 'Copied ✓'}>{de ? 'Kopieren' : 'Copy'}</button>
       <button type="button" data-rezept-weiter>{de ? 'Noch ein Rezept' : 'Another recipe'}</button>
       <button type="button" data-rezept-zu>{de ? 'Schließen' : 'Close'}</button>
@@ -184,62 +179,43 @@ const texte = de
     })(start);
   }
 
-  // ---------- Wurstbude: Grill ----------
-  const grill = document.querySelector<HTMLDialogElement>('.grill')!;
-  const wurst = grill.querySelector<SVGGElement>('.grill__wurst')!;
-  const ergebnis = grill.querySelector<HTMLElement>('.grill__ergebnis')!;
-  const anzeigeOben = grill.querySelector<HTMLElement>('[data-seite="oben"]')!;
-  const anzeigeUnten = grill.querySelector<HTMLElement>('[data-seite="unten"]')!;
-  let seiten = [0, 0];
-  let unten = 0;
-  let grillUhr: number | undefined;
-  const stufe = (g: number) => t.stufen[g < 0.35 ? 0 : g < 0.7 ? 1 : g <= 1.1 ? 2 : 3];
-  // Farbe von rosa (roh) über braun (perfekt) bis schwarz (angekohlt)
-  const farbe = (g: number) => {
-    const punkte = [[0, [232, 160, 150]], [0.7, [176, 98, 56]], [1.1, [120, 62, 30]], [1.5, [38, 24, 18]]] as const;
-    let i = 0;
-    while (i < punkte.length - 2 && g > punkte[i + 1][0]) i++;
-    const [a, ca] = punkte[i], [b, cb] = punkte[i + 1];
-    const k = Math.min(1, Math.max(0, (g - a) / (b - a)));
-    return `rgb(${ca.map((c, j) => Math.round(c + (cb[j] - c) * k)).join(',')})`;
-  };
-  function grillZeigen() {
-    const oben = seiten[1 - unten];
-    wurst.style.setProperty('--wurst', farbe(oben));
-    anzeigeOben.textContent = stufe(oben);
-    anzeigeUnten.textContent = stufe(seiten[unten]);
-    grill.classList.toggle('qualm', seiten[unten] > 1);
+  // ---------- KI: Terminal, die Drohne fliegt eine Runde übers Dorf nach Hause ----------
+  const terminal = document.querySelector<HTMLElement>('.ki-terminal')!;
+  const ausgabe = terminal.querySelector<HTMLElement>('.ki-terminal__text')!;
+  const warte = (ms: number) => new Promise((r) => setTimeout(r, ms));
+  let kiLaeuft = false;
+  async function tippen(text: string, klasse: string, tempo: number, vorne = '') {
+    const zeile = document.createElement('div');
+    zeile.className = klasse;
+    if (vorne) zeile.innerHTML = `<span class="ki-terminal__prompt">${vorne}</span>`;
+    const inhalt = document.createElement('span');
+    zeile.append(inhalt);
+    ausgabe.append(zeile);
+    for (const zeichen of ruhig ? [text] : text) {
+      inhalt.textContent += zeichen;
+      await warte(tempo);
+    }
   }
-  function wurstbude() {
-    seiten = [0, 0];
-    unten = 0;
-    ergebnis.textContent = '';
-    grillZeigen();
-    grill.showModal();
-    clearInterval(grillUhr);
-    grillUhr = window.setInterval(() => {
-      seiten[unten] = Math.min(1.6, seiten[unten] + 0.012);
-      grillZeigen();
-    }, 100);
+  async function ki() {
+    if (kiLaeuft) return;
+    kiLaeuft = true;
+    ausgabe.replaceChildren();
+    terminal.classList.add('offen');
+    await warte(400);
+    await tippen(t.ki.befehl, 'ki-terminal__befehl', 32, 'marc@stockhausen:~$ ');
+    await warte(500);
+    for (const zeile of t.ki.zeilen) {
+      await tippen(zeile, 'ki-terminal__zeile', 10);
+      await warte(350);
+    }
+    const gelandet = new Promise((r) => addEventListener('drohne:dorfrunde-ende', r, { once: true }));
+    dispatchEvent(new CustomEvent('drohne:ki'));
+    await Promise.race([gelandet, warte(16000)]);
+    await tippen(t.ki.fertig, 'ki-terminal__fertig', 14);
+    await warte(2600);
+    terminal.classList.remove('offen');
+    kiLaeuft = false;
   }
-  grill.addEventListener('close', () => clearInterval(grillUhr));
-  grill.addEventListener('click', (e) => {
-    const knopf = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-grill]');
-    if (!knopf) return;
-    const aktion = knopf.dataset.grill;
-    if (aktion === 'wenden') {
-      unten = 1 - unten;
-      wurst.classList.remove('dreht');
-      void wurst.getBoundingClientRect();
-      wurst.classList.add('dreht');
-      grillZeigen();
-    } else if (aktion === 'runter') {
-      if (seiten.some((g) => g > 1.1)) { ergebnis.textContent = t.wurstKohle; clearInterval(grillUhr); }
-      else if (seiten.every((g) => g >= 0.7)) { ergebnis.textContent = t.wurstPerfekt; clearInterval(grillUhr); spielen([[784, 0, 0.15], [1047, 0.15, 0.4]]); }
-      else ergebnis.textContent = t.wurstRoh;
-    } else grill.close();
-  });
-
 
   // ---------- Kochen: Rezept des Tages ----------
   const rezept = document.querySelector<HTMLDialogElement>('.rezept');
@@ -325,6 +301,6 @@ const texte = de
     if (namenKlicks.length >= 5) location.href = vorname.dataset.visitenkarte!;
   });
 
-  const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, kochen, drohne, urlaub: urlaubMachen };
+  const aktionen: Record<string, () => void> = { schalke, ki, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));
 </script>
