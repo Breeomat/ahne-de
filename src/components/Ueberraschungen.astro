@@ -1,7 +1,7 @@
 ---
 // Überraschungen auf der Startseite:
 // - Einsatz 112: „112“ tippen oder dreimal schnell auf „aktives Mitglied, Kassenwart“ (Feuerwehr) → Blaulicht, Drohne rückt aus
-// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl), Schalke (Tor + Looping), Wurstbude (Grill), Perry Rhodan (Hyperraum),
+// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Looping), Wurstbude (Grill), Perry Rhodan (Hyperraum),
 //   Kochen (Rezept des Tages aus src/lib/rezepte.ts, nur wenn dort Rezepte stehen)
 // Jede Überraschung schreibt ins Live-Protokoll (Ereignis „protokoll“).
 import type { Sprache } from '../lib/sprache';
@@ -23,7 +23,8 @@ const texte = de
       schalke: 'Tor für Schalke 04. Die Sitzung wird für Jubel kurz unterbrochen. Die Drohne fliegt einen Looping.',
       perry: 'Hyperraumsprung durchgeführt. Rückkehr in den Normalraum erfolgreich.',
       drohne: 'Die Drohne fliegt auf Wunsch einen Looping. Beifall aus dem Publikum.',
-      urlaub: 'Die Sitzung wird kurz für Urlaub unterbrochen. Der Liegestuhl ist aufgestellt.',
+      urlaub: 'Die Sitzung wird kurz für Urlaub unterbrochen. Der Liegestuhl ist aufgestellt, die Drohne fliegt über Korsika.',
+      urlaubEnde: 'Rückkehr aus dem Urlaub. Die Sitzung wird fortgesetzt.',
       urlaubText: 'Kurz mal Urlaub …',
       wurstGewendet: 'Die Bratwurst wird gewendet.',
       wurstPerfekt: 'Bratwurst perfekt gegrillt. Beschluss: ab ins Brötchen. Abstimmung: einstimmig.',
@@ -43,7 +44,8 @@ const texte = de
       schalke: 'Goal for Schalke 04. The meeting is briefly interrupted for celebrations. The drone flies a loop.',
       perry: 'Hyperspace jump completed. Return to normal space successful.',
       drohne: 'The drone flies a loop on request. Applause from the audience.',
-      urlaub: 'The meeting is briefly adjourned for a holiday. The deckchair is set up.',
+      urlaub: 'The meeting is briefly adjourned for a holiday. The deckchair is set up, the drone flies over Corsica.',
+      urlaubEnde: 'Back from holiday. The meeting resumes.',
       urlaubText: 'Quick holiday break …',
       wurstGewendet: 'The bratwurst is turned.',
       wurstPerfekt: 'Bratwurst grilled to perfection. Resolution: into the bun. Vote: unanimous.',
@@ -380,7 +382,9 @@ const texte = de
       q.connect(f).connect(g).connect(ton.destination); q.start();
     } catch {}
     protokoll(t.urlaub);
+    dispatchEvent(new CustomEvent('drohne:urlaub'));
   }
+  addEventListener('drohne:urlaub-ende', () => protokoll(t.urlaubEnde));
 
   const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, perry, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));

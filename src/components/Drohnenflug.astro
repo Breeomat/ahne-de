@@ -3,6 +3,7 @@
 // von der Altfellhalle übers Dorf bis zur Übersicht. Karte: public/drohne/stockhausen.svg (scripts/drohnenkarte.py),
 // wird erst geladen, wenn „Modern“ aktiv ist. Kartendaten © OpenStreetMap-Mitwirkende.
 import { url } from '../lib/site';
+import korsika from '../lib/korsika-rahmen.json';
 import type { Sprache } from '../lib/sprache';
 
 interface Props {
@@ -50,10 +51,30 @@ const licht = de
       tag: 'Light conditions: daylight. Good visibility for the drone.',
       abend: 'Light conditions: evening sun. The village is bathed in golden light.',
     };
+// Urlaub (Überraschung): Drohne fliegt über Korsika (Karte public/drohne/korsika.svg aus scripts/korsikakarte.mjs).
+// t = Sekunden ab Start, z = Zoom (1 = ganze Insel)
+const o = korsika.orte;
+const urlaub = {
+  quelle: url('drohne/korsika.svg'),
+  rahmen: { west: korsika.west, sued: korsika.sued, ost: korsika.ost, nord: korsika.nord, breite: korsika.breite, hoehe: korsika.hoehe },
+  status: de ? 'URLAUB' : 'HOLIDAY',
+  route: [
+    { t: 0, x: 500, y: 916, z: 1, ort: de ? 'Korsika von oben' : 'Corsica from above' },
+    { t: 2.2, x: o['Bastia'][0], y: o['Bastia'][1], z: 2.6, ort: 'Bastia' },
+    { t: 4, x: o['Saint-Florent'][0], y: o['Saint-Florent'][1], z: 2.8, ort: 'Saint-Florent' },
+    { t: 6, x: o['Calvi'][0], y: o['Calvi'][1], z: 2.6, ort: 'Calvi' },
+    { t: 8, x: 438, y: 663, z: 1.9, ort: 'Monte Cinto · 2706 m' },
+    { t: 10, x: o['Ajaccio'][0], y: o['Ajaccio'][1], z: 2.6, ort: 'Ajaccio' },
+    { t: 12.5, x: o['Bonifacio'][0], y: o['Bonifacio'][1], z: 2.8, ort: 'Bonifacio' },
+    { t: 14, x: o['Porto-Vecchio'][0], y: o['Porto-Vecchio'][1], z: 2.6, ort: 'Porto-Vecchio' },
+    { t: 16.5, x: 500, y: 916, z: 1, ort: de ? 'Korsika von oben' : 'Corsica from above' },
+  ],
+};
 const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r : r.replace('O', 'E')));
 ---
-<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-licht={JSON.stringify(licht)}>
+<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-licht={JSON.stringify(licht)} data-urlaub={JSON.stringify(urlaub)}>
   <div class="drohne__karte"></div>
+  <div class="drohne__urlaub"></div>
   <div class="drohne__sterne"></div>
   <div class="drohne__fadenkreuz"></div>
 </div>
@@ -98,6 +119,73 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   let zielGemeldet = false;
   addEventListener('drohne:einsatz', () => { einsatz = performance.now(); planen(); });
   addEventListener('drohne:looping', () => { looping = performance.now(); planen(); });
+
+  // ---------- Urlaub: Flug über Korsika (zeitgesteuert, unabhängig vom Scrollen) ----------
+  type UPunkt = { t: number; x: number; y: number; z: number; ort: string };
+  const urlaubDaten: { quelle: string; rahmen: typeof rahmen; status: string; route: UPunkt[] } = JSON.parse(ebene.dataset.urlaub!);
+  const urlaubFlaeche = ebene.querySelector<HTMLElement>('.drohne__urlaub')!;
+  let urlaubSvg: SVGSVGElement | null = null;
+  let urlaubStart: number | null = null;
+  // Kurs je Strecke: Flugrichtung, letzte Strecke zurück nach Norden
+  const urlaubKurs = urlaubDaten.route.map((a, i, r) => {
+    const b = r[Math.min(i + 1, r.length - 1)];
+    return i >= r.length - 2 ? 0 : ((Math.atan2(b.x - a.x, -(b.y - a.y)) * 180) / Math.PI + 360) % 360;
+  });
+  addEventListener('drohne:urlaub', async () => {
+    if (urlaubStart !== null) return;
+    if (!urlaubSvg) {
+      try {
+        const text = await (await fetch(urlaubDaten.quelle)).text();
+        urlaubSvg = new DOMParser().parseFromString(text, 'image/svg+xml').documentElement as unknown as SVGSVGElement;
+        urlaubFlaeche.append(urlaubSvg);
+      } catch {
+        return;
+      }
+    }
+    urlaubStart = performance.now();
+    ebene.classList.add('im-urlaub');
+    planen();
+  });
+
+  // zeichnet die Korsika-Kamera und überschreibt die Anzeige; false, wenn der Urlaub vorbei ist
+  function urlaubZeichnen(jetzt: number) {
+    const r = urlaubDaten.route;
+    const t = (jetzt - urlaubStart!) / 1000;
+    if (t > r[r.length - 1].t + 0.8) {
+      urlaubStart = null;
+      ebene.classList.remove('im-urlaub');
+      tageszeit();
+      dispatchEvent(new CustomEvent('drohne:urlaub-ende'));
+      return false;
+    }
+    let i = 0;
+    while (i < r.length - 2 && t > r[i + 1].t) i++;
+    const a = r[i], b = r[i + 1];
+    const roh = Math.min(1, Math.max(0, (t - a.t) / (b.t - a.t)));
+    const k = glatt(roh);
+    const x = a.x + (b.x - a.x) * k, y = a.y + (b.y - a.y) * k;
+    const z = a.z + (b.z - a.z) * k;
+    const kurs = (winkel(urlaubKurs[Math.max(0, i - 1)], urlaubKurs[i], Math.min(1, roh / 0.35)) + 360) % 360;
+    const ur = urlaubDaten.rahmen;
+    const diag = Math.ceil(Math.hypot(innerWidth, innerHeight));
+    const pxJeEinheit = Math.min(innerWidth / ur.breite, innerHeight / ur.hoehe) * 0.95 * z;
+    const sicht = diag / pxJeEinheit;
+    urlaubSvg!.style.width = urlaubSvg!.style.height = diag + 'px';
+    urlaubSvg!.setAttribute('viewBox', `${(x - sicht / 2).toFixed(2)} ${(y - sicht / 2).toFixed(2)} ${sicht.toFixed(2)} ${sicht.toFixed(2)}`);
+    // Karte bleibt genordet, damit die Ortsnamen lesbar bleiben; der Kurs steht nur in der Anzeige
+    urlaubSvg!.style.transform = 'translate(-50%, -50%)';
+    const lat = ur.nord - (y / ur.hoehe) * (ur.nord - ur.sued);
+    const lon = ur.west + (x / ur.breite) * (ur.ost - ur.west);
+    const hoehe = Math.round(250 + ((2.8 - Math.min(2.8, z)) / 1.8) * 1250);
+    hud.hoehe.textContent = hud.hoehe2.textContent = String(hoehe);
+    hud.kurs.textContent = String(Math.round(kurs) % 360).padStart(3, '0');
+    hud.ort.textContent = (roh < 0.5 ? a : b).ort;
+    hud.gps.textContent = `${lat.toFixed(4)} N  ${lon.toFixed(4)} E`;
+    hud.status.textContent = urlaubDaten.status;
+    hud.sonne.textContent = '☀';
+    hud.kompass.style.transform = `translateX(${(-(8 + kurs / 45) * 3.2 + 3.2 * 1.5).toFixed(3)}em)`;
+    return true;
+  }
   // Meter je Karteneinheit (für die Geschwindigkeit)
   const meterJeEinheit = ((rahmen.ost - rahmen.west) * 111320 * Math.cos(((rahmen.sued + rahmen.nord) / 2) * (Math.PI / 180))) / rahmen.breite;
 
@@ -199,6 +287,7 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     ebene.style.setProperty('--naehe', Math.min(1, Math.max(0, (p - 0.72) / 0.2)).toFixed(3));
     // Kompassband: 8 Richtungen à 45°, je 3.2em breit, dreifach hintereinander
     hud.kompass.style.transform = `translateX(${(-(8 + s.kurs / 45) * 3.2 + 3.2 * 1.5).toFixed(3)}em)`;
+    if (urlaubStart !== null && urlaubSvg && urlaubZeichnen(performance.now())) aktiv = true;
     if (tempo > 0.2 || aktiv) planen();
   }
 

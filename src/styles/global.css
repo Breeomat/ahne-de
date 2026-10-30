@@ -507,3 +507,13 @@ dialog.rezept[open] {
 
 @media (prefers-reduced-motion: reduce) { .drohne__sterne { animation: none !important; } }
 .drohne::after { z-index: 1; }
+
+/* Urlaub: Drohne fliegt über Korsika (Drohnenflug.astro, Ereignis drohne:urlaub) */
+.drohne__urlaub { position: absolute; inset: 0; opacity: 0; transition: opacity 0.9s ease; pointer-events: none; }
+.drohne__urlaub svg { position: absolute; left: 50%; top: 50%; }
+.drohne.im-urlaub .drohne__urlaub { opacity: 1; }
+.drohne.im-urlaub .drohne__karte { opacity: 0 !important; }
+/* im Urlaub ist immer Sonnenschein: keine Tageszeit-Stimmung, keine Sterne */
+.drohne.im-urlaub::before { background: linear-gradient(200deg, rgb(255 230 170 / 0.18), transparent 60%) !important; }
+.drohne.im-urlaub .drohne__sterne { opacity: 0 !important; }
+.drohne.im-urlaub ~ .drohne-hud [data-hud='status'] { color: #ffd76a; }
