@@ -25,6 +25,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     rolle: { de: 'Solutions Analyst, Business Platform IT – Schwerpunkt Engineering und Quality', en: 'Solutions Analyst, Business Platform IT – focus on engineering and quality' },
     punkte: {
       de: [
+        'Aktuell: Integration des ERP-Systems Infra (Standort Lauterbach) in das SAP-System des Standorts Neuwied – danach Zusammenführung zu einem Unternehmen, BW Converting',
         'Einführung von Microsoft Dynamics 365 Finance & Operations',
         'ERP-Administration (Infra)',
         'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
@@ -32,6 +33,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
         'Workflow-, Replikations- und Release-Prozesse',
       ],
       en: [
+        'Currently: integrating the Infra ERP system (Lauterbach site) into the SAP system of the Neuwied site – followed by the merger into one company, BW Converting',
         'Implementation of Microsoft Dynamics 365 Finance & Operations',
         'ERP administration (Infra)',
         'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
