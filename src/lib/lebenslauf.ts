@@ -3,14 +3,15 @@ import type { Text } from './sprache';
 // Visitenkarte mit Lebenslauf (versteckte Seite /visitenkarte/ bzw. /en/business-card/, 5× auf „Marc“ tippen).
 // Quellen: Zwischenzeugnis Ahlbrandt (11/2011), IHK-Zeugnis Technischer Betriebswirt (10/2010),
 // Teilnahmebescheinigung Datenschutzbeauftragter (01/2013), Lebenslauf (2003), Profil „about-me.md“ (2026).
-// Ergänzt nach Angaben von Marc (10/2026): Rolle seit 2024, IT/ERP 2020–2024, Englisch in Meetings.
+// Ergänzt nach Angaben von Marc (10/2026): Rolle seit 2024, IT/ERP 2020–2024, Integration Infra → SAP,
+// seit 2020 Vorgesetzter in den USA und rund die Hälfte der Meetings auf Englisch (für die Bewerbung umformuliert).
 // Bewusst nicht: vollständiges Geburtsdatum, Namen von Kolleg:innen, interne Projektnamen und Termine.
 
 export const titel: Text = { de: 'Solutions Analyst · Business Platform IT', en: 'Solutions Analyst · Business Platform IT' };
 
 export const profil: Text = {
-  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK). Seit 2020 rund die Hälfte der Meetings auf Englisch, mit Kontakten in Europa, den USA, China, Japan und Australien.',
-  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK). Since 2020 about half of all meetings in English, with contacts across Europe, the USA, China, Japan and Australia.',
+  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK). Seit 2020 im international aufgestellten Team mit direkter Berichtslinie in die USA; Englisch ist Arbeitssprache in der täglichen Abstimmung mit Kolleginnen, Kollegen und Partnern in Europa, den USA, China, Japan und Australien.',
+  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK). Since 2020 part of an international team with a direct reporting line to the USA; English is my everyday working language with colleagues and partners in Europe, the USA, China, Japan and Australia.',
 };
 
 export const firma: Text = {
@@ -127,7 +128,7 @@ export const kenntnisse: { bereich: Text; text: Text }[] = [
   { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports' } },
   { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD administration)' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
-  { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English) – seit 2020 rund die Hälfte der Meetings auf Englisch', en: 'German (native), English (fluent, business English) – since 2020 about half of all meetings in English' } },
+  { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English), tägliche Arbeitssprache im internationalen Umfeld', en: 'German (native), English (fluent, business English), everyday working language in an international environment' } },
   { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
 ];
 
