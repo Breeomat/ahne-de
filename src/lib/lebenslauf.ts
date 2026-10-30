@@ -26,14 +26,14 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
       de: [
         'Einführung von Microsoft Dynamics 365 Finance & Operations',
         'ERP-Administration (Infra)',
-        'Verantwortung für Bluestar PLM, Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
+        'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
         'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
         'Workflow-, Replikations- und Release-Prozesse',
       ],
       en: [
         'Implementation of Microsoft Dynamics 365 Finance & Operations',
         'ERP administration (Infra)',
-        'Responsible for Bluestar PLM, integration of engineering data (products, bills of materials) and EPLAN',
+        'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
         'Quality processes in the ERP system (CAPA, nonconformances)',
         'Workflow, replication and release processes',
       ],
