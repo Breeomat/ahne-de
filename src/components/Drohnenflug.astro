@@ -227,29 +227,27 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
       for (const [k, v] of Object.entries(attr)) el.setAttribute(k, v);
       return el;
     };
-    const defs = neu('defs', {});
-    defs.innerHTML = `
-      <filter id="nebelweich" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
-      <filter id="glimmen" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>`;
-    karte.prepend(defs);
-    // Nebel: Bach und Fluss breit und weich nachgezeichnet
-    const nebel = neu('g', { class: 'tz-nebel', filter: 'url(#nebelweich)' });
-    karte.querySelectorAll('.k-bach, .k-fluss, .k-wasser').forEach((w) => {
-      const d = w.getAttribute('d');
-      if (d) nebel.append(neu('path', { d, class: 'tz-nebel__band' }));
-    });
+    // Bewusst ohne SVG-Filter und ohne Animationen in der Karte: die Kamera zeichnet die Karte bei jedem
+    // Scroll-Schritt neu, Weichzeichner und blinkende Einzelteile würden den Flug ruckeln lassen.
+    // Nebel: Bach und Fluss mehrfach breit nachgezeichnet – weiche Ränder ohne Weichzeichner
+    const nebel = neu('g', { class: 'tz-nebel' });
+    const wasser = [...karte.querySelectorAll('.k-bach, .k-fluss, .k-wasser')].map((w) => w.getAttribute('d')).filter(Boolean).join('');
+    for (const breite of [100, 80, 62, 46, 32]) nebel.append(neu('path', { d: wasser, class: 'tz-nebel__band', 'stroke-width': String(breite) }));
     // Fensterlicht: jedes sechste Haus (fest, damit es bei jedem Besuch gleich aussieht)
     const haeuser = karte.querySelector('.k-haus')?.getAttribute('d')?.split('M').filter(Boolean) ?? [];
-    const fenster = neu('path', { class: 'tz-fenster', filter: 'url(#glimmen)', d: haeuser.filter((_, i) => (i * 7919) % 6 === 0).map((h) => 'M' + h).join('') });
-    // Laternen: alle ~24 Karteneinheiten entlang der Straßen
-    const laternen = neu('g', { class: 'tz-laternen', filter: 'url(#glimmen)' });
+    const fenster = neu('path', { class: 'tz-fenster', d: haeuser.filter((_, i) => (i * 7919) % 6 === 0).map((h) => 'M' + h).join('') });
+    // Laternen alle ~24 Karteneinheiten entlang der Straßen, als ein einziger Pfad (Lichtkegel + Lampe)
+    const punkte: string[] = [];
     karte.querySelectorAll<SVGPathElement>('.k-wohnstrasse, .k-hauptstrasse').forEach((strasse) => {
       const laenge = strasse.getTotalLength();
-      for (let s = 12; s < laenge && laternen.childElementCount < 700; s += 24) {
+      for (let s = 12; s < laenge && punkte.length < 700; s += 24) {
         const p = strasse.getPointAtLength(s);
-        laternen.append(neu('circle', { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: '1.6' }));
+        punkte.push(`${p.x.toFixed(1)},${p.y.toFixed(1)}`);
       }
     });
+    const kreise = (r: number) => punkte.map((xy) => { const [x, y] = xy.split(',').map(Number); return `M${(x - r).toFixed(1)},${y}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`; }).join('');
+    const laternen = neu('g', { class: 'tz-laternen' });
+    laternen.append(neu('path', { class: 'tz-laternen__schein', d: kreise(6) }), neu('path', { class: 'tz-laternen__lampe', d: kreise(1.6) }));
     // über die Häuser, unter das Ziel (leuchtendes Haus bleibt obenauf)
     const ziel = karte.querySelector('.zuhause');
     karte.insertBefore(nebel, ziel);
