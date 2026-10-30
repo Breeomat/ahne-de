@@ -109,6 +109,7 @@ const texte = de
 {rezepte.length > 0 && (
   <dialog class="rezept" aria-labelledby="rezept-titel">
     <p class="rezept__kicker">{de ? 'Rezept des Tages' : 'Recipe of the day'} · <span data-rezept-nr></span>/{rezepte.length}</p>
+    <div class="rezept__inhalt" tabindex="0">
     {rezepte.map((r, i) => (
       <article data-rezept={i} hidden>
         <h2 id={i === 0 ? 'rezept-titel' : undefined}>{r.titel[sprache]}</h2>
@@ -118,7 +119,9 @@ const texte = de
         <ol>{r.schritte[sprache].map((schritt) => <li>{schritt}</li>)}</ol>
       </article>
     ))}
-    <div class="grill__knoepfe">
+    </div>
+    <div class="grill__knoepfe rezept__fuss">
+      <button type="button" data-rezept-kopieren data-fertig={de ? 'Kopiert ✓' : 'Copied ✓'}>{de ? 'Kopieren' : 'Copy'}</button>
       <button type="button" data-rezept-weiter>{de ? 'Noch ein Rezept' : 'Another recipe'}</button>
       <button type="button" data-rezept-zu>{de ? 'Schließen' : 'Close'}</button>
     </div>
@@ -299,12 +302,43 @@ const texte = de
   // ---------- Kochen: Rezept des Tages ----------
   const rezept = document.querySelector<HTMLDialogElement>('.rezept');
   const rezeptListe = rezept ? [...rezept.querySelectorAll<HTMLElement>('[data-rezept]')] : [];
+  const inhalt = rezept?.querySelector<HTMLElement>('.rezept__inhalt');
+  const kopieren = rezept?.querySelector<HTMLButtonElement>('[data-rezept-kopieren]');
+  const kopierenText = kopieren?.textContent ?? '';
+  // Rezept als Text in die Zwischenablage: Titel, Zutaten, nummerierte Schritte
+  kopieren?.addEventListener('click', async () => {
+    const r = rezeptListe[rezeptNr];
+    const [zutatenTitel, zubereitungTitel] = [...r.querySelectorAll('h3')].map((h) => h.textContent);
+    const text = [
+      r.querySelector('h2')!.textContent,
+      '',
+      `${zutatenTitel}:`,
+      r.querySelector('p')!.textContent,
+      '',
+      `${zubereitungTitel}:`,
+      ...[...r.querySelectorAll('li')].map((li, i) => `${i + 1}. ${li.textContent}`),
+      '',
+      location.origin + location.pathname,
+    ].join('\n');
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const feld = document.createElement('textarea');
+      feld.value = text;
+      rezept!.append(feld);
+      feld.select();
+      document.execCommand('copy');
+      feld.remove();
+    }
+    kopieren.textContent = kopieren.dataset.fertig!;
+    setTimeout(() => (kopieren.textContent = kopierenText), 2000);
+  });
   // jeden Tag ein anderes Rezept (Tag seit 1970, Ortszeit)
   let rezeptNr = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % Math.max(1, rezeptListe.length);
   function rezeptZeigen() {
     rezeptListe.forEach((r, i) => (r.hidden = i !== rezeptNr));
     rezept!.querySelector('[data-rezept-nr]')!.textContent = String(rezeptNr + 1);
-    rezept!.scrollTop = 0;
+    inhalt!.scrollTop = 0;
     protokoll(t.kochen.replace('{titel}', rezeptListe[rezeptNr].querySelector('h2')!.textContent!));
   }
   rezept?.querySelector('[data-rezept-zu]')?.addEventListener('click', () => rezept.close());
@@ -317,7 +351,7 @@ const texte = de
     rezeptZeigen();
     rezept.showModal();
     // showModal setzt den Fokus auf den ersten Knopf unten – Rezept trotzdem von oben zeigen
-    rezept.scrollTop = 0;
+    inhalt!.scrollTop = 0;
   }
 
   // ---------- Drohne fliegen: Looping ----------

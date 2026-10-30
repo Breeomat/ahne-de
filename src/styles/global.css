@@ -419,7 +419,17 @@ dialog h2 { margin: 0 0 0.3rem; color: #ffd76a !important; }
 @keyframes aufklappen { from { transform: scaleY(0.2) skewX(25deg); opacity: 0; } }
 
 /* Rezept des Tages */
-dialog.rezept { width: min(560px, calc(100% - 32px)); max-height: 85vh; overflow-y: auto; }
+/* Kopf und Knöpfe bleiben stehen, nur das Rezept scrollt */
+dialog.rezept[open] {
+  width: min(560px, calc(100% - 32px)); height: min(85vh, 760px); height: min(85dvh, 760px); max-height: none;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.rezept__inhalt {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  margin-inline: -0.4rem; padding-inline: 0.4rem; border-block: 1px solid rgb(242 210 122 / 0.2);
+}
+.rezept__inhalt:focus-visible { outline: 2px solid #ffd76a; outline-offset: 2px; }
+.rezept__fuss { padding-top: 0.8rem; }
 .rezept [hidden] { display: none; }
 .rezept__kicker { margin: 0 0 0.2rem; font: 600 0.75rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #9ff5dc; }
 .rezept h2::before { display: none !important; }
