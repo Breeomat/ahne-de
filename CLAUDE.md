@@ -27,6 +27,11 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   topojson-client und world-atlas, siehe Kopf der Skripte).
 - Sprachwechsel: auf der Startseite erst Drohnenflug Stockhausen ↔ London (Ereignis `drohne:reise`, Skript in
   `Basis.astro`), dann normaler Seitenwechsel; auf den anderen Seiten direkt.
+- Drohnen-Logbuch (KI, Startseite unter der Einleitung): `scripts/logbuch.mjs` läuft im Workflow vor dem Build (auch
+  nachts per Zeitplan), holt Wetter (Open-Meteo, ohne Schlüssel) und Termine der nächsten 7 Tage
+  (stockhausen-online.de/termine.ics) und lässt Claude (`claude-opus-5-5`, strukturierte Ausgabe) einen kurzen Eintrag
+  DE/EN schreiben → `src/data/logbuch.json`. Braucht das Repository-Secret `ANTHROPIC_API_KEY`; ohne Secret oder bei
+  Fehlern bleibt der Platzhalter `{ "datum": null }` und der Abschnitt wird nicht angezeigt. Besucher senden nichts an eine KI.
 - Visitenkarte mit Lebenslauf (versteckt): `/visitenkarte/` bzw. `/en/business-card/`, erreichbar über 5× schnell auf
   „Marc“ in der Überschrift der Startseite. Bewusst schlicht (`Basis` mit `schlicht`, ohne Drohne), druckbar, `noindex`
   und nicht in der Sitemap (`verborgen`, Filter in `astro.config.mjs`). Inhalte in `src/lib/lebenslauf.ts` (Quellen im

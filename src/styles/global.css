@@ -458,3 +458,8 @@ dialog.rezept[open] {
 .ki-terminal__zeile { color: #c9d6d2; }
 .ki-terminal__fertig { color: #ffd76a; font-weight: 700; }
 @media (max-width: 600px) { .ki-terminal { right: 16px; left: 16px; width: auto; font-size: 0.74rem; } }
+
+/* Drohnen-Logbuch (KI, nachts erzeugt) */
+.logbuch__datum { margin: -0.2rem 0 0.4rem; font: 600 0.8rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #9ff5dc; }
+.logbuch__hinweis { margin-top: 0.6rem; font-size: 0.8rem; color: var(--text-leise); }
+.logbuch__hinweis a { color: inherit; }

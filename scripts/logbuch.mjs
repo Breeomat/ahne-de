@@ -1,0 +1,103 @@
+#!/usr/bin/env node
+// Drohnen-Logbuch des Tages – läuft nachts in GitHub Actions vor dem Build (deploy.yml), nicht beim Besuch der Seite.
+// Holt Wetter (Open-Meteo, ohne Schlüssel) und die Termine der nächsten 7 Tage (stockhausen-online.de/termine.ics),
+// lässt Claude daraus einen kurzen Eintrag auf Deutsch und Englisch schreiben und speichert ihn in src/data/logbuch.json.
+// Ohne ANTHROPIC_API_KEY oder bei Fehlern bleibt die Datei unverändert (die Seite zeigt dann kein Logbuch).
+//
+//   ANTHROPIC_API_KEY=… node scripts/logbuch.mjs
+import { writeFileSync } from 'node:fs';
+import Anthropic from '@anthropic-ai/sdk';
+import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
+import { z } from 'zod';
+
+const ZIEL = new URL('../src/data/logbuch.json', import.meta.url);
+const ORT = { lat: 50.5615, lon: 9.4445 };
+const heute = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }).format(new Date()); // JJJJ-MM-TT
+
+// WMO-Wettercodes (Open-Meteo) in Worte
+const WETTER = {
+  0: 'klar', 1: 'überwiegend klar', 2: 'teils bewölkt', 3: 'bedeckt', 45: 'Nebel', 48: 'Nebel mit Reif',
+  51: 'leichter Nieselregen', 53: 'Nieselregen', 55: 'starker Nieselregen', 56: 'gefrierender Nieselregen', 57: 'gefrierender Nieselregen',
+  61: 'leichter Regen', 63: 'Regen', 65: 'starker Regen', 66: 'gefrierender Regen', 67: 'gefrierender Regen',
+  71: 'leichter Schneefall', 73: 'Schneefall', 75: 'starker Schneefall', 77: 'Schneegriesel',
+  80: 'leichte Regenschauer', 81: 'Regenschauer', 82: 'heftige Regenschauer', 85: 'Schneeschauer', 86: 'starke Schneeschauer',
+  95: 'Gewitter', 96: 'Gewitter mit Hagel', 99: 'Gewitter mit starkem Hagel',
+};
+
+async function wetterHolen() {
+  const url = new URL('https://api.open-meteo.com/v1/forecast');
+  url.search = new URLSearchParams({
+    latitude: ORT.lat, longitude: ORT.lon, timezone: 'Europe/Berlin', forecast_days: '1',
+    daily: 'weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,sunrise,sunset',
+  });
+  const d = (await (await fetch(url)).json()).daily;
+  return {
+    lage: WETTER[d.weather_code[0]] ?? 'unbekannt',
+    hoechst: Math.round(d.temperature_2m_max[0]),
+    tiefst: Math.round(d.temperature_2m_min[0]),
+    niederschlag_mm: d.precipitation_sum[0],
+    wind_kmh: Math.round(d.wind_speed_10m_max[0]),
+    sonnenaufgang: d.sunrise[0].slice(11),
+    sonnenuntergang: d.sunset[0].slice(11),
+  };
+}
+
+// Termine der nächsten 7 Tage aus dem Kalender von stockhausen-online (einfacher ICS-Leser)
+async function termineHolen() {
+  const ics = (await (await fetch('https://stockhausen-online.de/termine.ics')).text()).replace(/\r?\n[ \t]/g, '');
+  const bis = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10).replaceAll('-', '');
+  const von = heute.replaceAll('-', '');
+  return ics.split('BEGIN:VEVENT').slice(1).map((ev) => {
+    const feld = (n) => ev.match(new RegExp(`^${n}[^:]*:(.*)$`, 'm'))?.[1]?.replace(/\\,/g, ',').replace(/\\n/g, ' ').trim();
+    const start = feld('DTSTART') ?? '';
+    return { tag: start.slice(0, 8), titel: feld('SUMMARY'), ort: feld('LOCATION') };
+  }).filter((t) => t.titel && t.tag >= von && t.tag <= bis)
+    .sort((a, b) => a.tag.localeCompare(b.tag))
+    .slice(0, 6)
+    .map((t) => ({ ...t, tag: `${t.tag.slice(0, 4)}-${t.tag.slice(4, 6)}-${t.tag.slice(6, 8)}` }));
+}
+
+const Eintrag = z.object({
+  de: z.string().describe('Logbuch-Eintrag auf Deutsch, 2 bis 4 Sätze'),
+  en: z.string().describe('Derselbe Eintrag auf Englisch, 2 bis 4 Sätze'),
+});
+
+async function main() {
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.log('Logbuch: kein ANTHROPIC_API_KEY – übersprungen.');
+    return;
+  }
+  const [wetter, termine] = await Promise.all([wetterHolen(), termineHolen().catch(() => [])]);
+  const client = new Anthropic();
+  const antwort = await client.messages.parse({
+    model: 'claude-opus-5-5',
+    max_tokens: 2000,
+    output_config: { effort: 'low', format: zodOutputFormat(Eintrag) },
+    system:
+      'Du schreibst den täglichen Logbuch-Eintrag der Drohne auf der privaten Webseite von Marc Ahne aus Stockhausen ' +
+      '(Ortsteil von Herbstein im Vogelsberg, Hessen). Ton: kurz, freundlich, ein wenig augenzwinkernd im Stil eines ' +
+      'Drohnen-Flugbuchs. Verwende nur die gelieferten Daten: Wetter und Termine. Erfinde keine Ereignisse, Personen, ' +
+      'Orte oder Zahlen. Gibt es keine Termine, erwähne keine. Nenne höchstens zwei Termine. Nichts über Marcs Beruf. ' +
+      'Kein Markdown, keine Emojis, kein Datum am Anfang (das zeigt die Seite selbst).',
+    messages: [{ role: 'user', content: JSON.stringify({ datum: heute, wetter, termine_naechste_7_tage: termine }) }],
+  });
+  if (antwort.stop_reason === 'refusal' || !antwort.parsed_output) {
+    console.log(`Logbuch: kein Eintrag (stop_reason: ${antwort.stop_reason}).`);
+    return;
+  }
+  const eintrag = {
+    datum: heute,
+    de: antwort.parsed_output.de.trim(),
+    en: antwort.parsed_output.en.trim(),
+    wetter,
+    termine,
+    erzeugt: new Date().toISOString(),
+  };
+  writeFileSync(ZIEL, JSON.stringify(eintrag, null, 1) + '\n');
+  console.log(`Logbuch für ${heute} geschrieben.`);
+}
+
+main().catch((fehler) => {
+  // Ein fehlendes Logbuch darf die Veröffentlichung nicht verhindern
+  console.error('Logbuch: Fehler –', fehler instanceof Anthropic.APIError ? `${fehler.status} ${fehler.message}` : fehler.message);
+});

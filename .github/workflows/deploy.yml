@@ -3,6 +3,9 @@ name: Veröffentlichen
 on:
   push:
     branches: [main]
+  schedule:
+    # nachts neu bauen, damit das Drohnen-Logbuch (KI) jeden Tag neu geschrieben wird
+    - cron: '17 3 * * *'
   workflow_dispatch:
 
 permissions:
@@ -24,6 +27,11 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Drohnen-Logbuch des Tages (scripts/logbuch.mjs); ohne Secret oder bei Fehlern wird es einfach übersprungen
+      - name: Drohnen-Logbuch schreiben
+        run: node scripts/logbuch.mjs
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:

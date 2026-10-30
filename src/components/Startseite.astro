@@ -3,6 +3,7 @@ import Basis from '../layouts/Basis.astro';
 import Drohnenflug from './Drohnenflug.astro';
 import Ueberraschungen from './Ueberraschungen.astro';
 import { rezepte } from '../lib/rezepte';
+import logbuch from '../data/logbuch.json';
 import { person, url } from '../lib/site';
 import { seiten, ui, type Sprache } from '../lib/sprache';
 import { einleitung, ehrenamt, gernMache } from '../lib/ueber-mich';
@@ -13,6 +14,11 @@ interface Props {
 
 const { sprache } = Astro.props;
 const t = ui[sprache];
+// Drohnen-Logbuch: nachts von scripts/logbuch.mjs geschrieben (Claude, Wetter von Open-Meteo, Termine von stockhausen-online)
+const eintrag = logbuch as { datum: string | null; de?: string; en?: string };
+const logbuchDatum = eintrag.datum
+  ? new Date(`${eintrag.datum}T12:00:00`).toLocaleDateString(sprache === 'de' ? 'de-DE' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+  : '';
 ---
 <Basis sprache={sprache} seite="start">
   <Drohnenflug sprache={sprache} />
@@ -21,6 +27,22 @@ const t = ui[sprache];
   <p class="untertitel">{t.untertitel}</p>
 
   <p class="einleitung block">{einleitung[sprache]}</p>
+
+  {eintrag.datum && eintrag[sprache] && (
+    <section class="block logbuch">
+      <h2>{sprache === 'de' ? 'Drohnen-Logbuch' : 'Drone log'}</h2>
+      <p class="logbuch__datum">{logbuchDatum}</p>
+      <p>{eintrag[sprache]}</p>
+      <p class="logbuch__hinweis">
+        {sprache === 'de'
+          ? 'Jede Nacht automatisch von einer KI (Claude) geschrieben – aus Wetterdaten von '
+          : 'Written automatically every night by an AI (Claude) – from weather data by '}
+        <a href="https://open-meteo.com/">Open-Meteo.com</a>
+        {sprache === 'de' ? ' und den Terminen von ' : ' and the events on '}
+        <a href="https://stockhausen-online.de/termine/">stockhausen-online.de</a>.
+      </p>
+    </section>
+  )}
 
   <section class="block">
   <h2>{t.ehrenamt}</h2>
