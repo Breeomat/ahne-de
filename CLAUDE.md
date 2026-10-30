@@ -42,10 +42,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Veröffentlichen bricht ohne Meldung ab („veroeffentlichen“ nach 1–2 s, keine Schritte)? Dann erlaubt die Umgebung
   `github-pages` (Settings → Environments → Deployment branches) den Zweig `main` nicht.
 
-## Domain (noch nicht umgestellt)
-Derzeit Vorschau unter https://breeomat.github.io/ahne-de/ (`astro.config.mjs`: `site: 'https://breeomat.github.io'`, `base: '/ahne-de/'`).
-Bei der Umstellung: `site: 'https://www.ahne.de'`, `base: '/'`, `public/CNAME` mit `www.ahne.de` anlegen,
-Sitemap-Zeile in `public/robots.txt` prüfen.
+## Domain
+Die Seite läuft unter https://www.ahne.de (`astro.config.mjs`: `site`, `base: '/'`; `public/CNAME` = `www.ahne.de`).
 GitHub → Settings → Pages → Source „GitHub Actions“, Custom domain `www.ahne.de`, „Enforce HTTPS“ an.
 DNS bei Ionos: `www` als CNAME auf `breeomat.github.io`; für `ahne.de` (ohne www) A-Records 185.199.108.153,
 185.199.109.153, 185.199.110.153, 185.199.111.153 und AAAA 2606:50c0:8000::153, 2606:50c0:8001::153,
