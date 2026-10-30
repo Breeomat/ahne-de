@@ -33,7 +33,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
         'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
         'Einbindung weiterer Firmen in die Ahlbrandt System GmbH (seit 2020, fortgeführt)',
         'Upgrade und Server-Update des ERP-Systems iScala in China, gemeinsam mit einem Team aus China und Indien',
-        'Workflow-, Replikations- und Release-Prozesse',
+        'Data Cleansing, Validierung der Datenmigration, Solution Validation, User Acceptance Testing',
       ],
       en: [
         'Currently: integrating the Infra ERP system (Lauterbach site) into the SAP system of the Neuwied site – followed by the merger into one company, BW Converting',
@@ -43,7 +43,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
         'Quality processes in the ERP system (CAPA, nonconformances)',
         'Integration of further companies into Ahlbrandt System GmbH (ongoing since 2020)',
         'Upgrade and server update of the iScala ERP system in China, together with a team from China and India',
-        'Workflow, replication and release processes',
+        'Data cleansing, data migration validation, solution validation, user acceptance testing',
       ],
     },
   },
