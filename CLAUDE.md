@@ -24,9 +24,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   gezeichnete Karte `public/drohne/schalke.svg`), England/Deutschland (Sprachwechsel auf der Startseite). Karten Korsika
   und Europa aus Natural Earth: `node scripts/korsikakarte.mjs …` bzw. `node scripts/europakarte.mjs …` (Pfade zu
   topojson-client und world-atlas, siehe Kopf der Skripte).
-- Sprachwechsel: auf der Startseite erst Drohnenflug Stockhausen ↔ London (Ereignis `drohne:reise`), dann
-  Transmitter-Sprung (`src/scripts/hyperraum.ts`, Skript in `Basis.astro`, Ankunft über `?sprung=1`, wird sofort aus
-  der Adresse entfernt).
+- Sprachwechsel: auf der Startseite erst Drohnenflug Stockhausen ↔ London (Ereignis `drohne:reise`, Skript in
+  `Basis.astro`), dann normaler Seitenwechsel; auf den anderen Seiten direkt.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
   Arbeitgeber (Wunsch des Seiteninhabers).

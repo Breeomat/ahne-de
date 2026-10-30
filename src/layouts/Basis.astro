@@ -46,13 +46,12 @@ const strukturiert = {
     {!fehlerseite && <link rel="alternate" hreflang="x-default" href={new URL(fassungen[0].href, Astro.site).href} />}
     {!fehlerseite && <script type="application/ld+json" set:html={JSON.stringify(strukturiert)} />}
     <!-- Ankunft per Transmitter (Sprachwechsel): Seite bis zum Effekt verbergen, damit nichts aufblitzt -->
-    <script is:inline>if (/[?&]sprung=/.test(location.search)) { document.documentElement.classList.add('ankunft'); document.documentElement.dataset.sprung = '1'; }</script>
   </head>
   <body>
     <header class="kopf huelle">
       <nav class="sprachen" aria-label={t.sprachwahl}>
         {fassungen.map((f) => (
-          <a data-sprung href={f.href} hreflang={f.sprache} lang={f.sprache} aria-current={f.sprache === sprache ? 'true' : undefined}>
+          <a data-sprache-wechsel href={f.href} hreflang={f.sprache} lang={f.sprache} aria-current={f.sprache === sprache ? 'true' : undefined}>
             {f.sprache === 'de' ? 'Deutsch' : 'English'}
           </a>
         ))}
@@ -71,34 +70,15 @@ const strukturiert = {
       </div>
     </footer>
     <script>
-      import { hyperraum } from '../scripts/hyperraum';
-
-      // Sprachwechsel als Transmitter-Sprung: ?sprung markiert die Ankunft und wird gleich wieder entfernt
-      const wurzel = document.documentElement;
-      const hier = new URL(location.href);
-      if (hier.searchParams.has('sprung')) {
-        hier.searchParams.delete('sprung');
-        history.replaceState(null, '', hier.pathname + hier.search + hier.hash);
-        hyperraum('her', 800);
-        wurzel.classList.remove('ankunft');
-      }
-      document.querySelectorAll<HTMLAnchorElement>('a[data-sprung]:not([aria-current])').forEach((a) =>
-        a.addEventListener('click', async (e) => {
+      // Sprachwechsel: auf der Startseite fliegt die Drohne erst nach England bzw. Deutschland (Drohnenflug.astro),
+      // auf allen anderen Seiten geht der Link ganz normal
+      document.querySelectorAll<HTMLAnchorElement>('a[data-sprache-wechsel]:not([aria-current])').forEach((a) =>
+        a.addEventListener('click', (e) => {
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
-          e.preventDefault();
-          const los = async () => {
-            await hyperraum('hin', 650);
-            const ziel = new URL(a.href);
-            ziel.searchParams.set('sprung', '1');
-            location.href = ziel.href;
-          };
-          // Auf der Startseite fliegt vorher die Drohne nach England bzw. Deutschland (Drohnenflug.astro)
-          const reise = new CustomEvent('drohne:reise', { cancelable: true, detail: { nach: a.hreflang, weiter: los } });
-          if (dispatchEvent(reise)) los();
+          const reise = new CustomEvent('drohne:reise', { cancelable: true, detail: { nach: a.hreflang, weiter: () => (location.href = a.href) } });
+          if (!dispatchEvent(reise)) e.preventDefault();
         }),
       );
-      // Zurück-Taste (Seite aus dem Zwischenspeicher): Effekt-Reste entfernen
-      addEventListener('pageshow', (e) => { if (e.persisted) document.querySelectorAll('.hyperraum').forEach((el) => el.remove()); });
     </script>
     <script is:inline>
       // Lichtkegel folgt der Maus

@@ -275,9 +275,6 @@ a:hover { text-decoration-thickness: 2px; }
   .drohne__karte, .rec i { animation: none; }
 }
 
-/* ---------- Transmitter / Hyperraum (src/scripts/hyperraum.ts) ---------- */
-.ankunft body { visibility: hidden; }
-.hyperraum { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
 
 /* ---------- Überraschungen (src/components/Ueberraschungen.astro) ---------- */
 [data-stil='modern'] .punkte .ei {

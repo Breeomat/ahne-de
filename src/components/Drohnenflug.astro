@@ -169,6 +169,14 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     planen();
     return true;
   }
+  // Zurück-Taste nach dem Sprachwechsel (Seite aus dem Zwischenspeicher): wieder über Stockhausen
+  addEventListener('pageshow', (e) => {
+    if (!e.persisted) return;
+    ausflug = null;
+    ebene.classList.remove('im-ausflug');
+    tageszeit();
+    planen();
+  });
   addEventListener('drohne:urlaub', () => ausfliegen('korsika'));
   addEventListener('drohne:schalke', () => ausfliegen('schalke'));
   // Sprachwechsel (Basis.astro): Drohne fliegt erst nach England bzw. Deutschland, dann geht es zur anderen Sprache
