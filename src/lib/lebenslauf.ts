@@ -3,13 +3,14 @@ import type { Text } from './sprache';
 // Visitenkarte mit Lebenslauf (versteckte Seite /visitenkarte/ bzw. /en/business-card/, 5× auf „Marc“ tippen).
 // Quellen: Zwischenzeugnis Ahlbrandt (11/2011), IHK-Zeugnis Technischer Betriebswirt (10/2010),
 // Teilnahmebescheinigung Datenschutzbeauftragter (01/2013), Lebenslauf (2003), Profil „about-me.md“ (2026).
+// Ergänzt nach Angaben von Marc (10/2026): Rolle seit 2024, IT/ERP 2020–2024, Englisch in Meetings.
 // Bewusst nicht: vollständiges Geburtsdatum, Namen von Kolleg:innen, interne Projektnamen und Termine.
 
 export const titel: Text = { de: 'Solutions Analyst · Business Platform IT', en: 'Solutions Analyst · Business Platform IT' };
 
 export const profil: Text = {
-  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK).',
-  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK).',
+  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK). Seit 2020 rund die Hälfte der Meetings auf Englisch, mit Kontakten in Europa, den USA, China, Japan und Australien.',
+  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK). Since 2020 about half of all meetings in English, with contacts across Europe, the USA, China, Japan and Australia.',
 };
 
 export const firma: Text = {
@@ -40,24 +41,24 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     },
   },
   {
-    zeit: { de: '12/2008 – heute', en: '12/2008 – today' },
-    rolle: { de: 'ERP-Systembetreuer', en: 'ERP system administrator' },
+    zeit: { de: '02/2006 – 2024', en: '02/2006 – 2024' },
+    rolle: { de: 'IT-Administrator und ERP-Systembetreuer', en: 'IT administrator and ERP system administrator' },
     punkte: {
       de: [
+        'Interne Systemadministration (EDV) ab 2006, Betreuung des ERP-Systems ab 12/2008',
+        '2020–2024: Einbindung verschiedener Firmen in die Ahlbrandt System GmbH, u. a. aus Deutschland, England und den Niederlanden',
         'Hilfeforum für Probleme mit EDV- und ERP-System eingeführt (2009)',
-        'Berichte mit Crystal Reports im ERP-System (seit 2009)',
+        'Berichte mit Crystal Reports im ERP-System (ab 2009)',
         'Projekt „Einführung von Barcodescannern in der Materialwirtschaft“ mit ERP-Anbindung (2010)',
       ],
       en: [
+        'In-house IT system administration from 2006, ERP system administration from 12/2008',
+        '2020–2024: integration of several companies into Ahlbrandt System GmbH, including from Germany, England and the Netherlands',
         'Introduced a help forum for IT and ERP issues (2009)',
-        'Reports with Crystal Reports in the ERP system (since 2009)',
+        'Reports with Crystal Reports in the ERP system (from 2009)',
         'Project “barcode scanners in materials management” with ERP integration (2010)',
       ],
     },
-  },
-  {
-    zeit: { de: '02/2006 – heute', en: '02/2006 – today' },
-    rolle: { de: 'Interner Systemadministrator (EDV)', en: 'In-house IT system administrator' },
   },
   {
     zeit: { de: '08/2005 – 12/2006', en: '08/2005 – 12/2006' },
@@ -124,7 +125,7 @@ export const kenntnisse: { bereich: Text; text: Text }[] = [
   { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports' } },
   { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD administration)' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
-  { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English)', en: 'German (native), English (fluent, business English)' } },
+  { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English) – seit 2020 rund die Hälfte der Meetings auf Englisch', en: 'German (native), English (fluent, business English) – since 2020 about half of all meetings in English' } },
   { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
 ];
 
