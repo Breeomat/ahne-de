@@ -129,8 +129,10 @@ export const schule: { zeit: string; text: Text }[] = [
 ];
 
 export const kenntnisse: { bereich: Text; text: Text }[] = [
-  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, SAP (Integration), Infra, iScala, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, SAP (integration), Infra, iScala, Crystal Reports' } },
-  { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD administration)' } },
+  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports' } },
+  { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'EPLAN, WSCAD, SolidWorks (CAD administration)' } },
+  // laut Marc: nur aus Projektsicht, keine Anwenderkenntnisse
+  { bereich: { de: 'Projekterfahrung', en: 'Project experience' }, text: { de: 'SAP, iScala, Bluestar PLM – Erfahrung aus der Projektleitung (Integration, Upgrade, Anbindung), nicht als Anwender', en: 'SAP, iScala, Bluestar PLM – experience from project management (integration, upgrade, interfaces), not as an end user' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
   { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English), tägliche Arbeitssprache im internationalen Umfeld', en: 'German (native), English (fluent, business English), everyday working language in an international environment' } },
   { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
