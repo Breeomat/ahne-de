@@ -27,7 +27,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     punkte: {
       de: [
         'Aktuell: Integration des ERP-Systems Infra (Standort Lauterbach) in das SAP-System des Standorts Neuwied – danach Zusammenführung zu einem Unternehmen, BW Converting',
-        'Parallel dazu: Neueinführung von Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), später in Lucca (Italien) – künftiger Aufgabenschwerpunkt im Team',
+        'Parallel dazu: Neueinführung von Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), danach in Lucca (Italien); anschließend Einführung weiterer Unternehmensteile in Finance & Operations – künftiger Schwerpunkt des Teams',
         'ERP-Administration (Infra)',
         'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
         'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
@@ -37,7 +37,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
       ],
       en: [
         'Currently: integrating the Infra ERP system (Lauterbach site) into the SAP system of the Neuwied site – followed by the merger into one company, BW Converting',
-        'In parallel: new implementation of Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), later in Lucca (Italy) – my future focus within the team',
+        'In parallel: new implementation of Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), then in Lucca (Italy); afterwards rollout to further parts of the company – the team’s future focus',
         'ERP administration (Infra)',
         'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
         'Quality processes in the ERP system (CAPA, nonconformances)',
