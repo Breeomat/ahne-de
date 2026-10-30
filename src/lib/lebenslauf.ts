@@ -5,11 +5,11 @@ import type { Text } from './sprache';
 // Teilnahmebescheinigung Datenschutzbeauftragter (01/2013), Lebenslauf (2003), Profil „about-me.md“ (2026).
 // Bewusst nicht: vollständiges Geburtsdatum, Namen von Kolleg:innen, interne Projektnamen und Termine.
 
-export const titel: Text = { de: 'Solutions Analyst', en: 'Solutions Analyst' };
+export const titel: Text = { de: 'Solutions Analyst · Business Platform IT', en: 'Solutions Analyst · Business Platform IT' };
 
 export const profil: Text = {
-  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst im Business Transformation Team mit den Schwerpunkten ERP und PLM. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK).',
-  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in the Business Transformation Team, focusing on ERP and PLM. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK).',
+  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK).',
+  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK).',
 };
 
 export const firma: Text = {
@@ -20,18 +20,20 @@ export const firma: Text = {
 export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: string[] } }[] = [
   {
     zeit: { de: 'heute', en: 'today' },
-    rolle: { de: 'Solutions Analyst, Business Transformation Team', en: 'Solutions Analyst, Business Transformation Team' },
+    rolle: { de: 'Solutions Analyst, Business Platform IT – Schwerpunkt Engineering und Quality', en: 'Solutions Analyst, Business Platform IT – focus on engineering and quality' },
     punkte: {
       de: [
         'Einführung von Microsoft Dynamics 365 Finance & Operations',
         'ERP-Administration (Infra)',
         'Verantwortung für Bluestar PLM, Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
+        'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
         'Workflow-, Replikations- und Release-Prozesse',
       ],
       en: [
         'Implementation of Microsoft Dynamics 365 Finance & Operations',
         'ERP administration (Infra)',
         'Responsible for Bluestar PLM, integration of engineering data (products, bills of materials) and EPLAN',
+        'Quality processes in the ERP system (CAPA, nonconformances)',
         'Workflow, replication and release processes',
       ],
     },
