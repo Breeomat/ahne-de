@@ -19,7 +19,8 @@ export const firma: Text = {
 
 export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: string[] } }[] = [
   {
-    zeit: { de: 'heute', en: 'today' },
+    // laut Marc seit etwa zwei Jahren (Stand Oktober 2026)
+    zeit: { de: '2024 – heute', en: '2024 – today' },
     rolle: { de: 'Solutions Analyst, Business Platform IT – Schwerpunkt Engineering und Quality', en: 'Solutions Analyst, Business Platform IT – focus on engineering and quality' },
     punkte: {
       de: [
