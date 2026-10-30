@@ -1,7 +1,7 @@
 ---
 // Überraschungen auf der Startseite:
 // - Einsatz 112: „112“ tippen oder dreimal schnell auf „aktives Mitglied, Kassenwart“ (Feuerwehr) → Blaulicht, Drohne rückt aus
-// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Schalke (Tor + Looping), Wurstbude (Grill), Perry Rhodan (Hyperraum),
+// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl), Schalke (Tor + Looping), Wurstbude (Grill), Perry Rhodan (Hyperraum),
 //   Kochen (Rezept des Tages aus src/lib/rezepte.ts, nur wenn dort Rezepte stehen)
 // Jede Überraschung schreibt ins Live-Protokoll (Ereignis „protokoll“).
 import type { Sprache } from '../lib/sprache';
@@ -22,6 +22,9 @@ const texte = de
       tor: 'TOOOR!',
       schalke: 'Tor für Schalke 04. Die Sitzung wird für Jubel kurz unterbrochen. Die Drohne fliegt einen Looping.',
       perry: 'Hyperraumsprung durchgeführt. Rückkehr in den Normalraum erfolgreich.',
+      drohne: 'Die Drohne fliegt auf Wunsch einen Looping. Beifall aus dem Publikum.',
+      urlaub: 'Die Sitzung wird kurz für Urlaub unterbrochen. Der Liegestuhl ist aufgestellt.',
+      urlaubText: 'Kurz mal Urlaub …',
       wurstGewendet: 'Die Bratwurst wird gewendet.',
       wurstPerfekt: 'Bratwurst perfekt gegrillt. Beschluss: ab ins Brötchen. Abstimmung: einstimmig.',
       wurstKohle: 'Bratwurst leicht angekohlt – wie beim Dorffest. Sie wird trotzdem verzehrt.',
@@ -39,6 +42,9 @@ const texte = de
       tor: 'GOAAAL!',
       schalke: 'Goal for Schalke 04. The meeting is briefly interrupted for celebrations. The drone flies a loop.',
       perry: 'Hyperspace jump completed. Return to normal space successful.',
+      drohne: 'The drone flies a loop on request. Applause from the audience.',
+      urlaub: 'The meeting is briefly adjourned for a holiday. The deckchair is set up.',
+      urlaubText: 'Quick holiday break …',
       wurstGewendet: 'The bratwurst is turned.',
       wurstPerfekt: 'Bratwurst grilled to perfection. Resolution: into the bun. Vote: unanimous.',
       wurstKohle: 'Bratwurst slightly charred – just like at the village festival. It is eaten anyway.',
@@ -54,6 +60,32 @@ const rezept = rezepte.length ? rezepte[heute % rezepte.length] : null;
 <div class="blaulicht" aria-hidden="true"></div>
 <div class="meldung" role="status" aria-live="polite"></div>
 <div class="tor" aria-hidden="true"><canvas></canvas><strong>{texte.tor}</strong></div>
+<div class="urlaub" aria-hidden="true">
+  <svg viewBox="0 0 400 260">
+    <defs>
+      <linearGradient id="himmel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fc8f8" /><stop offset="1" stop-color="#ffe7b0" /></linearGradient>
+      <pattern id="streifen" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(28)"><rect width="6" height="12" fill="#1f5fae" /><rect x="6" width="6" height="12" fill="#ffffff" /></pattern>
+      <clipPath id="bild"><rect width="400" height="260" rx="22" /></clipPath>
+    </defs>
+    <g clip-path="url(#bild)">
+      <rect width="400" height="260" fill="url(#himmel)" />
+      <g class="urlaub__sonne"><circle cx="330" cy="60" r="26" fill="#ffd34d" />{[0, 45, 90, 135, 180, 225, 270, 315].map((w) => <line x1="330" y1="22" x2="330" y2="10" transform={`rotate(${w} 330 60)`} />)}</g>
+      <g class="urlaub__moewe"><path d="M60 70 q8 -8 16 0 q8 -8 16 0" /><path d="M110 50 q6 -6 12 0 q6 -6 12 0" /></g>
+      <rect y="150" width="400" height="50" fill="#2f86c9" />
+      <path class="urlaub__welle" d="M-40 150 q20 -8 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 v12 h-480 z" fill="#5fb2e8" />
+      <rect y="195" width="400" height="65" fill="#f1d9a6" />
+      <g class="urlaub__schirm"><line x1="318" y1="240" x2="318" y2="112" /><path d="M248 120 Q318 60 388 120 Z" fill="#e2463b" /><path d="M283 120 Q318 66 318 66 Q318 66 353 120 Z" fill="#ffffff" /></g>
+      <g class="urlaub__stuhl">
+        <path d="M196 112 L214 106 Q226 176 276 170 L272 182 Q206 196 196 112 Z" fill="url(#streifen)" stroke="#7a4b23" stroke-width="2" />
+        <line x1="150" y1="240" x2="205" y2="110" />
+        <line x1="285" y1="240" x2="248" y2="178" />
+        <line x1="178" y1="240" x2="276" y2="172" />
+        <line x1="205" y1="110" x2="214" y2="106" />
+      </g>
+    </g>
+  </svg>
+  <strong>{texte.urlaubText}</strong>
+</div>
 
 <dialog class="grill" aria-labelledby="grill-titel">
   <h2 id="grill-titel">{de ? 'Bratwurst vom Dorffest' : 'Village festival bratwurst'}</h2>
@@ -264,6 +296,34 @@ const rezept = rezepte.length ? rezepte[heute % rezepte.length] : null;
     protokoll(t.kochen.replace('{titel}', t.rezeptTitel));
   }
 
-  const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, perry, kochen };
+  // ---------- Drohne fliegen: Looping ----------
+  function drohne() {
+    dispatchEvent(new CustomEvent('drohne:looping'));
+    spielen([[300, 0, 0.5], [450, 0.25, 0.5], [700, 0.6, 0.4]]);
+    protokoll(t.drohne);
+  }
+
+  // ---------- Urlaub: Liegestuhl ----------
+  const urlaub = document.querySelector<HTMLElement>('.urlaub')!;
+  let urlaubZeit: number | undefined;
+  function urlaubMachen() {
+    urlaub.classList.remove('los');
+    void urlaub.offsetWidth;
+    urlaub.classList.add('los');
+    clearTimeout(urlaubZeit);
+    urlaubZeit = window.setTimeout(() => urlaub.classList.remove('los'), 3800);
+    // leises Meeresrauschen
+    try {
+      ton ??= new AudioContext();
+      const dauer = 3, puffer = ton.createBuffer(1, ton.sampleRate * dauer, ton.sampleRate), d = puffer.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.sin((Math.PI * i) / d.length) * 0.5;
+      const q = ton.createBufferSource(), f = ton.createBiquadFilter(), g = ton.createGain();
+      q.buffer = puffer; f.type = 'lowpass'; f.frequency.value = 700; g.gain.value = 0.08;
+      q.connect(f).connect(g).connect(ton.destination); q.start();
+    } catch {}
+    protokoll(t.urlaub);
+  }
+
+  const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, perry, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));
 </script>

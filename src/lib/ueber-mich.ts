@@ -32,11 +32,11 @@ export const ehrenamt: { name: Text; rolle: Text; href?: string }[] = [
 ];
 
 // ei: Überraschung beim Antippen (src/components/Ueberraschungen.astro). Kochen nur, wenn src/lib/rezepte.ts Rezepte hat.
-export const gernMache: (Text & { ei?: 'kochen' | 'wurst' | 'schalke' | 'perry' })[] = [
+export const gernMache: (Text & { ei?: 'kochen' | 'drohne' | 'wurst' | 'schalke' | 'perry' | 'urlaub' })[] = [
   { de: 'Kochen – fast täglich, gern auch neue Rezepte', en: 'Cooking – almost every day, often trying new recipes', ei: 'kochen' },
-  { de: 'Drohne fliegen', en: 'Flying my drone' },
+  { de: 'Drohne fliegen', en: 'Flying my drone', ei: 'drohne' },
   { de: 'Bei Dorffesten am Stand stehen, am liebsten an der Wurstbude', en: 'Helping out at village festivals, preferably at the sausage stand', ei: 'wurst' },
   { de: 'Schalke 04', en: 'Schalke 04', ei: 'schalke' },
   { de: 'Perry Rhodan', en: 'Perry Rhodan', ei: 'perry' },
-  { de: 'Urlaub an Ost- und Nordsee, in Frankreich und auf Korsika', en: 'Holidays on the Baltic and North Sea coasts, in France and on Corsica' },
+  { de: 'Urlaub an Ost- und Nordsee, in Frankreich und auf Korsika', en: 'Holidays on the Baltic and North Sea coasts, in France and on Corsica', ei: 'urlaub' },
 ];
