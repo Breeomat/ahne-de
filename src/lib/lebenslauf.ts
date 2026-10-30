@@ -129,7 +129,7 @@ export const schule: { zeit: string; text: Text }[] = [
 ];
 
 export const kenntnisse: { bereich: Text; text: Text }[] = [
-  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports' } },
+  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Infra (umfassende Kenntnisse inkl. Administration), Microsoft Dynamics 365 Finance & Operations (Grundkenntnisse), Crystal Reports', en: 'Infra (in-depth knowledge incl. administration), Microsoft Dynamics 365 Finance & Operations (basic knowledge), Crystal Reports' } },
   { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'EPLAN, WSCAD, SolidWorks (CAD administration)' } },
   // laut Marc: nur aus Projektsicht, keine Anwenderkenntnisse
   { bereich: { de: 'Projekterfahrung', en: 'Project experience' }, text: { de: 'SAP, iScala, Bluestar PLM – Erfahrung aus der Projektleitung (Integration, Upgrade, Anbindung), nicht als Anwender', en: 'SAP, iScala, Bluestar PLM – experience from project management (integration, upgrade, interfaces), not as an end user' } },
