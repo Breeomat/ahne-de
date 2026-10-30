@@ -1,7 +1,7 @@
 ---
 // Überraschungen auf der Startseite:
 // - Einsatz 112: „112“ tippen oder dreimal schnell auf „aktives Mitglied, Kassenwart“ (Feuerwehr) → Blaulicht, Drohne rückt aus
-// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Looping), Wurstbude (Grill), Perry Rhodan (Hyperraum),
+// - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Flug übers Stadion), Wurstbude (Grill),
 //   Kochen (Rezept des Tages aus src/lib/rezepte.ts, nur wenn dort Rezepte stehen)
 // Jede Überraschung schreibt ins Live-Protokoll (Ereignis „protokoll“).
 import type { Sprache } from '../lib/sprache';
@@ -20,8 +20,8 @@ const texte = de
       meldungEnde: 'Einsatz beendet – Kassenwart zufrieden',
       meldungAlarm: 'EINSATZ · Drohne rückt aus',
       tor: 'TOOOR!',
-      schalke: 'Tor für Schalke 04. Die Sitzung wird für Jubel kurz unterbrochen. Die Drohne fliegt einen Looping.',
-      perry: 'Hyperraumsprung durchgeführt. Rückkehr in den Normalraum erfolgreich.',
+      schalke: 'Tor für Schalke 04. Die Sitzung wird für Jubel kurz unterbrochen. Die Drohne fliegt über die Veltins-Arena.',
+      schalkeEnde: 'Die Drohne kehrt aus Gelsenkirchen zurück. Die Sitzung wird fortgesetzt.',
       drohne: 'Die Drohne fliegt auf Wunsch einen Looping. Beifall aus dem Publikum.',
       urlaub: 'Die Sitzung wird kurz für Urlaub unterbrochen. Der Liegestuhl ist aufgestellt, die Drohne fliegt über Korsika.',
       urlaubEnde: 'Rückkehr aus dem Urlaub. Die Sitzung wird fortgesetzt.',
@@ -41,8 +41,8 @@ const texte = de
       meldungEnde: 'Callout finished – treasurer satisfied',
       meldungAlarm: 'CALLOUT · drone responding',
       tor: 'GOAAAL!',
-      schalke: 'Goal for Schalke 04. The meeting is briefly interrupted for celebrations. The drone flies a loop.',
-      perry: 'Hyperspace jump completed. Return to normal space successful.',
+      schalke: 'Goal for Schalke 04. The meeting is briefly interrupted for celebrations. The drone flies over the Veltins-Arena.',
+      schalkeEnde: 'The drone returns from Gelsenkirchen. The meeting resumes.',
       drohne: 'The drone flies a loop on request. Applause from the audience.',
       urlaub: 'The meeting is briefly adjourned for a holiday. The deckchair is set up, the drone flies over Corsica.',
       urlaubEnde: 'Back from holiday. The meeting resumes.',
@@ -133,8 +133,6 @@ const texte = de
 <span hidden data-ueberraschung={JSON.stringify(texte)}></span>
 
 <script>
-  import { hyperraum } from '../scripts/hyperraum';
-
   const t = JSON.parse(document.querySelector<HTMLElement>('[data-ueberraschung]')!.dataset.ueberraschung!);
   const wurzel = document.documentElement;
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -205,7 +203,7 @@ const texte = de
   const leinwand = tor.querySelector('canvas')!;
   function schalke() {
     protokoll(t.schalke);
-    dispatchEvent(new CustomEvent('drohne:looping'));
+    dispatchEvent(new CustomEvent('drohne:schalke'));
     spielen([[523, 0, 0.18], [659, 0.18, 0.18], [784, 0.36, 0.18], [1047, 0.54, 0.6], [784, 0.9, 0.15], [1047, 1.05, 0.7]]);
     tor.classList.remove('los');
     void tor.offsetWidth;
@@ -294,12 +292,7 @@ const texte = de
     } else grill.close();
   });
 
-  // ---------- Perry Rhodan ----------
-  async function perry() {
-    spielen([[220, 0, 1.2], [330, 0.1, 1.1], [880, 0.6, 0.5]]);
-    await hyperraum('durch', 900);
-    protokoll(t.perry);
-  }
+  addEventListener('drohne:schalke-ende', () => protokoll(t.schalkeEnde));
 
   // ---------- Kochen: Rezept des Tages ----------
   const rezept = document.querySelector<HTMLDialogElement>('.rezept');
@@ -386,6 +379,6 @@ const texte = de
   }
   addEventListener('drohne:urlaub-ende', () => protokoll(t.urlaubEnde));
 
-  const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, perry, kochen, drohne, urlaub: urlaubMachen };
+  const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));
 </script>

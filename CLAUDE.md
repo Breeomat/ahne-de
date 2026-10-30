@@ -21,11 +21,15 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   (Abschnitte über `data-top`, Drohne über Ereignisse `drohne:ort`/`drohne:ziel`, sonst Ereignis `protokoll`).
   Nichts wird gespeichert; „Drucken / als PDF“ druckt nur das Protokoll.
 - Überraschungen (Startseite): `src/components/Ueberraschungen.astro` – „112“ tippen oder 3× auf die Feuerwehr-Rolle →
-  Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Drohne (Looping), Urlaub (Liegestuhl + Drohnenflug über Korsika, Karte `public/drohne/korsika.svg` aus
-  Natural Earth über `node scripts/korsikakarte.mjs`, Route `urlaub` in `Drohnenflug.astro`), Schalke (Tor + Looping),
-  Wurstbude (Grill), Perry Rhodan (Hyperraum), Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, Auswahl im Browser je Tag, „Noch ein Rezept“ blättert).
-- Sprachwechsel als Transmitter-Sprung (`src/scripts/hyperraum.ts`, Skript in `Basis.astro`, Ankunft über `?sprung=1`,
-  wird sofort aus der Adresse entfernt).
+  Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Flug übers Stadion), Wurstbude (Grill),
+  Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, Auswahl im Browser je Tag, „Noch ein Rezept“ blättert).
+- Ausflüge der Drohne (`ausfluege` in `Drohnenflug.astro`, zeitgesteuert): Korsika (Urlaub), Veltins-Arena (Schalke,
+  gezeichnete Karte `public/drohne/schalke.svg`), England/Deutschland (Sprachwechsel auf der Startseite). Karten Korsika
+  und Europa aus Natural Earth: `node scripts/korsikakarte.mjs …` bzw. `node scripts/europakarte.mjs …` (Pfade zu
+  topojson-client und world-atlas, siehe Kopf der Skripte).
+- Sprachwechsel: auf der Startseite erst Drohnenflug Stockhausen ↔ London (Ereignis `drohne:reise`), dann
+  Transmitter-Sprung (`src/scripts/hyperraum.ts`, Skript in `Basis.astro`, Ankunft über `?sprung=1`, wird sofort aus
+  der Adresse entfernt).
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
   Arbeitgeber (Wunsch des Seiteninhabers).

@@ -86,10 +86,15 @@ const strukturiert = {
         a.addEventListener('click', async (e) => {
           if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
           e.preventDefault();
-          await hyperraum('hin', 650);
-          const ziel = new URL(a.href);
-          ziel.searchParams.set('sprung', '1');
-          location.href = ziel.href;
+          const los = async () => {
+            await hyperraum('hin', 650);
+            const ziel = new URL(a.href);
+            ziel.searchParams.set('sprung', '1');
+            location.href = ziel.href;
+          };
+          // Auf der Startseite fliegt vorher die Drohne nach England bzw. Deutschland (Drohnenflug.astro)
+          const reise = new CustomEvent('drohne:reise', { cancelable: true, detail: { nach: a.hreflang, weiter: los } });
+          if (dispatchEvent(reise)) los();
         }),
       );
       // Zurück-Taste (Seite aus dem Zwischenspeicher): Effekt-Reste entfernen
