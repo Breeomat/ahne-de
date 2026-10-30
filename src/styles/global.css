@@ -282,3 +282,121 @@ a:hover { text-decoration-thickness: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .drohne__karte, .rec i { animation: none; }
 }
+
+/* ---------- Transmitter / Hyperraum (src/scripts/hyperraum.ts) ---------- */
+.ankunft body { visibility: hidden; }
+.hyperraum { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+
+/* ---------- Live-Protokoll (src/components/Protokoll.astro) ---------- */
+.protokoll {
+  position: fixed; left: 16px; bottom: 64px; z-index: 30; width: min(340px, calc(100% - 32px));
+  font: 500 0.78rem/1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #f4ecd2;
+}
+.protokoll__kopf {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.6rem; width: 100%;
+  padding: 0.45rem 0.8rem; border: 1px solid rgb(242 210 122 / 0.45); border-radius: 12px; cursor: pointer;
+  background: rgb(10 12 20 / 0.72); color: inherit; font: inherit; text-align: left;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.protokoll.neu .protokoll__kopf { animation: aufleuchten 0.9s ease-out; }
+@keyframes aufleuchten { from { border-color: #ffd76a; box-shadow: 0 0 18px rgb(255 215 106 / 0.6); } }
+.protokoll__titel { display: inline-flex; align-items: center; gap: 0.4rem; color: #ffd76a; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.protokoll__titel i { width: 7px; height: 7px; border-radius: 50%; background: #ff4d61; animation: blinken 1.2s steps(1) infinite; }
+.protokoll__letzte { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; opacity: 0.85; }
+.protokoll__zahl { color: #ffd76a; white-space: nowrap; }
+.protokoll__blatt {
+  margin-bottom: 0.5rem; padding: 0.9rem 1rem; border-radius: 12px; max-height: 50vh; display: flex; flex-direction: column; gap: 0.6rem;
+  background: #fcf8ec; color: #2a2418; box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.8);
+}
+.protokoll { display: flex; flex-direction: column-reverse; }
+.protokoll__blatt header, .protokoll__blatt footer { display: grid; gap: 0.15rem; font-size: 0.72rem; color: #5b513d; }
+.protokoll__blatt header strong { color: #2a2418; font-size: 0.8rem; }
+.protokoll__blatt ol { list-style: none; margin: 0; padding: 0.5rem 0; overflow-y: auto; border-block: 1px dashed #c8b98f; display: grid; gap: 0.45rem; }
+.protokoll__blatt li span { display: block; font-weight: 700; color: #8a6a1c; }
+.protokoll__blatt .unterschrift em { font-family: 'Source Serif 4 Variable', Georgia, serif; font-size: 1.05rem; color: #1d2b6b; }
+.protokoll__blatt footer button {
+  justify-self: start; margin-top: 0.3rem; padding: 0.3rem 0.7rem; border: 1px solid #8a6a1c; border-radius: 999px;
+  background: none; color: #8a6a1c; font: inherit; cursor: pointer;
+}
+@media (min-width: 1150px) { .drohne-hud__seite { top: 32%; } }
+@media (max-width: 759px) { .protokoll__letzte { display: none; } .protokoll { width: auto; right: auto; } }
+
+@media print {
+  .protokoll-druck body * { visibility: hidden !important; }
+  .protokoll-druck .protokoll, .protokoll-druck .protokoll * { visibility: visible !important; }
+  .protokoll-druck .protokoll { position: absolute; inset: 0 auto auto 0; width: 100%; font-size: 11pt; }
+  .protokoll-druck .protokoll__kopf, .protokoll-druck .protokoll__blatt footer button { display: none; }
+  .protokoll-druck .protokoll__blatt { display: flex !important; max-height: none; box-shadow: none; background: #fff; }
+  .protokoll-druck .protokoll__blatt ol { overflow: visible; }
+}
+
+/* ---------- Überraschungen (src/components/Ueberraschungen.astro) ---------- */
+[data-stil='modern'] .punkte .ei {
+  padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;
+}
+.ei span { margin-left: 0.35em; color: #ffd76a; font-size: 0.75em; }
+[data-stil='modern'] .punkte li:has(.ei):hover { border-color: #ffd76a; box-shadow: 0 0 14px rgb(255 215 106 / 0.35); }
+[data-ei='feuerwehr'] { cursor: pointer; user-select: none; }
+
+.blaulicht { position: fixed; inset: 0; z-index: 25; pointer-events: none; opacity: 0; mix-blend-mode: screen; }
+.im-einsatz .blaulicht { opacity: 1; animation: blaulicht 0.5s steps(1) infinite; }
+@keyframes blaulicht {
+  0% { background: radial-gradient(60vmax 60vmax at 0% 0%, rgb(30 90 255 / 0.55), transparent 60%); }
+  50% { background: radial-gradient(60vmax 60vmax at 100% 0%, rgb(30 90 255 / 0.55), transparent 60%); }
+}
+.im-einsatz .drohne-hud { color: #9fc2ff; }
+.im-einsatz [data-hud='status'] { color: #ff6b7d; animation: blinken 0.6s steps(1) infinite; }
+
+.meldung {
+  position: fixed; left: 50%; top: 18px; z-index: 40; translate: -50% -150%; transition: translate 0.4s cubic-bezier(.2,.9,.3,1.2);
+  padding: 0.6rem 1.1rem; border-radius: 999px; background: rgb(10 12 20 / 0.85); border: 1px solid #ffd76a; color: #ffe9a8;
+  font: 700 0.85rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.06em; white-space: nowrap;
+}
+.meldung.sichtbar { translate: -50% 0; }
+
+.tor { position: fixed; inset: 0; z-index: 35; pointer-events: none; display: grid; place-items: center; }
+.tor canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tor strong {
+  position: relative; opacity: 0; font: 900 clamp(4rem, 16vw, 11rem)/1 var(--sans); letter-spacing: -0.04em;
+  color: #fff; -webkit-text-stroke: 3px #004d9d; text-shadow: 0 0 40px #1a73e8;
+}
+.tor.los strong { animation: tor 2.4s cubic-bezier(.2,.9,.3,1.3); }
+@keyframes tor {
+  0% { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+  15% { opacity: 1; transform: scale(1.1) rotate(3deg); }
+  25% { transform: scale(1) rotate(0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+dialog.grill, dialog.rezept {
+  width: min(420px, calc(100% - 32px)); padding: 1.2rem 1.4rem; border: 1px solid rgb(242 210 122 / 0.5); border-radius: 20px;
+  background: #11131c; color: #f2f0e8; box-shadow: 0 30px 80px -20px #000;
+}
+dialog::backdrop { background: rgb(4 6 14 / 0.6); backdrop-filter: blur(3px); }
+dialog h2 { margin: 0 0 0.3rem; color: #ffd76a !important; }
+.grill__hinweis { margin: 0 0 0.6rem; color: #b9b4a4; font-size: 0.9rem; }
+.grill__bild { width: 100%; height: auto; display: block; }
+.grill__glut { animation: glut 1.8s ease-in-out infinite alternate; }
+@keyframes glut { to { filter: brightness(1.3) saturate(1.2); } }
+.grill__rost line { stroke: #6d6d6d; stroke-width: 3; stroke-linecap: round; }
+.grill__wurst { --wurst: rgb(232 160 150); transform-box: fill-box; transform-origin: center; }
+.grill__wurst rect { fill: var(--wurst); stroke: rgb(0 0 0 / 0.35); stroke-width: 1.5; transition: fill 0.3s; }
+.grill__wurst path { stroke: rgb(0 0 0 / 0.25); stroke-width: 3; stroke-linecap: round; }
+.grill__wurst.dreht { animation: wenden 0.45s ease-in-out; }
+@keyframes wenden { 50% { transform: translateY(-22px) scaleY(-1); } }
+.grill__rauch circle { fill: rgb(200 200 200 / 0.35); opacity: 0; }
+.grill.qualm .grill__rauch circle { animation: qualm 1.4s ease-out infinite; }
+@keyframes qualm { 0% { opacity: 0.6; transform: translateY(0) scale(0.6); } 100% { opacity: 0; transform: translateY(-50px) scale(1.6); } }
+.grill__stand { display: flex; justify-content: space-between; font: 600 0.85rem ui-monospace, Menlo, Consolas, monospace; color: #9ff5dc; }
+.grill__ergebnis { min-height: 1.4em; font-weight: 600; color: #ffd76a; }
+.grill__knoepfe { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.grill__knoepfe button, .rezept button {
+  padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid rgb(242 210 122 / 0.5);
+  background: rgb(255 255 255 / 0.05); color: #f2f0e8; font: inherit; cursor: pointer;
+}
+.grill__knoepfe button:first-child { background: var(--verlauf, #d4a63a); color: #1a1406; border: 0; font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  .im-einsatz .blaulicht { animation: none; opacity: 0.5; background: radial-gradient(60vmax 60vmax at 50% 0%, rgb(30 90 255 / 0.4), transparent 60%); }
+}

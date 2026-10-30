@@ -32,9 +32,11 @@ const route = [
 ];
 const rahmen = { west: 9.4325, sued: 50.555, ost: 9.4565, nord: 50.568, breite: 1000, hoehe: 853 };
 const status = de ? ['STARTBEREIT', 'IM FLUG', 'ZIEL ERREICHT'] : ['READY', 'IN FLIGHT', 'DESTINATION REACHED'];
+// Einsatz 112 (Überraschung): Drohne fliegt zum Feuerwehrhaus
+const einsatz = { x: 600, y: 343.4, ort: de ? 'Feuerwehrhaus · Einsatz' : 'Fire station · callout', alarm: 'ALARM', vorOrt: de ? 'IM EINSATZ' : 'ON SCENE' };
 const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r : r.replace('O', 'E')));
 ---
-<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)}>
+<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)}>
   <div class="drohne__karte"></div>
   <div class="drohne__fadenkreuz"></div>
 </div>
@@ -69,6 +71,14 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   const rahmen = JSON.parse(ebene.dataset.rahmen!);
   const status: string[] = JSON.parse(ebene.dataset.status!);
   const zMax = route[0].z;
+  const einsatzZiel = JSON.parse(ebene.dataset.einsatz!);
+  // Überraschungen (src/components/Ueberraschungen.astro) steuern die Drohne über Ereignisse
+  let einsatz: number | null = null;
+  let looping: number | null = null;
+  let letzterOrt = '';
+  let zielGemeldet = false;
+  addEventListener('drohne:einsatz', () => { einsatz = performance.now(); planen(); });
+  addEventListener('drohne:looping', () => { looping = performance.now(); planen(); });
   // Meter je Karteneinheit (für die Geschwindigkeit)
   const meterJeEinheit = ((rahmen.ost - rahmen.west) * 111320 * Math.cos(((rahmen.sued + rahmen.nord) / 2) * (Math.PI / 180))) / rahmen.breite;
 
@@ -104,6 +114,34 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     const max = document.documentElement.scrollHeight - innerHeight;
     const p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
     const s = stelle(p);
+    let aktiv = false;
+    let statusSonder = '';
+    let extraDreh = 0;
+    const jetzt0 = performance.now();
+    if (einsatz !== null) {
+      const t = (jetzt0 - einsatz) / 1000;
+      // 0–2,5 s Anflug, bis 7 s vor Ort, bis 9,5 s zurück auf die Route
+      const k = t < 2.5 ? glatt(t / 2.5) : t < 7 ? 1 : t < 9.5 ? 1 - glatt((t - 7) / 2.5) : 0;
+      s.x += (einsatzZiel.x - s.x) * k;
+      s.y += (einsatzZiel.y - s.y) * k;
+      s.z += (4.5 - s.z) * k;
+      s.kurs = (winkel(s.kurs, 0, k) + 360) % 360;
+      if (k > 0.5) s.ort = einsatzZiel.ort;
+      if (t < 7) statusSonder = t < 2.5 ? einsatzZiel.alarm : einsatzZiel.vorOrt;
+      if (t >= 9.5) {
+        einsatz = null;
+        dispatchEvent(new CustomEvent('drohne:einsatz-ende'));
+      } else aktiv = true;
+    }
+    if (looping !== null) {
+      const t = (jetzt0 - looping) / 1600;
+      if (t >= 1) looping = null;
+      else {
+        aktiv = true;
+        extraDreh = glatt(t) * 360;
+        s.z *= 1 - 0.35 * Math.sin(Math.PI * t);
+      }
+    }
 
     // Kamera: quadratisches SVG mit Bildschirmdiagonale, damit beim Drehen keine Ecken fehlen
     const diag = Math.ceil(Math.hypot(innerWidth, innerHeight));
@@ -111,7 +149,7 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     const sicht = diag / pxJeEinheit;
     svg.style.width = svg.style.height = diag + 'px';
     svg.setAttribute('viewBox', `${(s.x - sicht / 2).toFixed(2)} ${(s.y - sicht / 2).toFixed(2)} ${sicht.toFixed(2)} ${sicht.toFixed(2)}`);
-    svg.style.transform = `translate(-50%, -50%) rotate(${(-s.kurs).toFixed(2)}deg)`;
+    svg.style.transform = `translate(-50%, -50%) rotate(${(-s.kurs - extraDreh).toFixed(2)}deg)`;
 
     // Anzeige
     const jetzt = performance.now();
@@ -128,12 +166,21 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     hud.akku.textContent = String(Math.round(100 - p * 37));
     hud.ort.textContent = s.ort;
     hud.gps.textContent = `${lat.toFixed(4)} N  ${lon.toFixed(4)} E`;
-    hud.status.textContent = p < 0.02 ? status[0] : p > 0.97 ? status[2] : status[1];
+    hud.status.textContent = statusSonder || (p < 0.02 ? status[0] : p > 0.97 ? status[2] : status[1]);
+    // fürs Live-Protokoll: neuer Ort und Ankunft am Ziel melden
+    if (s.ort !== letzterOrt) {
+      letzterOrt = s.ort;
+      if (!statusSonder && s.ort !== route[route.length - 1].ort) dispatchEvent(new CustomEvent('drohne:ort', { detail: s.ort }));
+    }
+    if (p > 0.97 && !zielGemeldet) {
+      zielGemeldet = true;
+      dispatchEvent(new CustomEvent('drohne:ziel'));
+    }
     // Ziel leuchtet auf, sobald die Drohne zur Landung ansetzt
     ebene.style.setProperty('--naehe', Math.min(1, Math.max(0, (p - 0.72) / 0.2)).toFixed(3));
     // Kompassband: 8 Richtungen à 45°, je 3.2em breit, dreifach hintereinander
     hud.kompass.style.transform = `translateX(${(-(8 + s.kurs / 45) * 3.2 + 3.2 * 1.5).toFixed(3)}em)`;
-    if (tempo > 0.2) planen();
+    if (tempo > 0.2 || aktiv) planen();
   }
 
   function planen() {

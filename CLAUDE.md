@@ -14,6 +14,14 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Zoom, Kurs, Ortsnamen je Sprache) und Anzeige; Karte `public/drohne/stockhausen.svg` aus der Grundkarte von
   stockhausen-online (`python3 scripts/drohnenkarte.py <pfad>/basis.svg`). Hinweis „© OpenStreetMap-Mitwirkende“
   unter dem Kontakt bleibt stehen. Ziel des Flugs ist auf Wunsch Mühlweg 11a (`zuhause`, Haus leuchtet am Ende).
+- Live-Protokoll (Startseite): `src/components/Protokoll.astro` – schreibt Besucheraktionen als Sitzungsprotokoll mit
+  (Abschnitte über `data-top`, Drohne über Ereignisse `drohne:ort`/`drohne:ziel`, sonst Ereignis `protokoll`).
+  Nichts wird gespeichert; „Drucken / als PDF“ druckt nur das Protokoll.
+- Überraschungen (Startseite): `src/components/Ueberraschungen.astro` – „112“ tippen oder 3× auf die Feuerwehr-Rolle →
+  Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Schalke (Tor + Looping),
+  Wurstbude (Grill), Perry Rhodan (Hyperraum), Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, nur wenn gefüllt).
+- Sprachwechsel als Transmitter-Sprung (`src/scripts/hyperraum.ts`, Skript in `Basis.astro`, Ankunft über `?sprung=1`,
+  wird sofort aus der Adresse entfernt).
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Werdegang, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`.
 - Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und

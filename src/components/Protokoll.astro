@@ -1,0 +1,138 @@
+---
+// Live-Protokoll (Startseite): schreibt mit, was der Besucher tut – im Stil eines Sitzungsprotokolls.
+// Nichts wird gespeichert oder übertragen; das Protokoll lebt nur in dieser Seite. Drucken = als PDF speichern.
+import type { Sprache } from '../lib/sprache';
+
+interface Props {
+  sprache: Sprache;
+}
+
+const { sprache } = Astro.props;
+const de = sprache === 'de';
+const texte = de
+  ? {
+      eroeffnung: 'Eröffnung. Der Besucher betritt die Seite um {zeit} Uhr. Die Beschlussfähigkeit wird festgestellt.',
+      transmitter: 'Der Besucher trifft per Transmitter aus der englischen Fassung ein. Ankunft ohne besondere Vorkommnisse.',
+      beruf: 'Der berufliche Werdegang wird zur Kenntnis genommen.',
+      ehrenamt: 'Das Ehrenamt wird gewürdigt. Kein Widerspruch.',
+      hobbys: 'Die Freizeitgestaltung wird beraten.',
+      kontakt: 'Eine Kontaktaufnahme wird in Aussicht gestellt.',
+      ort: 'Die Drohne überfliegt: {ort}.',
+      ziel: 'Die Drohne erreicht Mühlweg 11a. Beschluss: Ziel erreicht. Abstimmung: Ja 1 / Nein 0 / Enthaltung 0 – einstimmig angenommen.',
+      mail: 'Der Besucher greift zur E-Mail. Aufgabe: Antwort – verantwortlich: Marc Ahne – Termin: zeitnah.',
+      top: 'TOP',
+    }
+  : {
+      eroeffnung: 'Opening. The visitor enters the page at {zeit}. A quorum is established.',
+      transmitter: 'The visitor arrives by transmitter from the German version. Arrival without incident.',
+      beruf: 'The career history is noted.',
+      ehrenamt: 'The volunteering work is acknowledged. No objections.',
+      hobbys: 'Leisure activities are discussed.',
+      kontakt: 'Getting in touch is considered.',
+      ort: 'The drone passes over: {ort}.',
+      ziel: 'The drone reaches Mühlweg 11a. Resolution: destination reached. Vote: yes 1 / no 0 / abstentions 0 – carried unanimously.',
+      mail: 'The visitor reaches for email. Action: reply – owner: Marc Ahne – due: soon.',
+      top: 'Item',
+    };
+---
+<aside class="protokoll" aria-label={de ? 'Live-Protokoll' : 'Live minutes'} data-texte={JSON.stringify(texte)} data-sprache={sprache}>
+  <button type="button" class="protokoll__kopf" aria-expanded="false">
+    <span class="protokoll__titel"><i></i>{de ? 'Live-Protokoll' : 'Live minutes'}</span>
+    <span class="protokoll__letzte" data-letzte></span>
+    <span class="protokoll__zahl">{texte.top} <b data-zahl>0</b></span>
+  </button>
+  <div class="protokoll__blatt" hidden>
+    <header>
+      <strong>{de ? 'Sitzungsprotokoll · Besuch auf ahne.de' : 'Minutes · Visit to ahne.de'}</strong>
+      <span>{de ? 'Datum' : 'Date'}: <span data-datum></span> · {de ? 'Beginn' : 'Start'}: <span data-beginn></span></span>
+      <span>{de ? 'Anwesend: 1 Besucher, 1 Drohne · Sitzungsleitung: die Drohne · Schriftführung: automatisch' : 'Present: 1 visitor, 1 drone · Chair: the drone · Minutes: automatic'}</span>
+    </header>
+    <ol data-liste></ol>
+    <footer>
+      <span>{de ? 'Ende der Sitzung: offen' : 'Close of meeting: open'}</span>
+      <span class="unterschrift">{de ? 'Für die Richtigkeit:' : 'Certified correct:'}<br /><em>Marc Ahne</em>, {de ? 'Schriftführer' : 'secretary'}</span>
+      <button type="button" data-drucken>{de ? 'Drucken / als PDF speichern' : 'Print / save as PDF'}</button>
+    </footer>
+  </div>
+</aside>
+
+<script>
+  const kasten = document.querySelector<HTMLElement>('.protokoll')!;
+  const kopf = kasten.querySelector<HTMLButtonElement>('.protokoll__kopf')!;
+  const blatt = kasten.querySelector<HTMLElement>('.protokoll__blatt')!;
+  const liste = kasten.querySelector<HTMLOListElement>('[data-liste]')!;
+  const letzte = kasten.querySelector<HTMLElement>('[data-letzte]')!;
+  const zahl = kasten.querySelector<HTMLElement>('[data-zahl]')!;
+  const t = JSON.parse(kasten.dataset.texte!);
+  const locale = kasten.dataset.sprache === 'de' ? 'de-DE' : 'en-GB';
+  const uhrzeit = (mitSek = false) => new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', ...(mitSek && { second: '2-digit' }) });
+  let n = 0;
+  let tippen: number | undefined;
+
+  function eintragen(text: string) {
+    n++;
+    const li = document.createElement('li');
+    li.innerHTML = `<span>${t.top} ${n} · ${uhrzeit(true)}</span>`;
+    li.append(document.createTextNode(text));
+    liste.append(li);
+    liste.scrollTop = liste.scrollHeight;
+    zahl.textContent = String(n);
+    // Schreibmaschine in der Kopfzeile
+    clearInterval(tippen);
+    let i = 0;
+    letzte.textContent = '';
+    tippen = window.setInterval(() => {
+      letzte.textContent = text.slice(0, ++i);
+      if (i >= text.length) clearInterval(tippen);
+    }, 18);
+    kasten.classList.remove('neu');
+    void kasten.offsetWidth;
+    kasten.classList.add('neu');
+  }
+
+  kasten.querySelector<HTMLElement>('[data-datum]')!.textContent = new Date().toLocaleDateString(locale);
+  kasten.querySelector<HTMLElement>('[data-beginn]')!.textContent = uhrzeit();
+  eintragen(t.eroeffnung.replace('{zeit}', uhrzeit()));
+  if (document.documentElement.dataset.sprung) eintragen(t.transmitter);
+
+  kopf.addEventListener('click', () => {
+    const auf = blatt.hidden;
+    blatt.hidden = !auf;
+    kopf.setAttribute('aria-expanded', String(auf));
+    if (auf) liste.scrollTop = liste.scrollHeight;
+  });
+  kasten.querySelector('[data-drucken]')!.addEventListener('click', () => {
+    document.documentElement.classList.add('protokoll-druck');
+    print();
+  });
+  addEventListener('afterprint', () => document.documentElement.classList.remove('protokoll-druck'));
+
+  // Abschnitte der Seite (je einmal)
+  const gesehen = new Set<string>();
+  const beobachter = new IntersectionObserver((eintraege) => {
+    for (const e of eintraege) {
+      const top = (e.target as HTMLElement).dataset.top!;
+      if (e.isIntersecting && !gesehen.has(top)) {
+        gesehen.add(top);
+        eintragen(t[top]);
+      }
+    }
+  }, { threshold: 0.6 });
+  document.querySelectorAll('[data-top]').forEach((el) => beobachter.observe(el));
+
+  // Drohne (src/components/Drohnenflug.astro)
+  const orte = new Set<string>();
+  let ersterOrt = true;
+  addEventListener('drohne:ort', (e) => {
+    const ort = (e as CustomEvent<string>).detail;
+    if (ersterOrt) { ersterOrt = false; orte.add(ort); return; }
+    if (orte.has(ort)) return;
+    orte.add(ort);
+    eintragen(t.ort.replace('{ort}', ort));
+  });
+  addEventListener('drohne:ziel', () => eintragen(t.ziel));
+
+  // Überraschungen (src/components/Ueberraschungen.astro) und sonstige Einträge
+  addEventListener('protokoll', (e) => eintragen((e as CustomEvent<string>).detail));
+  document.querySelectorAll('a[href^="mailto:"]').forEach((a) => a.addEventListener('click', () => eintragen(t.mail)));
+</script>
