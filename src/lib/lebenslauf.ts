@@ -10,8 +10,8 @@ import type { Text } from './sprache';
 export const titel: Text = { de: 'Solutions Analyst · Business Platform IT', en: 'Solutions Analyst · Business Platform IT' };
 
 export const profil: Text = {
-  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK). Seit 2020 im international aufgestellten Team mit direkter Berichtslinie in die USA; Englisch ist Arbeitssprache in der täglichen Abstimmung mit Kolleginnen, Kollegen und Partnern in Europa, den USA, China, Japan und Australien.',
-  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK). Since 2020 part of an international team with a direct reporting line to the USA; English is my everyday working language with colleagues and partners in Europe, the USA, China, Japan and Australia.',
+  de: 'Seit 1988 bei der Ahlbrandt System GmbH in Lauterbach, heute Teil von BW Converting (Barry-Wehmiller). Vom Industrieelektroniker über Projektierung und Abteilungsleitung zur Betreuung von EDV und ERP-System; heute Solutions Analyst in der Business Platform IT mit Schwerpunkt Engineering und Quality. Industriemeister Elektro und Geprüfter Technischer Betriebswirt (IHK). Seit 2020 Teil eines global verteilten Teams; sicherer Umgang mit Englisch in Meetings, Präsentationen und Schriftverkehr.',
+  en: 'With Ahlbrandt System GmbH in Lauterbach since 1988, today part of BW Converting (Barry-Wehmiller). From industrial electronics technician via project engineering and department management to looking after IT and the ERP system; today Solutions Analyst in Business Platform IT, focusing on engineering and quality. Master craftsman in electrical engineering (Industriemeister Elektro) and certified technical business administrator (IHK). Since 2020 part of a globally distributed team; confident use of English in meetings, presentations and written correspondence.',
 };
 
 export const firma: Text = {
@@ -27,7 +27,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     punkte: {
       de: [
         'Aktuell: Integration des ERP-Systems Infra (Standort Lauterbach) in das SAP-System des Standorts Neuwied – danach Zusammenführung zu einem Unternehmen, BW Converting',
-        'Einführung von Microsoft Dynamics 365 Finance & Operations',
+        'Parallel dazu: Neueinführung von Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), später in Lucca (Italien) – künftiger Aufgabenschwerpunkt im Team',
         'ERP-Administration (Infra)',
         'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
         'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
@@ -35,7 +35,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
       ],
       en: [
         'Currently: integrating the Infra ERP system (Lauterbach site) into the SAP system of the Neuwied site – followed by the merger into one company, BW Converting',
-        'Implementation of Microsoft Dynamics 365 Finance & Operations',
+        'In parallel: new implementation of Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), later in Lucca (Italy) – my future focus within the team',
         'ERP administration (Infra)',
         'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
         'Quality processes in the ERP system (CAPA, nonconformances)',
