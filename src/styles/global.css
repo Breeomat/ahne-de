@@ -350,29 +350,6 @@ dialog h2 { margin: 0 0 0.3rem; color: #ffd76a !important; }
   .im-einsatz .blaulicht { animation: none; opacity: 0.5; background: radial-gradient(60vmax 60vmax at 50% 0%, rgb(30 90 255 / 0.4), transparent 60%); }
 }
 
-/* Urlaub: Liegestuhl am Strand */
-.urlaub {
-  position: fixed; left: 50%; bottom: 90px; z-index: 35; width: min(400px, calc(100% - 32px)); pointer-events: none;
-  translate: -50% 40px; opacity: 0; transition: translate 0.6s cubic-bezier(.2,.9,.3,1.2), opacity 0.4s;
-  filter: drop-shadow(0 25px 40px rgb(0 0 0 / 0.6));
-}
-.urlaub.los { translate: -50% 0; opacity: 1; }
-.urlaub svg { display: block; width: 100%; height: auto; border-radius: 22px; border: 2px solid #ffd76a; }
-.urlaub strong {
-  position: absolute; left: 18px; top: 14px; font: 800 1.3rem var(--sans); color: #fff; text-shadow: 0 2px 8px rgb(0 0 0 / 0.35);
-}
-.urlaub__sonne line { stroke: #ffd34d; stroke-width: 4; stroke-linecap: round; }
-.urlaub__sonne { transform-origin: 330px 60px; animation: sonne 8s linear infinite; }
-@keyframes sonne { to { rotate: 360deg; } }
-.urlaub__moewe path { fill: none; stroke: #33475b; stroke-width: 2.5; stroke-linecap: round; }
-.urlaub__moewe { animation: moewe 4s ease-in-out infinite alternate; }
-@keyframes moewe { to { translate: 40px -8px; } }
-.urlaub__welle { animation: welle 2.4s linear infinite; }
-@keyframes welle { to { translate: 40px 0; } }
-.urlaub__schirm line, .urlaub__stuhl line { stroke: #7a4b23; stroke-width: 6; stroke-linecap: round; }
-.urlaub__schirm line { stroke: #8d8d8d; stroke-width: 4; }
-.urlaub.los .urlaub__stuhl { animation: aufklappen 0.8s 0.2s cubic-bezier(.2,.9,.3,1.3) both; transform-origin: 215px 240px; }
-@keyframes aufklappen { from { transform: scaleY(0.2) skewX(25deg); opacity: 0; } }
 
 /* Rezept des Tages */
 /* Kopf und Knöpfe bleiben stehen, nur das Rezept scrollt */
