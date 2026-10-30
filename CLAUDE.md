@@ -23,7 +23,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Sprachwechsel als Transmitter-Sprung (`src/scripts/hyperraum.ts`, Skript in `Basis.astro`, Ankunft über `?sprung=1`,
   wird sofort aus der Adresse entfernt).
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
-- Texte „über mich“ (Einleitung, Werdegang, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`.
+- Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
+  Arbeitgeber (Wunsch des Seiteninhabers).
 - Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und
   `src/pages/en/` binden sie nur mit `sprache` ein. Neue Seite: Komponente + beide Seiten + Eintrag in `seiten`.
 - Impressum und Datenschutz: bei neuen externen Diensten (Formulare, Statistik, eingebettete Inhalte)

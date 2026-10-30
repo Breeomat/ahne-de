@@ -6,7 +6,7 @@ import Ueberraschungen from './Ueberraschungen.astro';
 import { rezepte } from '../lib/rezepte';
 import { person } from '../lib/site';
 import { ui, type Sprache } from '../lib/sprache';
-import { einleitung, werdegang, ehrenamt, gernMache } from '../lib/ueber-mich';
+import { einleitung, ehrenamt, gernMache } from '../lib/ueber-mich';
 
 interface Props {
   sprache: Sprache;
@@ -23,18 +23,6 @@ const t = ui[sprache];
   <p class="untertitel">{t.untertitel}</p>
 
   <p class="einleitung block">{einleitung[sprache]}</p>
-
-  <section class="block" data-top="beruf">
-  <h2>{t.beruf}</h2>
-  <dl class="zeitleiste">
-    {werdegang.map(({ zeit, text }) => (
-      <>
-        <dt>{zeit[sprache]}</dt>
-        <dd>{text[sprache]}</dd>
-      </>
-    ))}
-  </dl>
-  </section>
 
   <section class="block" data-top="ehrenamt">
   <h2>{t.ehrenamt}</h2>

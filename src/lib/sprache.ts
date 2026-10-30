@@ -13,8 +13,7 @@ export const ui = {
   de: {
     locale: 'de_DE',
     beschreibung: 'Persönliche Seite von Marc Ahne aus Stockhausen im Vogelsberg.',
-    untertitel: 'Solutions Analyst · Stockhausen im Vogelsberg',
-    beruf: 'Beruf',
+    untertitel: 'Stockhausen im Vogelsberg',
     ehrenamt: 'Ehrenamt',
     gernMache: 'Was ich gern mache',
     kontakt: 'Kontakt',
@@ -27,8 +26,7 @@ export const ui = {
   en: {
     locale: 'en_GB',
     beschreibung: 'Personal website of Marc Ahne from Stockhausen, Vogelsberg, Germany.',
-    untertitel: 'Solutions Analyst · Stockhausen, Vogelsberg, Germany',
-    beruf: 'Career',
+    untertitel: 'Stockhausen, Vogelsberg, Germany',
     ehrenamt: 'Volunteering',
     gernMache: 'What I enjoy',
     kontakt: 'Contact',

@@ -74,10 +74,6 @@ a:hover { text-decoration-thickness: 2px; }
 
 .fehlt { background: #fff1a8; color: #3b3000; padding: 0 0.25em; border-radius: 3px; }
 
-.zeitleiste { display: grid; grid-template-columns: 4.5rem 1fr; gap: 0.6rem 1rem; margin: 0; }
-.zeitleiste dt { font-weight: 600; color: var(--wald); font-variant-numeric: tabular-nums; }
-.zeitleiste dd { margin: 0; }
-
 .punkte { margin: 0; padding-left: 1.2rem; }
 .punkte li { margin-bottom: 0.3rem; }
 .punkte li::marker { color: var(--akzent); }
@@ -166,10 +162,6 @@ a:hover { text-decoration-thickness: 2px; }
   @keyframes auftauchen { from { opacity: 0; transform: translateY(40px) scale(0.96); filter: blur(6px); } }
 }
 
-[data-stil='modern'] .zeitleiste dt {
-  align-self: start; justify-self: start; padding: 0.05rem 0.6rem; border-radius: 999px;
-  background: var(--verlauf); color: #1a1406; font-size: 0.85rem; text-shadow: none;
-}
 [data-stil='modern'] .liste, [data-stil='modern'] .liste li { border-color: var(--linie); }
 [data-stil='modern'] .liste li { transition: transform 0.3s, padding-left 0.3s; }
 [data-stil='modern'] .liste li:hover { transform: translateX(6px); }
@@ -309,6 +301,7 @@ a:hover { text-decoration-thickness: 2px; }
   background: #fcf8ec; color: #2a2418; box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.8);
 }
 .protokoll { display: flex; flex-direction: column-reverse; }
+.protokoll__blatt[hidden] { display: none; }
 .protokoll__blatt header, .protokoll__blatt footer { display: grid; gap: 0.15rem; font-size: 0.72rem; color: #5b513d; }
 .protokoll__blatt header strong { color: #2a2418; font-size: 0.8rem; }
 .protokoll__blatt ol { list-style: none; margin: 0; padding: 0.5rem 0; overflow-y: auto; border-block: 1px dashed #c8b98f; display: grid; gap: 0.45rem; }
