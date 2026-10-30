@@ -54,8 +54,6 @@ const texte = de
       unten: 'Bottom',
       kochen: 'The recipe of the day is presented: {titel}.',
     };
-const heute = Math.floor(Date.now() / 86400000);
-const rezept = rezepte.length ? rezepte[heute % rezepte.length] : null;
 ---
 <div class="blaulicht" aria-hidden="true"></div>
 <div class="meldung" role="status" aria-live="polite"></div>
@@ -108,15 +106,26 @@ const rezept = rezepte.length ? rezepte[heute % rezepte.length] : null;
   </div>
 </dialog>
 
-{rezept && (
+{rezepte.length > 0 && (
   <dialog class="rezept" aria-labelledby="rezept-titel">
-    <h2 id="rezept-titel">{de ? 'Rezept des Tages' : 'Recipe of the day'}: {rezept.titel[sprache]}</h2>
-    <p>{rezept.text[sprache]}</p>
-    <button type="button" data-rezept-zu>{de ? 'Schließen' : 'Close'}</button>
+    <p class="rezept__kicker">{de ? 'Rezept des Tages' : 'Recipe of the day'} · <span data-rezept-nr></span>/{rezepte.length}</p>
+    {rezepte.map((r, i) => (
+      <article data-rezept={i} hidden>
+        <h2 id={i === 0 ? 'rezept-titel' : undefined}>{r.titel[sprache]}</h2>
+        <h3>{de ? 'Zutaten' : 'Ingredients'}</h3>
+        <p>{r.zutaten[sprache]}</p>
+        <h3>{de ? 'Zubereitung' : 'Method'}</h3>
+        <ol>{r.schritte[sprache].map((schritt) => <li>{schritt}</li>)}</ol>
+      </article>
+    ))}
+    <div class="grill__knoepfe">
+      <button type="button" data-rezept-weiter>{de ? 'Noch ein Rezept' : 'Another recipe'}</button>
+      <button type="button" data-rezept-zu>{de ? 'Schließen' : 'Close'}</button>
+    </div>
   </dialog>
 )}
 
-<span hidden data-ueberraschung={JSON.stringify({ ...texte, rezeptTitel: rezept?.titel[sprache] ?? '' })}></span>
+<span hidden data-ueberraschung={JSON.stringify(texte)}></span>
 
 <script>
   import { hyperraum } from '../scripts/hyperraum';
@@ -289,11 +298,26 @@ const rezept = rezepte.length ? rezepte[heute % rezepte.length] : null;
 
   // ---------- Kochen: Rezept des Tages ----------
   const rezept = document.querySelector<HTMLDialogElement>('.rezept');
+  const rezeptListe = rezept ? [...rezept.querySelectorAll<HTMLElement>('[data-rezept]')] : [];
+  // jeden Tag ein anderes Rezept (Tag seit 1970, Ortszeit)
+  let rezeptNr = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000) % Math.max(1, rezeptListe.length);
+  function rezeptZeigen() {
+    rezeptListe.forEach((r, i) => (r.hidden = i !== rezeptNr));
+    rezept!.querySelector('[data-rezept-nr]')!.textContent = String(rezeptNr + 1);
+    rezept!.scrollTop = 0;
+    protokoll(t.kochen.replace('{titel}', rezeptListe[rezeptNr].querySelector('h2')!.textContent!));
+  }
   rezept?.querySelector('[data-rezept-zu]')?.addEventListener('click', () => rezept.close());
+  rezept?.querySelector('[data-rezept-weiter]')?.addEventListener('click', () => {
+    rezeptNr = (rezeptNr + 1) % rezeptListe.length;
+    rezeptZeigen();
+  });
   function kochen() {
     if (!rezept) return;
+    rezeptZeigen();
     rezept.showModal();
-    protokoll(t.kochen.replace('{titel}', t.rezeptTitel));
+    // showModal setzt den Fokus auf den ersten Knopf unten – Rezept trotzdem von oben zeigen
+    rezept.scrollTop = 0;
   }
 
   // ---------- Drohne fliegen: Looping ----------
