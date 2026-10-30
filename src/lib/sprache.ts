@@ -6,6 +6,8 @@ export const seiten = {
   start: { de: '', en: 'en/' },
   impressum: { de: 'impressum/', en: 'en/imprint/' },
   datenschutz: { de: 'datenschutz/', en: 'en/privacy/' },
+  // versteckt: 5× auf „Marc“ tippen (Ueberraschungen.astro), nicht in der Sitemap, noindex
+  visitenkarte: { de: 'visitenkarte/', en: 'en/business-card/' },
 } satisfies Record<string, Text>;
 export type Seite = keyof typeof seiten;
 

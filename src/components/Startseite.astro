@@ -3,8 +3,8 @@ import Basis from '../layouts/Basis.astro';
 import Drohnenflug from './Drohnenflug.astro';
 import Ueberraschungen from './Ueberraschungen.astro';
 import { rezepte } from '../lib/rezepte';
-import { person } from '../lib/site';
-import { ui, type Sprache } from '../lib/sprache';
+import { person, url } from '../lib/site';
+import { seiten, ui, type Sprache } from '../lib/sprache';
 import { einleitung, ehrenamt, gernMache } from '../lib/ueber-mich';
 
 interface Props {
@@ -17,7 +17,7 @@ const t = ui[sprache];
 <Basis sprache={sprache} seite="start">
   <Drohnenflug sprache={sprache} />
   <Ueberraschungen sprache={sprache} />
-  <h1>{person.name}</h1>
+  <h1><span class="vorname" data-visitenkarte={url(seiten.visitenkarte[sprache])}>{person.name.split(' ')[0]}</span> {person.name.split(' ').slice(1).join(' ')}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
   <p class="einleitung block">{einleitung[sprache]}</p>

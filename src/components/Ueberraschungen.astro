@@ -316,6 +316,15 @@ const texte = de
   }
 
 
+  // ---------- Visitenkarte: 5× schnell auf „Marc“ ----------
+  const vorname = document.querySelector<HTMLElement>('[data-visitenkarte]');
+  let namenKlicks: number[] = [];
+  vorname?.addEventListener('click', () => {
+    const jetzt = performance.now();
+    namenKlicks = [...namenKlicks.filter((k) => jetzt - k < 2500), jetzt];
+    if (namenKlicks.length >= 5) location.href = vorname.dataset.visitenkarte!;
+  });
+
   const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));
 </script>

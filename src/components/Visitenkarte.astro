@@ -1,0 +1,129 @@
+---
+// Visitenkarte mit Lebenslauf – bewusst schlicht (ohne Drohne und Effekte), druckbar.
+// Versteckt: erreichbar über 5× „Marc“ auf der Startseite, noindex, nicht in der Sitemap.
+import Basis from '../layouts/Basis.astro';
+import { person, url } from '../lib/site';
+import { seiten, type Sprache } from '../lib/sprache';
+import { ehrenamt } from '../lib/ueber-mich';
+import { titel, profil, firma, stationen, weiterbildung, schule, kenntnisse, persoenlich } from '../lib/lebenslauf';
+
+interface Props {
+  sprache: Sprache;
+}
+
+const { sprache } = Astro.props;
+const de = sprache === 'de';
+const t = de
+  ? { seite: 'Visitenkarte', profil: 'Profil', beruf: 'Berufliche Stationen', weiterbildung: 'Weiterbildung', schule: 'Schulbildung', kenntnisse: 'Kenntnisse', ehrenamt: 'Ehrenamt', drucken: 'Drucken / als PDF speichern', zurueck: 'Zur Startseite' }
+  : { seite: 'Business card', profil: 'Profile', beruf: 'Career', weiterbildung: 'Further education', schule: 'School education', kenntnisse: 'Skills', ehrenamt: 'Volunteering', drucken: 'Print / save as PDF', zurueck: 'Home' };
+---
+<Basis sprache={sprache} seite="visitenkarte" titel={t.seite} beschreibung={`${person.name} – ${titel[sprache]}`} schlicht verborgen>
+  <article class="vk">
+    <header class="vk__karte">
+      <div>
+        <h1>{person.name}</h1>
+        <p class="vk__titel">{titel[sprache]}</p>
+        <p class="vk__firma">{firma[sprache]}</p>
+      </div>
+      <dl class="vk__kontakt">
+        <dt>{de ? 'E-Mail' : 'Email'}</dt><dd><a href={`mailto:${person.email}`}>{person.email}</a></dd>
+        <dt>Web</dt><dd><a href={url(seiten.start[sprache])}>www.ahne.de</a></dd>
+        <dt>{de ? 'Wohnort' : 'Location'}</dt><dd>36358 Herbstein-Stockhausen</dd>
+      </dl>
+    </header>
+
+    <section>
+      <h2>{t.profil}</h2>
+      <p>{profil[sprache]}</p>
+      <p class="vk__klein">{persoenlich[sprache]}</p>
+    </section>
+
+    <section>
+      <h2>{t.beruf}</h2>
+      <p class="vk__klein">{firma[sprache]}</p>
+      <ol class="vk__liste">
+        {stationen.map((s) => (
+          <li>
+            <span class="vk__zeit">{s.zeit[sprache]}</span>
+            <div>
+              <strong>{s.rolle[sprache]}</strong>
+              {s.punkte && <ul>{s.punkte[sprache].map((p) => <li>{p}</li>)}</ul>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section>
+      <h2>{t.weiterbildung}</h2>
+      <ol class="vk__liste">
+        {weiterbildung.map((w) => (<li><span class="vk__zeit">{w.zeit}</span><div>{w.text[sprache]}</div></li>))}
+      </ol>
+    </section>
+
+    <section>
+      <h2>{t.kenntnisse}</h2>
+      <ol class="vk__liste">
+        {kenntnisse.map((k) => (<li><span class="vk__zeit">{k.bereich[sprache]}</span><div>{k.text[sprache]}</div></li>))}
+      </ol>
+    </section>
+
+    <section>
+      <h2>{t.schule}</h2>
+      <ol class="vk__liste">
+        {schule.map((s) => (<li><span class="vk__zeit">{s.zeit}</span><div>{s.text[sprache]}</div></li>))}
+      </ol>
+    </section>
+
+    <section>
+      <h2>{t.ehrenamt}</h2>
+      <ol class="vk__liste">
+        {ehrenamt.map((e) => (<li><span class="vk__zeit"></span><div><strong>{e.name[sprache]}</strong> – {e.rolle[sprache]}</div></li>))}
+      </ol>
+    </section>
+
+    <p class="vk__aktionen">
+      <button type="button" onclick="print()">{t.drucken}</button>
+      <a href={url(seiten.start[sprache])}>← {t.zurueck}</a>
+    </p>
+  </article>
+</Basis>
+
+<style>
+  .vk { width: min(100%, 46rem); margin-inline: auto; }
+  .vk__karte {
+    display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.2rem 2rem; align-items: end;
+    padding: 1.6rem 1.8rem; border: 1px solid var(--linie); border-left: 6px solid var(--wald); border-radius: 10px; background: var(--flaeche);
+  }
+  .vk h1 { font-size: clamp(2rem, 6vw, 2.8rem); margin: 0; }
+  .vk__titel { margin: 0.2rem 0 0; font-size: 1.15rem; font-weight: 600; }
+  .vk__firma { margin: 0.2rem 0 0; color: var(--text-leise); font-size: 0.95rem; max-width: 28rem; }
+  .vk__kontakt { display: grid; grid-template-columns: auto auto; gap: 0.15rem 0.8rem; margin: 0; font-size: 0.95rem; }
+  .vk__kontakt dt { color: var(--text-leise); }
+  .vk__kontakt dd { margin: 0; }
+  .vk section { margin-top: 2rem; }
+  .vk h2 { font-size: 1.2rem; margin: 0 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--linie); }
+  .vk__klein { color: var(--text-leise); font-size: 0.95rem; }
+  .vk__liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.7rem; }
+  .vk__liste > li { display: grid; grid-template-columns: 9.5rem 1fr; gap: 0.2rem 1rem; }
+  .vk__zeit { color: var(--text-leise); font-variant-numeric: tabular-nums; font-size: 0.95rem; }
+  .vk__liste ul { margin: 0.25rem 0 0; padding-left: 1.1rem; }
+  .vk__liste ul li { margin-bottom: 0.15rem; }
+  .vk__aktionen { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+  .vk__aktionen button {
+    padding: 0.5rem 1rem; border: 1px solid var(--wald); border-radius: 6px; background: var(--wald); color: #fff; font: inherit; cursor: pointer;
+  }
+  @media (max-width: 560px) {
+    .vk__liste > li { grid-template-columns: 1fr; }
+    .vk__karte { padding: 1.2rem; }
+  }
+  @media print {
+    :global(.kopf), :global(.fuss), .vk__aktionen { display: none !important; }
+    :global(body) { background: #fff !important; color: #000; font-size: 10.5pt; }
+    :global(main) { padding: 0 !important; }
+    .vk { width: 100%; }
+    .vk__karte { background: none; }
+    .vk section { break-inside: avoid-page; margin-top: 1.2rem; }
+    .vk a { color: inherit; text-decoration: none; }
+  }
+</style>

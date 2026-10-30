@@ -26,9 +26,13 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   topojson-client und world-atlas, siehe Kopf der Skripte).
 - Sprachwechsel: auf der Startseite erst Drohnenflug Stockhausen ↔ London (Ereignis `drohne:reise`, Skript in
   `Basis.astro`), dann normaler Seitenwechsel; auf den anderen Seiten direkt.
+- Visitenkarte mit Lebenslauf (versteckt): `/visitenkarte/` bzw. `/en/business-card/`, erreichbar über 5× schnell auf
+  „Marc“ in der Überschrift der Startseite. Bewusst schlicht (`Basis` mit `schlicht`, ohne Drohne), druckbar, `noindex`
+  und nicht in der Sitemap (`verborgen`, Filter in `astro.config.mjs`). Inhalte in `src/lib/lebenslauf.ts` (Quellen im
+  Dateikopf); Seite `src/components/Visitenkarte.astro`. Beruf und Arbeitgeber nur hier, nicht auf der Startseite.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
-  Arbeitgeber (Wunsch des Seiteninhabers).
+  Arbeitgeber (Wunsch des Seiteninhabers) – das steht nur auf der versteckten Visitenkarte.
 - Seiten liegen als Komponenten in `src/components/` (Startseite, Impressum, Datenschutz); `src/pages/` und
   `src/pages/en/` binden sie nur mit `sprache` ein. Neue Seite: Komponente + beide Seiten + Eintrag in `seiten`.
 - Impressum und Datenschutz: bei neuen externen Diensten (Formulare, Statistik, eingebettete Inhalte)

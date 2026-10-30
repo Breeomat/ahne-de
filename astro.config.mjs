@@ -6,5 +6,6 @@ export default defineConfig({
   site: 'https://www.ahne.de',
   base: '/',
   trailingSlash: 'always',
-  integrations: [sitemap()],
+  // Visitenkarte ist versteckt (5× auf „Marc“) und soll nicht in die Sitemap
+  integrations: [sitemap({ filter: (seite) => !/\/(visitenkarte|business-card)\//.test(seite) })],
 });

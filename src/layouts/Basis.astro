@@ -9,9 +9,12 @@ interface Props {
   seite?: Seite;
   titel?: string;
   beschreibung?: string;
+  // schlicht: ohne Modern-Darstellung (helle, ruhige Grundgestaltung); verborgen: nicht für Suchmaschinen
+  schlicht?: boolean;
+  verborgen?: boolean;
 }
 
-const { sprache = 'de', seite = 'start', titel, beschreibung = ui[sprache].beschreibung } = Astro.props;
+const { sprache = 'de', seite = 'start', titel, beschreibung = ui[sprache].beschreibung, schlicht = false, verborgen = false } = Astro.props;
 const t = ui[sprache];
 const seitentitel = titel ? `${titel} · ${person.name}` : person.name;
 const kanonisch = new URL(Astro.url.pathname, Astro.site).href;
@@ -27,7 +30,7 @@ const strukturiert = {
 };
 ---
 <!doctype html>
-<html lang={sprache} data-stil="modern">
+<html lang={sprache} data-stil={schlicht ? undefined : 'modern'}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,7 +48,7 @@ const strukturiert = {
     <meta property="og:url" content={kanonisch} />
     <meta property="og:type" content="website" />
     <meta name="author" content={person.name} />
-    {fehlerseite ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={kanonisch} />}
+    {fehlerseite || verborgen ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={kanonisch} />}
     {!fehlerseite && fassungen.map((f) => <link rel="alternate" hreflang={f.sprache} href={new URL(f.href, Astro.site).href} />)}
     {!fehlerseite && <link rel="alternate" hreflang="x-default" href={new URL(fassungen[0].href, Astro.site).href} />}
     {!fehlerseite && <script type="application/ld+json" set:html={JSON.stringify(strukturiert)} />}
