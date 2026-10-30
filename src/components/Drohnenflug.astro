@@ -37,22 +37,6 @@ const rahmen = { west: 9.4325, sued: 50.555, ost: 9.4565, nord: 50.568, breite: 
 const status = de ? ['STARTBEREIT', 'IM FLUG', 'ZIEL ERREICHT'] : ['READY', 'IN FLIGHT', 'DESTINATION REACHED'];
 // Einsatz 112 (Überraschung): Drohne fliegt zum Feuerwehrhaus
 const einsatz = { x: 600, y: 343.4, ort: de ? 'Feuerwehrhaus · Einsatz' : 'Fire station · callout', alarm: 'ALARM', vorOrt: de ? 'IM EINSATZ' : 'ON SCENE' };
-// Tageszeit (src/scripts/tageszeit.ts): Texte fürs Live-Protokoll
-const licht = de
-  ? {
-      nacht: 'Lichtverhältnisse: Nacht über Stockhausen. Die Straßenlaternen brennen, in einzelnen Häusern ist noch Licht.',
-      daemmerung: 'Lichtverhältnisse: Dämmerung. Die Straßenlaternen gehen an.',
-      morgen: 'Lichtverhältnisse: Morgen. Über dem Bach liegt Nebel.',
-      tag: 'Lichtverhältnisse: Tag. Gute Sicht für die Drohne.',
-      abend: 'Lichtverhältnisse: Abendsonne. Das Dorf liegt im goldenen Licht.',
-    }
-  : {
-      nacht: 'Light conditions: night over Stockhausen. The street lamps are on, a few houses still have their lights on.',
-      daemmerung: 'Light conditions: twilight. The street lamps are coming on.',
-      morgen: 'Light conditions: morning. Mist lies over the brook.',
-      tag: 'Light conditions: daylight. Good visibility for the drone.',
-      abend: 'Light conditions: evening sun. The village is bathed in golden light.',
-    };
 // Ausflüge der Drohne (zeitgesteuert, unabhängig vom Scrollen): t = Sekunden ab Start, z = Zoom (1 = ganze Karte).
 // - korsika: Überraschung „Urlaub“ (Karte aus scripts/korsikakarte.mjs, Natural Earth)
 // - schalke: Überraschung „Schalke 04“, Flug übers Stadion (gezeichnete Karte public/drohne/schalke.svg)
@@ -107,7 +91,7 @@ const ausfluege = {
 };
 const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r : r.replace('O', 'E')));
 ---
-<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-licht={JSON.stringify(licht)} data-ausfluege={JSON.stringify(ausfluege)}>
+<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-ausfluege={JSON.stringify(ausfluege)}>
   <div class="drohne__karte"></div>
   <div class="drohne__ausflug"></div>
   <div class="drohne__sterne"></div>
@@ -150,8 +134,6 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   // Überraschungen (src/components/Ueberraschungen.astro) steuern die Drohne über Ereignisse
   let einsatz: number | null = null;
   let looping: number | null = null;
-  let letzterOrt = '';
-  let zielGemeldet = false;
   addEventListener('drohne:einsatz', () => { einsatz = performance.now(); planen(); });
   addEventListener('drohne:looping', () => { looping = performance.now(); planen(); });
 
@@ -333,15 +315,6 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     hud.ort.textContent = s.ort;
     hud.gps.textContent = `${lat.toFixed(4)} N  ${lon.toFixed(4)} E`;
     hud.status.textContent = statusSonder || (p < 0.02 ? status[0] : p > 0.97 ? status[2] : status[1]);
-    // fürs Live-Protokoll: neuer Ort und Ankunft am Ziel melden
-    if (s.ort !== letzterOrt) {
-      letzterOrt = s.ort;
-      if (!statusSonder && s.ort !== route[route.length - 1].ort) dispatchEvent(new CustomEvent('drohne:ort', { detail: s.ort }));
-    }
-    if (p > 0.97 && !zielGemeldet) {
-      zielGemeldet = true;
-      dispatchEvent(new CustomEvent('drohne:ziel'));
-    }
     // Ziel leuchtet auf, sobald die Drohne zur Landung ansetzt
     ebene.style.setProperty('--naehe', Math.min(1, Math.max(0, (p - 0.72) / 0.2)).toFixed(3));
     // Kompassband: 8 Richtungen à 45°, je 3.2em breit, dreifach hintereinander
@@ -364,9 +337,7 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
 
   // ---------- Tageszeit: Laternen, Fensterlicht, Nebel über dem Bach, Sterne ----------
   // Zum Ausprobieren: ?zeit=nacht|daemmerung|morgen|tag|abend
-  const lichtTexte: Record<Phase, string> = JSON.parse(ebene.dataset.licht!);
   const testzeit = new URLSearchParams(location.search).get('zeit') as Phase | null;
-  let letztePhase: Phase | null = null;
 
   function tageszeitAufbauen(karte: SVGSVGElement) {
     const ns = 'http://www.w3.org/2000/svg';
@@ -415,10 +386,6 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     const p = testzeit ?? phase(s);
     ebene.dataset.tageszeit = p;
     hud.sonne.textContent = String(Math.round(s.hoehe));
-    if (p !== letztePhase) {
-      letztePhase = p;
-      dispatchEvent(new CustomEvent('protokoll', { detail: lichtTexte[p] }));
-    }
   }
 
   async function laden() {

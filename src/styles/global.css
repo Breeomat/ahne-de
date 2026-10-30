@@ -279,50 +279,6 @@ a:hover { text-decoration-thickness: 2px; }
 .ankunft body { visibility: hidden; }
 .hyperraum { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
 
-/* ---------- Live-Protokoll (src/components/Protokoll.astro) ---------- */
-.protokoll {
-  position: fixed; left: 16px; bottom: 64px; z-index: 30; width: min(340px, calc(100% - 32px));
-  font: 500 0.78rem/1.45 ui-monospace, 'SF Mono', Menlo, Consolas, monospace; color: #f4ecd2;
-}
-.protokoll__kopf {
-  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0.6rem; width: 100%;
-  padding: 0.45rem 0.8rem; border: 1px solid rgb(242 210 122 / 0.45); border-radius: 12px; cursor: pointer;
-  background: rgb(10 12 20 / 0.72); color: inherit; font: inherit; text-align: left;
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-}
-.protokoll.neu .protokoll__kopf { animation: aufleuchten 0.9s ease-out; }
-@keyframes aufleuchten { from { border-color: #ffd76a; box-shadow: 0 0 18px rgb(255 215 106 / 0.6); } }
-.protokoll__titel { display: inline-flex; align-items: center; gap: 0.4rem; color: #ffd76a; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.protokoll__titel i { width: 7px; height: 7px; border-radius: 50%; background: #ff4d61; animation: blinken 1.2s steps(1) infinite; }
-.protokoll__letzte { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; opacity: 0.85; }
-.protokoll__zahl { color: #ffd76a; white-space: nowrap; }
-.protokoll__blatt {
-  margin-bottom: 0.5rem; padding: 0.9rem 1rem; border-radius: 12px; max-height: 50vh; display: flex; flex-direction: column; gap: 0.6rem;
-  background: #fcf8ec; color: #2a2418; box-shadow: 0 20px 50px -20px rgb(0 0 0 / 0.8);
-}
-.protokoll { display: flex; flex-direction: column-reverse; }
-.protokoll__blatt[hidden] { display: none; }
-.protokoll__blatt header, .protokoll__blatt footer { display: grid; gap: 0.15rem; font-size: 0.72rem; color: #5b513d; }
-.protokoll__blatt header strong { color: #2a2418; font-size: 0.8rem; }
-.protokoll__blatt ol { list-style: none; margin: 0; padding: 0.5rem 0; overflow-y: auto; border-block: 1px dashed #c8b98f; display: grid; gap: 0.45rem; }
-.protokoll__blatt li span { display: block; font-weight: 700; color: #8a6a1c; }
-.protokoll__blatt .unterschrift em { font-family: 'Source Serif 4 Variable', Georgia, serif; font-size: 1.05rem; color: #1d2b6b; }
-.protokoll__blatt footer button {
-  justify-self: start; margin-top: 0.3rem; padding: 0.3rem 0.7rem; border: 1px solid #8a6a1c; border-radius: 999px;
-  background: none; color: #8a6a1c; font: inherit; cursor: pointer;
-}
-@media (min-width: 1150px) { .drohne-hud__seite { top: 32%; } }
-@media (max-width: 759px) { .protokoll__letzte { display: none; } .protokoll { width: auto; right: auto; } }
-
-@media print {
-  .protokoll-druck body * { visibility: hidden !important; }
-  .protokoll-druck .protokoll, .protokoll-druck .protokoll * { visibility: visible !important; }
-  .protokoll-druck .protokoll { position: absolute; inset: 0 auto auto 0; width: 100%; font-size: 11pt; }
-  .protokoll-druck .protokoll__kopf, .protokoll-druck .protokoll__blatt footer button { display: none; }
-  .protokoll-druck .protokoll__blatt { display: flex !important; max-height: none; box-shadow: none; background: #fff; }
-  .protokoll-druck .protokoll__blatt ol { overflow: visible; }
-}
-
 /* ---------- Überraschungen (src/components/Ueberraschungen.astro) ---------- */
 [data-stil='modern'] .punkte .ei {
   padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-align: left;

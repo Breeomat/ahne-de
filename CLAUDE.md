@@ -17,9 +17,6 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Tageszeit: Der Drohnenflug zeigt Stockhausen zur echten Uhrzeit (Sonnenstand `src/scripts/tageszeit.ts`, ohne
   externen Dienst): nachts Laternen, Fensterlicht und Sterne, morgens Nebel über dem Bach, abends goldenes Licht.
   Stile in `global.css` (Abschnitt „Tageszeit“). Zum Testen `?zeit=nacht|daemmerung|morgen|tag|abend` anhängen.
-- Live-Protokoll (Startseite): `src/components/Protokoll.astro` – schreibt Besucheraktionen als Sitzungsprotokoll mit
-  (Abschnitte über `data-top`, Drohne über Ereignisse `drohne:ort`/`drohne:ziel`, sonst Ereignis `protokoll`).
-  Nichts wird gespeichert; „Drucken / als PDF“ druckt nur das Protokoll.
 - Überraschungen (Startseite): `src/components/Ueberraschungen.astro` – „112“ tippen oder 3× auf die Feuerwehr-Rolle →
   Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Flug übers Stadion), Wurstbude (Grill),
   Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, Auswahl im Browser je Tag, „Noch ein Rezept“ blättert).

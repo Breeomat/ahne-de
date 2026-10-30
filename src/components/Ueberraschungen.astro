@@ -3,7 +3,6 @@
 // - Einsatz 112: „112“ tippen oder dreimal schnell auf „aktives Mitglied, Kassenwart“ (Feuerwehr) → Blaulicht, Drohne rückt aus
 // - Hobbys antippen (data-ei in src/lib/ueber-mich.ts): Drohne (Looping), Urlaub (Liegestuhl + Flug über Korsika), Schalke (Tor + Flug übers Stadion), Wurstbude (Grill),
 //   Kochen (Rezept des Tages aus src/lib/rezepte.ts, nur wenn dort Rezepte stehen)
-// Jede Überraschung schreibt ins Live-Protokoll (Ereignis „protokoll“).
 import type { Sprache } from '../lib/sprache';
 import { rezepte } from '../lib/rezepte';
 
@@ -15,46 +14,28 @@ const { sprache } = Astro.props;
 const de = sprache === 'de';
 const texte = de
   ? {
-      alarm: 'Alarmierung über 112. Die Drohne rückt zum Feuerwehrhaus aus. Die Sitzung wird unterbrochen.',
-      einsatzEnde: 'Einsatz beendet. Der Kassenwart ist zufrieden. Die Sitzung wird fortgesetzt.',
       meldungEnde: 'Einsatz beendet – Kassenwart zufrieden',
       meldungAlarm: 'EINSATZ · Drohne rückt aus',
       tor: 'TOOOR!',
-      schalke: 'Tor für Schalke 04. Die Sitzung wird für Jubel kurz unterbrochen. Die Drohne fliegt über die Veltins-Arena.',
-      schalkeEnde: 'Die Drohne kehrt aus Gelsenkirchen zurück. Die Sitzung wird fortgesetzt.',
-      drohne: 'Die Drohne fliegt auf Wunsch einen Looping. Beifall aus dem Publikum.',
-      urlaub: 'Die Sitzung wird kurz für Urlaub unterbrochen. Der Liegestuhl ist aufgestellt, die Drohne fliegt über Korsika.',
-      urlaubEnde: 'Rückkehr aus dem Urlaub. Die Sitzung wird fortgesetzt.',
       urlaubText: 'Kurz mal Urlaub …',
-      wurstGewendet: 'Die Bratwurst wird gewendet.',
       wurstPerfekt: 'Bratwurst perfekt gegrillt. Beschluss: ab ins Brötchen. Abstimmung: einstimmig.',
       wurstKohle: 'Bratwurst leicht angekohlt – wie beim Dorffest. Sie wird trotzdem verzehrt.',
       wurstRoh: 'Noch roh – zurück auf den Grill!',
       stufen: ['roh', 'angebraten', 'perfekt', 'angekohlt'],
       oben: 'Oben',
       unten: 'Unten',
-      kochen: 'Das Rezept des Tages wird vorgelegt: {titel}.',
     }
   : {
-      alarm: 'Emergency call 112. The drone responds to the fire station. The meeting is suspended.',
-      einsatzEnde: 'Callout finished. The treasurer is satisfied. The meeting resumes.',
       meldungEnde: 'Callout finished – treasurer satisfied',
       meldungAlarm: 'CALLOUT · drone responding',
       tor: 'GOAAAL!',
-      schalke: 'Goal for Schalke 04. The meeting is briefly interrupted for celebrations. The drone flies over the Veltins-Arena.',
-      schalkeEnde: 'The drone returns from Gelsenkirchen. The meeting resumes.',
-      drohne: 'The drone flies a loop on request. Applause from the audience.',
-      urlaub: 'The meeting is briefly adjourned for a holiday. The deckchair is set up, the drone flies over Corsica.',
-      urlaubEnde: 'Back from holiday. The meeting resumes.',
       urlaubText: 'Quick holiday break …',
-      wurstGewendet: 'The bratwurst is turned.',
       wurstPerfekt: 'Bratwurst grilled to perfection. Resolution: into the bun. Vote: unanimous.',
       wurstKohle: 'Bratwurst slightly charred – just like at the village festival. It is eaten anyway.',
       wurstRoh: 'Still raw – back on the grill!',
       stufen: ['raw', 'seared', 'perfect', 'charred'],
       oben: 'Top',
       unten: 'Bottom',
-      kochen: 'The recipe of the day is presented: {titel}.',
     };
 ---
 <div class="blaulicht" aria-hidden="true"></div>
@@ -136,7 +117,6 @@ const texte = de
   const t = JSON.parse(document.querySelector<HTMLElement>('[data-ueberraschung]')!.dataset.ueberraschung!);
   const wurzel = document.documentElement;
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const protokoll = (text: string) => dispatchEvent(new CustomEvent('protokoll', { detail: text }));
 
   // kleine Töne ohne Audiodateien (nur nach Klick/Taste, sonst blockiert der Browser ohnehin)
   let ton: AudioContext | null = null;
@@ -174,7 +154,6 @@ const texte = de
     imEinsatz = true;
     wurzel.classList.add('im-einsatz');
     melden(t.meldungAlarm, 6500);
-    protokoll(t.alarm);
     // Martinshorn: tatü-tata
     spielen(Array.from({ length: 8 }, (_, i) => [i % 2 ? 440 : 585, i * 0.45, 0.42] as [number, number, number]));
     dispatchEvent(new CustomEvent('drohne:einsatz'));
@@ -183,7 +162,6 @@ const texte = de
   addEventListener('drohne:einsatz-ende', () => {
     imEinsatz = false;
     melden(t.meldungEnde);
-    protokoll(t.einsatzEnde);
   });
   let tasten = '';
   addEventListener('keydown', (e) => {
@@ -202,7 +180,6 @@ const texte = de
   const tor = document.querySelector<HTMLElement>('.tor')!;
   const leinwand = tor.querySelector('canvas')!;
   function schalke() {
-    protokoll(t.schalke);
     dispatchEvent(new CustomEvent('drohne:schalke'));
     spielen([[523, 0, 0.18], [659, 0.18, 0.18], [784, 0.36, 0.18], [1047, 0.54, 0.6], [784, 0.9, 0.15], [1047, 1.05, 0.7]]);
     tor.classList.remove('los');
@@ -284,15 +261,13 @@ const texte = de
       void wurst.getBoundingClientRect();
       wurst.classList.add('dreht');
       grillZeigen();
-      protokoll(t.wurstGewendet);
     } else if (aktion === 'runter') {
-      if (seiten.some((g) => g > 1.1)) { ergebnis.textContent = t.wurstKohle; protokoll(t.wurstKohle); clearInterval(grillUhr); }
-      else if (seiten.every((g) => g >= 0.7)) { ergebnis.textContent = t.wurstPerfekt; protokoll(t.wurstPerfekt); clearInterval(grillUhr); spielen([[784, 0, 0.15], [1047, 0.15, 0.4]]); }
+      if (seiten.some((g) => g > 1.1)) { ergebnis.textContent = t.wurstKohle; clearInterval(grillUhr); }
+      else if (seiten.every((g) => g >= 0.7)) { ergebnis.textContent = t.wurstPerfekt; clearInterval(grillUhr); spielen([[784, 0, 0.15], [1047, 0.15, 0.4]]); }
       else ergebnis.textContent = t.wurstRoh;
     } else grill.close();
   });
 
-  addEventListener('drohne:schalke-ende', () => protokoll(t.schalkeEnde));
 
   // ---------- Kochen: Rezept des Tages ----------
   const rezept = document.querySelector<HTMLDialogElement>('.rezept');
@@ -334,7 +309,6 @@ const texte = de
     rezeptListe.forEach((r, i) => (r.hidden = i !== rezeptNr));
     rezept!.querySelector('[data-rezept-nr]')!.textContent = String(rezeptNr + 1);
     inhalt!.scrollTop = 0;
-    protokoll(t.kochen.replace('{titel}', rezeptListe[rezeptNr].querySelector('h2')!.textContent!));
   }
   rezept?.querySelector('[data-rezept-zu]')?.addEventListener('click', () => rezept.close());
   rezept?.querySelector('[data-rezept-weiter]')?.addEventListener('click', () => {
@@ -353,7 +327,6 @@ const texte = de
   function drohne() {
     dispatchEvent(new CustomEvent('drohne:looping'));
     spielen([[300, 0, 0.5], [450, 0.25, 0.5], [700, 0.6, 0.4]]);
-    protokoll(t.drohne);
   }
 
   // ---------- Urlaub: Liegestuhl ----------
@@ -374,10 +347,9 @@ const texte = de
       q.buffer = puffer; f.type = 'lowpass'; f.frequency.value = 700; g.gain.value = 0.08;
       q.connect(f).connect(g).connect(ton.destination); q.start();
     } catch {}
-    protokoll(t.urlaub);
     dispatchEvent(new CustomEvent('drohne:urlaub'));
   }
-  addEventListener('drohne:urlaub-ende', () => protokoll(t.urlaubEnde));
+
 
   const aktionen: Record<string, () => void> = { schalke, wurst: wurstbude, kochen, drohne, urlaub: urlaubMachen };
   document.querySelectorAll<HTMLButtonElement>('button[data-ei]').forEach((b) => b.addEventListener('click', () => aktionen[b.dataset.ei!]?.()));

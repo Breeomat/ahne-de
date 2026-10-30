@@ -1,7 +1,6 @@
 ---
 import Basis from '../layouts/Basis.astro';
 import Drohnenflug from './Drohnenflug.astro';
-import Protokoll from './Protokoll.astro';
 import Ueberraschungen from './Ueberraschungen.astro';
 import { rezepte } from '../lib/rezepte';
 import { person } from '../lib/site';
@@ -17,14 +16,13 @@ const t = ui[sprache];
 ---
 <Basis sprache={sprache} seite="start">
   <Drohnenflug sprache={sprache} />
-  <Protokoll sprache={sprache} />
   <Ueberraschungen sprache={sprache} />
   <h1>{person.name}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
   <p class="einleitung block">{einleitung[sprache]}</p>
 
-  <section class="block" data-top="ehrenamt">
+  <section class="block">
   <h2>{t.ehrenamt}</h2>
   <ul class="liste">
     {ehrenamt.map(({ name, rolle, href }) => (
@@ -36,7 +34,7 @@ const t = ui[sprache];
   </ul>
   </section>
 
-  <section class="block" data-top="hobbys">
+  <section class="block">
   <h2>{t.gernMache}</h2>
   <ul class="punkte">
     {gernMache.map((eintrag) => {
@@ -47,7 +45,7 @@ const t = ui[sprache];
   </ul>
   </section>
 
-  <section class="block" data-top="kontakt">
+  <section class="block">
   <h2>{t.kontakt}</h2>
   <p><a href={`mailto:${person.email}`}>{person.email}</a></p>
   </section>
