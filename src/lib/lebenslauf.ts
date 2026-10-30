@@ -31,6 +31,8 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
         'ERP-Administration (Infra)',
         'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
         'Qualitätsprozesse im ERP (CAPA, Nonconformances)',
+        'Einbindung weiterer Firmen in die Ahlbrandt System GmbH (seit 2020, fortgeführt)',
+        'Upgrade und Server-Update des ERP-Systems iScala in China, gemeinsam mit einem Team aus China und Indien',
         'Workflow-, Replikations- und Release-Prozesse',
       ],
       en: [
@@ -39,6 +41,8 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
         'ERP administration (Infra)',
         'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
         'Quality processes in the ERP system (CAPA, nonconformances)',
+        'Integration of further companies into Ahlbrandt System GmbH (ongoing since 2020)',
+        'Upgrade and server update of the iScala ERP system in China, together with a team from China and India',
         'Workflow, replication and release processes',
       ],
     },
@@ -49,14 +53,14 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     punkte: {
       de: [
         'Interne Systemadministration (EDV) ab 2006, Betreuung des ERP-Systems ab 12/2008',
-        '2020–2024: Einbindung verschiedener Firmen in die Ahlbrandt System GmbH, u. a. aus Deutschland, England und den Niederlanden',
+        'Ab 2020: Einbindung verschiedener Firmen in die Ahlbrandt System GmbH, u. a. aus Deutschland, England und den Niederlanden',
         'Hilfeforum für Probleme mit EDV- und ERP-System eingeführt (2009)',
         'Berichte mit Crystal Reports im ERP-System (ab 2009)',
         'Projekt „Einführung von Barcodescannern in der Materialwirtschaft“ mit ERP-Anbindung (2010)',
       ],
       en: [
         'In-house IT system administration from 2006, ERP system administration from 12/2008',
-        '2020–2024: integration of several companies into Ahlbrandt System GmbH, including from Germany, England and the Netherlands',
+        'From 2020: integration of several companies into Ahlbrandt System GmbH, including from Germany, England and the Netherlands',
         'Introduced a help forum for IT and ERP issues (2009)',
         'Reports with Crystal Reports in the ERP system (from 2009)',
         'Project “barcode scanners in materials management” with ERP integration (2010)',
@@ -125,7 +129,7 @@ export const schule: { zeit: string; text: Text }[] = [
 ];
 
 export const kenntnisse: { bereich: Text; text: Text }[] = [
-  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, Infra, Crystal Reports' } },
+  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Microsoft Dynamics 365 Finance & Operations, SAP (Integration), Infra, iScala, Crystal Reports', en: 'Microsoft Dynamics 365 Finance & Operations, SAP (integration), Infra, iScala, Crystal Reports' } },
   { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'Bluestar PLM, EPLAN, WSCAD, SolidWorks (CAD administration)' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
   { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English), tägliche Arbeitssprache im internationalen Umfeld', en: 'German (native), English (fluent, business English), everyday working language in an international environment' } },
