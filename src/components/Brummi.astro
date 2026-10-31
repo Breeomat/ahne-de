@@ -18,6 +18,7 @@ const texte = de
       langweilig: ['Langweilig …', 'Hallo? Jemand da?', 'Ich dreh mal ’ne Runde.'],
       geweckt: ['Hmpf … es ist mitten in der Nacht.', 'Fünf Minuten noch …', 'Wer stört?'],
       gutenacht: 'Gute Nacht.',
+      wetter: { regen: 'Bei Regen fliege ich ungern. Meine Rotoren werden nass.', niesel: 'Nur Niesel. Ich fliege trotzdem.', schnee: 'Schnee! Ich fange Flocken.', nebel: 'Ich seh nix. Wo ist der Kirchturm?', gewitter: 'Gewitter! Ich bleib lieber tief.', bedeckt: 'Grau in grau heute.', klar: 'Bestes Flugwetter!' },
       station: 'Brummis Ladestation',
       name: 'Brummi, die Haustier-Drohne',
     }
@@ -28,6 +29,7 @@ const texte = de
       langweilig: ['Bored …', 'Hello? Anyone there?', 'Off for a little lap.'],
       geweckt: ['Hmpf … it’s the middle of the night.', 'Five more minutes …', 'Who’s there?'],
       gutenacht: 'Good night.',
+      wetter: { regen: 'I don’t like flying in the rain. Wet rotors.', niesel: 'Just drizzle. Flying anyway.', schnee: 'Snow! I’m catching flakes.', nebel: 'Can’t see a thing. Where’s the church tower?', gewitter: 'Thunderstorm! Staying low.', bedeckt: 'Grey all over today.', klar: 'Perfect flying weather!' },
       station: 'Brummi’s charging pad',
       name: 'Brummi, the pet drone',
     };
@@ -103,7 +105,8 @@ const texte = de
       zustand = 'bummeln';
       return;
     }
-    sagen(zufall(t.tippen));
+    const wetter = document.querySelector<HTMLElement>('.drohne')?.dataset.wetter;
+    sagen(wetter && t.wetter[wetter] && Math.random() < 0.4 ? t.wetter[wetter] : zufall(t.tippen));
     tempo.y -= 6; // kleiner Hüpfer
   });
 

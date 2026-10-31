@@ -21,6 +21,10 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Drohne (Looping), Urlaub (Flug über Korsika), Schalke (Tor + Flug übers Stadion), KI-Werkzeuge
   (Terminal, Claude Code/Gemini/Copilot schicken die Drohne einmal übers Dorf nach Hause – Ausflug `dorfrunde`),
   Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, Auswahl im Browser je Tag, „Noch ein Rezept“ blättert).
+- Wetterfenster: Der Drohnenflug zeigt das echte Wetter der aktuellen Stunde (Regen, Schnee mit weißen Dächern, Nebel,
+  Wolken, Gewitter; Anzeige TMP/WX). `scripts/wetter.mjs` holt im Workflow vor dem Build die stündliche Vorhersage
+  (Open-Meteo, 3 Tage) nach `src/data/wetter.json`; Platzhalter `{ "start": null }` = kein Wetter. Stile in `global.css`
+  (Abschnitt „Wetterfenster“). Testen mit `?wetter=klar|wolkig|bedeckt|nebel|niesel|regen|schnee|gewitter`.
 - „Brummi“ (Haustier-Drohne, Startseite): `src/components/Brummi.astro` – folgt Maus/Finger, landet bei Langeweile auf
   Überschriften, fliegt mit leerem Akku zur Ladestation (unten links, „Brummis Ladestation“), schläft nachts (Tageszeit des
   Drohnenflugs), antwortet beim Antippen. Ohne Bewegung bei `prefers-reduced-motion`.

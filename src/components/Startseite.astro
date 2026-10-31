@@ -3,6 +3,7 @@ import Basis from '../layouts/Basis.astro';
 import Drohnenflug from './Drohnenflug.astro';
 import Ueberraschungen from './Ueberraschungen.astro';
 import Brummi from './Brummi.astro';
+import wetter from '../data/wetter.json';
 import { rezepte } from '../lib/rezepte';
 import logbuch from '../data/logbuch.json';
 import { person, url } from '../lib/site';
@@ -78,5 +79,6 @@ const logbuchDatum = eintrag.datum
     {sprache === 'de' ? 'Drohnenflug über Stockhausen – Kartendaten' : 'Drone flight over Stockhausen – map data'}
     © <a href="https://www.openstreetmap.org/copyright">{sprache === 'de' ? 'OpenStreetMap-Mitwirkende' : 'OpenStreetMap contributors'}</a>
     · {sprache === 'de' ? 'Korsika' : 'Corsica'}: <a href="https://www.naturalearthdata.com/">Natural Earth</a>
+    {wetter.start && <> · {sprache === 'de' ? 'Wetter' : 'Weather'}: <a href="https://open-meteo.com/">Open-Meteo.com</a></>}
   </p>
 </Basis>

@@ -34,6 +34,9 @@ jobs:
         run: node scripts/logbuch.mjs
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      # Wetter für den Drohnenflug (scripts/wetter.mjs, Open-Meteo); bei Fehlern ohne Wetter
+      - name: Wetter holen
+        run: node scripts/wetter.mjs
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:

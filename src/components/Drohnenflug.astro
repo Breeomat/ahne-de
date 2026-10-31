@@ -102,12 +102,14 @@ const ausfluege = {
     ],
   },
 };
+import wetter from '../data/wetter.json';
 const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r : r.replace('O', 'E')));
 ---
-<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-ausfluege={JSON.stringify(ausfluege)}>
+<div class="drohne" aria-hidden="true" data-quelle={url('drohne/stockhausen.svg')} data-route={JSON.stringify(route)} data-rahmen={JSON.stringify(rahmen)} data-status={JSON.stringify(status)} data-zuhause={JSON.stringify(zuhause)} data-einsatz={JSON.stringify(einsatz)} data-ausfluege={JSON.stringify(ausfluege)} data-wetterdaten={JSON.stringify(wetter)}>
   <div class="drohne__karte"></div>
   <div class="drohne__ausflug"></div>
   <div class="drohne__sterne"></div>
+  <div class="drohne__wetter"><i class="w1"></i><i class="w2"></i></div>
   <div class="drohne__fadenkreuz"></div>
 </div>
 <div class="drohne-hud" aria-hidden="true">
@@ -120,6 +122,8 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     <span>HDG</span><b data-hud="kurs">000</b><small>°</small>
     <span>BAT</span><b data-hud="akku">100</b><small>%</small>
     <span>SUN</span><b data-hud="sonne">–</b><small>°</small>
+    <span>TMP</span><b data-hud="temp">–</b><small>°C</small>
+    <span>WX</span><b data-hud="wetter" class="wx">–</b><small></small>
   </div>
   <div class="drohne-hud__leiste">
     <span class="rec"><i></i>REC <span data-hud="zeit">00:00</span></span>
@@ -408,6 +412,46 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     const p = testzeit ?? phase(s);
     ebene.dataset.tageszeit = p;
     hud.sonne.textContent = String(Math.round(s.hoehe));
+    wetterSetzen();
+  }
+
+  // Wetterfenster: echtes Wetter der aktuellen Stunde (src/data/wetter.json, beim Build von Open-Meteo geholt).
+  // Test: ?wetter=klar|wolkig|bedeckt|nebel|niesel|regen|schnee|gewitter
+  const wetterdaten = JSON.parse(ebene.dataset.wetterdaten!);
+  const testwetter = new URLSearchParams(location.search).get('wetter');
+  const wetterNamen: Record<string, [string, string]> = {
+    klar: ['KLAR', 'CLEAR'], wolkig: ['WOLKIG', 'CLOUDY'], bedeckt: ['BEDECKT', 'OVERCAST'], nebel: ['NEBEL', 'FOG'],
+    niesel: ['NIESEL', 'DRIZZLE'], regen: ['REGEN', 'RAIN'], schnee: ['SCHNEE', 'SNOW'], gewitter: ['GEWITTER', 'STORM'],
+  };
+  function wetterArt(code: number) {
+    if (code <= 1) return 'klar';
+    if (code === 2) return 'wolkig';
+    if (code === 3) return 'bedeckt';
+    if (code === 45 || code === 48) return 'nebel';
+    if (code >= 51 && code <= 57) return 'niesel';
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return 'regen';
+    if ((code >= 71 && code <= 77) || code === 85 || code === 86) return 'schnee';
+    if (code >= 95) return 'gewitter';
+    return 'klar';
+  }
+  function wetterSetzen() {
+    let art: string | null = testwetter && wetterNamen[testwetter] ? testwetter : null;
+    let temp: number | null = null;
+    let wind = 10;
+    if (wetterdaten.start) {
+      // aktuelle Stunde in Ortszeit, als Index ab Beginn der Vorhersage
+      const jetzt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
+      const i = Math.round((Date.parse(jetzt.replace(' ', 'T') + ':00Z') - Date.parse(wetterdaten.start + 'Z')) / 3600000);
+      if (i >= 0 && i < wetterdaten.code.length) {
+        art ??= wetterArt(wetterdaten.code[i]);
+        temp = wetterdaten.temp[i];
+        wind = wetterdaten.wind[i];
+      }
+    }
+    if (art) ebene.dataset.wetter = art; else delete ebene.dataset.wetter;
+    ebene.style.setProperty('--wind', `${Math.min(28, wind * 0.6).toFixed(0)}deg`);
+    hud.temp.textContent = temp === null ? '–' : String(temp);
+    hud.wetter.textContent = art ? wetterNamen[art][document.documentElement.lang === 'en' ? 1 : 0] : '–';
   }
 
   async function laden() {

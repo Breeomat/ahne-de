@@ -465,3 +465,55 @@ dialog.rezept[open] {
 .logbuch__hinweis { margin-top: 0.6rem; font-size: 0.8rem; color: var(--text-leise); }
 .logbuch__hinweis a { color: inherit; }
 @media (max-width: 760px) { .drohne-quelle { margin-bottom: 4.5rem; } } /* nicht unter der Brummi-Ladestation */
+
+/* ---------- Wetterfenster: echtes Wetter der Stunde über Stockhausen (data-wetter an .drohne, scripts/wetter.mjs) ----------
+   Nur verschobene Kachelmuster und Flächen (Transform/Deckkraft), keine Filter – kostet beim Scrollen nichts. */
+.drohne__wetter { position: absolute; inset: -25%; z-index: 2; pointer-events: none; opacity: 0; transition: opacity 2s; rotate: var(--wind, 10deg); will-change: transform; }
+.drohne__wetter i { position: absolute; left: 0; right: 0; top: -200px; bottom: 0; opacity: 0; will-change: transform; }
+.drohne:is([data-wetter='niesel'], [data-wetter='regen'], [data-wetter='gewitter'], [data-wetter='schnee']) .drohne__wetter { opacity: 1; }
+.drohne:is([data-wetter='niesel'], [data-wetter='regen'], [data-wetter='gewitter']) .drohne__wetter i { opacity: 0.55; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' stroke='rgb%28190,215,240%29' stroke-width='1.3' stroke-linecap='round'%3E%3Cline x1='62' y1='77' x2='62' y2='88'/%3E%3Cline x1='103' y1='122' x2='103' y2='134'/%3E%3Cline x1='25' y1='17' x2='25' y2='27'/%3E%3Cline x1='104' y1='140' x2='104' y2='154'/%3E%3Cline x1='17' y1='56' x2='17' y2='74'/%3E%3Cline x1='139' y1='92' x2='139' y2='106'/%3E%3Cline x1='46' y1='27' x2='46' y2='41'/%3E%3Cline x1='56' y1='6' x2='56' y2='20'/%3E%3Cline x1='71' y1='49' x2='71' y2='61'/%3E%3Cline x1='81' y1='74' x2='81' y2='89'/%3E%3Cline x1='24' y1='86' x2='24' y2='102'/%3E%3Cline x1='131' y1='63' x2='131' y2='75'/%3E%3Cline x1='65' y1='121' x2='65' y2='135'/%3E%3Cline x1='24' y1='140' x2='24' y2='154'/%3E%3C/svg%3E"); background-size: 160px 160px; animation: wetter-fallen 0.55s linear infinite; }
+.drohne:is([data-wetter='regen'], [data-wetter='gewitter']) .drohne__wetter .w2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' stroke='rgb%28220,235,250%29' stroke-width='1.3' stroke-linecap='round'%3E%3Cline x1='3' y1='74' x2='3' y2='88'/%3E%3Cline x1='132' y1='49' x2='132' y2='65'/%3E%3Cline x1='110' y1='73' x2='110' y2='89'/%3E%3Cline x1='117' y1='41' x2='117' y2='54'/%3E%3Cline x1='80' y1='66' x2='80' y2='76'/%3E%3Cline x1='22' y1='11' x2='22' y2='28'/%3E%3Cline x1='73' y1='132' x2='73' y2='150'/%3E%3Cline x1='122' y1='87' x2='122' y2='99'/%3E%3Cline x1='52' y1='17' x2='52' y2='33'/%3E%3C/svg%3E"); background-size: 200px 200px; animation-duration: 0.4s; opacity: 0.7; }
+.drohne[data-wetter='niesel'] .drohne__wetter .w2 { display: none; }
+.drohne[data-wetter='niesel'] .drohne__wetter .w1 { opacity: 0.35; animation-duration: 0.9s; }
+.drohne[data-wetter='schnee'] .drohne__wetter { rotate: calc(var(--wind, 10deg) * 0.6); }
+.drohne[data-wetter='schnee'] .drohne__wetter i { opacity: 0.8; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' fill='rgb%28255,255,255%29' fill-opacity='0.85'%3E%3Ccircle cx='55' cy='166' r='1.8'/%3E%3Ccircle cx='74' cy='51' r='1.6'/%3E%3Ccircle cx='195' cy='154' r='1.5'/%3E%3Ccircle cx='146' cy='54' r='2.1'/%3E%3Ccircle cx='29' cy='19' r='1.9'/%3E%3Ccircle cx='75' cy='153' r='1.8'/%3E%3Ccircle cx='64' cy='35' r='1.5'/%3E%3Ccircle cx='49' cy='78' r='1.7'/%3E%3Ccircle cx='14' cy='95' r='1.9'/%3E%3Ccircle cx='77' cy='192' r='1.9'/%3E%3Ccircle cx='87' cy='8' r='1.5'/%3E%3Ccircle cx='86' cy='43' r='2.0'/%3E%3Ccircle cx='109' cy='162' r='1.9'/%3E%3Ccircle cx='23' cy='79' r='1.8'/%3E%3Ccircle cx='117' cy='78' r='1.3'/%3E%3Ccircle cx='101' cy='157' r='2.2'/%3E%3C/svg%3E"); background-size: 200px 200px; animation: wetter-schnee 7s linear infinite; }
+.drohne[data-wetter='schnee'] .drohne__wetter .w2 { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' fill='rgb%28255,255,255%29' fill-opacity='0.85'%3E%3Ccircle cx='88' cy='150' r='2.0'/%3E%3Ccircle cx='15' cy='120' r='2.2'/%3E%3Ccircle cx='96' cy='78' r='2.8'/%3E%3Ccircle cx='116' cy='57' r='2.6'/%3E%3Ccircle cx='57' cy='33' r='2.1'/%3E%3Ccircle cx='18' cy='192' r='2.2'/%3E%3Ccircle cx='177' cy='42' r='2.8'/%3E%3Ccircle cx='143' cy='129' r='2.8'/%3E%3Ccircle cx='86' cy='13' r='2.2'/%3E%3C/svg%3E"); animation-duration: 4.5s; opacity: 0.9; }
+@keyframes wetter-fallen { to { transform: translateY(160px); } }
+.drohne:is([data-wetter='regen'], [data-wetter='gewitter']) .drohne__wetter .w2 { animation-name: wetter-fallen2; }
+@keyframes wetter-fallen2 { to { transform: translateY(200px); } }
+@keyframes wetter-schnee { to { transform: translateY(200px); } }
+
+/* Wolken, Nebel und Gewitterblitz als Fläche über der Karte */
+.drohne__wetter::before, .drohne__wetter::after { content: ''; position: absolute; inset: 0; pointer-events: none; }
+.drohne:is([data-wetter='wolkig'], [data-wetter='bedeckt'], [data-wetter='nebel']) .drohne__wetter { opacity: 1; }
+.drohne:is([data-wetter='wolkig'], [data-wetter='bedeckt']) .drohne__wetter::before {
+  background: radial-gradient(ellipse 22% 14% at 20% 30%, rgb(10 14 22 / 0.35), transparent 70%),
+    radial-gradient(ellipse 28% 16% at 70% 55%, rgb(10 14 22 / 0.3), transparent 70%),
+    radial-gradient(ellipse 20% 12% at 40% 80%, rgb(10 14 22 / 0.3), transparent 70%);
+  animation: wetter-wolken 40s linear infinite alternate;
+}
+.drohne[data-wetter='bedeckt'] .drohne__wetter::after { background: rgb(120 132 148 / 0.16); }
+.drohne:is([data-wetter='regen'], [data-wetter='gewitter'], [data-wetter='niesel']) .drohne__wetter::after { background: rgb(70 84 104 / 0.18); }
+.drohne[data-wetter='nebel'] .drohne__wetter { rotate: 0deg; }
+.drohne[data-wetter='nebel'] .drohne__wetter::after { background: rgb(210 220 230 / 0.3); }
+.drohne[data-wetter='nebel'] .drohne__wetter::before {
+  background: radial-gradient(ellipse 35% 18% at 30% 40%, rgb(225 232 240 / 0.35), transparent 70%),
+    radial-gradient(ellipse 40% 20% at 70% 65%, rgb(225 232 240 / 0.3), transparent 70%);
+  animation: wetter-wolken 30s ease-in-out infinite alternate;
+}
+@keyframes wetter-wolken { to { transform: translateX(12%); } }
+.drohne[data-wetter='gewitter'] .drohne__wetter::before { background: rgb(230 235 255); opacity: 0; animation: wetter-blitz 9s infinite; }
+@keyframes wetter-blitz { 0%, 90%, 93%, 100% { opacity: 0; } 91% { opacity: 0.35; } 92% { opacity: 0.08; } 92.5% { opacity: 0.25; } }
+
+/* Schnee: Dächer und Wiesen werden weiß */
+.drohne[data-wetter='schnee'] .k-haus { fill: #b9c8d3; }
+.drohne[data-wetter='schnee'] :is(.k-wiese, .k-acker, .k-grund) { fill: #4c5d68; }
+.drohne[data-wetter='schnee'] .k-wald { fill: #2e4a44; }
+.drohne[data-wetter='schnee'][data-tageszeit='nacht'] .k-haus { fill: #5d6c78; }
+.drohne[data-wetter='schnee'][data-tageszeit='nacht'] :is(.k-wiese, .k-acker, .k-grund) { fill: #26323a; }
+
+/* bei Wolken, Regen, Schnee und Nebel keine Sterne; auf Ausflügen kein Stockhausen-Wetter */
+.drohne[data-wetter]:not([data-wetter='klar']) .drohne__sterne { opacity: 0 !important; }
+.drohne.im-ausflug .drohne__wetter { opacity: 0 !important; }
+.drohne-hud .wx { font-size: 0.85em; }
+@media (prefers-reduced-motion: reduce) { .drohne__wetter i, .drohne__wetter::before { animation: none !important; } }
