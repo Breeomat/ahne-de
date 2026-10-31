@@ -18,6 +18,9 @@ const texte = de
       langweilig: ['Langweilig …', 'Hallo? Jemand da?', 'Ich dreh mal ’ne Runde.'],
       geweckt: ['Hmpf … es ist mitten in der Nacht.', 'Fünf Minuten noch …', 'Wer stört?'],
       gutenacht: 'Gute Nacht.',
+      hallo: ['Na? Tipp mich an!', 'Ich halte still. Versprochen.', 'Hallo da oben!'],
+      plaudern: ['Schönes Dorf, oder?', 'Einfach weiterscrollen, dann fliegen wir übers Dorf.', 'Tipp mal auf die Hobbys, da passiert was.', 'Ich zähle die Dächer. Eins, zwei, drei …', 'Psst: Tipp mal 112.', 'Brumm brumm.'],
+      zurueck: 'Da bist du ja wieder!',
       wetter: { regen: 'Bei Regen fliege ich ungern. Meine Rotoren werden nass.', niesel: 'Nur Niesel. Ich fliege trotzdem.', schnee: 'Schnee! Ich fange Flocken.', nebel: 'Ich seh nix. Wo ist der Kirchturm?', gewitter: 'Gewitter! Ich bleib lieber tief.', bedeckt: 'Grau in grau heute.', klar: 'Bestes Flugwetter!' },
       station: 'Brummis Ladestation',
       name: 'Brummi, die Haustier-Drohne',
@@ -29,6 +32,9 @@ const texte = de
       langweilig: ['Bored …', 'Hello? Anyone there?', 'Off for a little lap.'],
       geweckt: ['Hmpf … it’s the middle of the night.', 'Five more minutes …', 'Who’s there?'],
       gutenacht: 'Good night.',
+      hallo: ['Hey! Tap me!', 'I’ll hold still. Promise.', 'Hello up there!'],
+      plaudern: ['Nice village, isn’t it?', 'Keep scrolling and we’ll fly over the village.', 'Try tapping the hobbies, something happens.', 'Counting rooftops. One, two, three …', 'Psst: type 112.', 'Bzzz bzzz.'],
+      zurueck: 'There you are again!',
       wetter: { regen: 'I don’t like flying in the rain. Wet rotors.', niesel: 'Just drizzle. Flying anyway.', schnee: 'Snow! I’m catching flakes.', nebel: 'Can’t see a thing. Where’s the church tower?', gewitter: 'Thunderstorm! Staying low.', bedeckt: 'Grey all over today.', klar: 'Perfect flying weather!' },
       station: 'Brummi’s charging pad',
       name: 'Brummi, the pet drone',
@@ -84,9 +90,20 @@ const texte = de
   };
 
   // Maus/Finger: Brummi folgt mit Abstand (leicht versetzt, damit er nicht unter dem Zeiger klebt)
+  // Kommt die Maus nahe heran, hält Brummi still, damit man ihn anklicken kann.
+  let halloZeit = -Infinity;
   addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch' && !e.isPrimary) return;
-    zuletztBewegt = performance.now();
+    const jetzt = performance.now();
+    if (zustand === 'bummeln' && zuletztBewegt && jetzt - zuletztBewegt > 20000 && !brummi.classList.contains('spricht')) sagen(t.zurueck);
+    zuletztBewegt = jetzt;
+    const nah = e.pointerType !== 'touch' && Math.hypot(e.clientX - pos.x, e.clientY - pos.y) < 70;
+    if (nah && (zustand === 'folgen' || zustand === 'bummeln')) {
+      ziel = { ...pos };
+      zustand = 'folgen';
+      if (jetzt - halloZeit > 20000 && !brummi.classList.contains('spricht')) { halloZeit = jetzt; sagen(zufall(t.hallo)); }
+      return;
+    }
     ziel = { x: e.clientX + 30, y: e.clientY - 28 };
     if (zustand === 'bummeln') zustand = 'folgen';
   }, { passive: true });
@@ -123,6 +140,16 @@ const texte = de
       bummelZiel = { x: innerWidth * (0.15 + Math.random() * 0.7), y: innerHeight * (0.2 + Math.random() * 0.5), bis: jetzt + 4000 };
       if (Math.random() < 0.35) sagen(zufall(t.langweilig));
     }
+  }
+
+  // Ab und zu von selbst etwas sagen (nicht zu oft): erstmals nach ~15 s, dann alle 40–70 s
+  let naechsterSpruch = performance.now() + 15000;
+  function plaudern(jetzt: number) {
+    if (jetzt < naechsterSpruch) return;
+    if (document.hidden || brummi.classList.contains('spricht') || (zustand !== 'folgen' && zustand !== 'bummeln')) { naechsterSpruch = jetzt + 8000; return; }
+    naechsterSpruch = jetzt + 40000 + Math.random() * 30000;
+    const wetter = document.querySelector<HTMLElement>('.drohne')?.dataset.wetter;
+    sagen(wetter && t.wetter[wetter] && Math.random() < 0.3 ? t.wetter[wetter] : zufall(t.plaudern), 3200);
   }
 
   let vorher = performance.now();
@@ -178,6 +205,7 @@ const texte = de
     brummi.dataset.zustand = zustand;
     akkuBalken.style.width = `${akku.toFixed(0)}%`;
     brummi.classList.toggle('schwach', akku < 25);
+    plaudern(jetzt);
     requestAnimationFrame(schritt);
   }
 
