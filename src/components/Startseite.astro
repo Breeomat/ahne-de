@@ -30,7 +30,7 @@ const logbuchDatum = eintrag.datum
 
   {eintrag.datum && eintrag[sprache] && (
     <section class="block logbuch">
-      <h2>{sprache === 'de' ? 'Drohnen-Logbuch' : 'Drone log'}</h2>
+      <h2>{sprache === 'de' ? 'Was steht heute an?' : 'What’s on today?'}</h2>
       <p class="logbuch__datum">{logbuchDatum}</p>
       <p>{eintrag[sprache]}</p>
       <p class="logbuch__hinweis">

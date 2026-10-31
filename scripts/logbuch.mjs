@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Drohnen-Logbuch des Tages – läuft nachts in GitHub Actions vor dem Build (deploy.yml), nicht beim Besuch der Seite.
+// „Was steht heute an?“ (Tagesnotiz, Dateiname historisch „logbuch“) – läuft nachts in GitHub Actions vor dem Build (deploy.yml), nicht beim Besuch der Seite.
 // Holt Wetter (Open-Meteo, ohne Schlüssel) und die Termine der nächsten 7 Tage (stockhausen-online.de/termine.ics),
 // lässt Claude daraus einen kurzen Eintrag auf Deutsch und Englisch schreiben und speichert ihn in src/data/logbuch.json.
 // Ohne ANTHROPIC_API_KEY oder bei Fehlern bleibt die Datei unverändert (die Seite zeigt dann kein Logbuch).
@@ -58,8 +58,8 @@ async function termineHolen() {
 }
 
 const Eintrag = z.object({
-  de: z.string().describe('Logbuch-Eintrag auf Deutsch, 2 bis 4 Sätze'),
-  en: z.string().describe('Derselbe Eintrag auf Englisch, 2 bis 4 Sätze'),
+  de: z.string().describe('Tagesnotiz auf Deutsch, 2 bis 4 Sätze'),
+  en: z.string().describe('Dieselbe Notiz auf Englisch, 2 bis 4 Sätze'),
 });
 
 async function main() {
@@ -74,11 +74,12 @@ async function main() {
     max_tokens: 2000,
     output_config: { effort: 'low', format: zodOutputFormat(Eintrag) },
     system:
-      'Du schreibst den täglichen Logbuch-Eintrag der Drohne auf der privaten Webseite von Marc Ahne aus Stockhausen ' +
-      '(Ortsteil von Herbstein im Vogelsberg, Hessen). Ton: kurz, freundlich, ein wenig augenzwinkernd im Stil eines ' +
-      'Drohnen-Flugbuchs. Verwende nur die gelieferten Daten: Wetter und Termine. Erfinde keine Ereignisse, Personen, ' +
-      'Orte oder Zahlen. Gibt es keine Termine, erwähne keine. Nenne höchstens zwei Termine. Nichts über Marcs Beruf. ' +
-      'Kein Markdown, keine Emojis, kein Datum am Anfang (das zeigt die Seite selbst).',
+      'Du schreibst für die private Webseite von Marc Ahne aus Stockhausen (Ortsteil von Herbstein im Vogelsberg, ' +
+      'Hessen) eine kurze Tagesnotiz unter der Überschrift „Was steht heute an?“: zuerst das Wetter des Tages in einem ' +
+      'Satz, dann die anstehenden Termine im Dorf. Ton: sachlich, freundlich, normal – keine Drohnen- oder Fliegersprache, ' +
+      'keine Witze. Verwende nur die gelieferten Daten. Erfinde keine Ereignisse, Personen, Orte oder Zahlen. Gibt es ' +
+      'keine Termine, schreibe, dass in den nächsten Tagen nichts im Kalender steht. Nenne höchstens drei Termine mit ' +
+      'Wochentag. Nichts über Marcs Beruf. Kein Markdown, keine Emojis, kein Datum am Anfang (das zeigt die Seite selbst).',
     messages: [{ role: 'user', content: JSON.stringify({ datum: heute, wetter, termine_naechste_7_tage: termine }) }],
   });
   if (antwort.stop_reason === 'refusal' || !antwort.parsed_output) {
