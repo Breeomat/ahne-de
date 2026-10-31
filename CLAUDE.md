@@ -21,6 +21,9 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Einsatz (Blaulicht, Drohne zum Feuerwehrhaus); Hobbys mit `ei` in `src/lib/ueber-mich.ts`: Drohne (Looping), Urlaub (Flug über Korsika), Schalke (Tor + Flug übers Stadion), KI-Werkzeuge
   (Terminal, Claude Code/Gemini/Copilot schicken die Drohne einmal übers Dorf nach Hause – Ausflug `dorfrunde`),
   Kochen (Rezept des Tages aus `src/lib/rezepte.ts`, Auswahl im Browser je Tag, „Noch ein Rezept“ blättert).
+- „Brummi“ (Haustier-Drohne, Startseite): `src/components/Brummi.astro` – folgt Maus/Finger, landet bei Langeweile auf
+  Überschriften, fliegt mit leerem Akku zur Ladestation (unten links, „Mühlweg 11a“), schläft nachts (Tageszeit des
+  Drohnenflugs), antwortet beim Antippen. Ohne Bewegung bei `prefers-reduced-motion`.
 - Ausflüge der Drohne (`ausfluege` in `Drohnenflug.astro`, zeitgesteuert): Korsika (Urlaub), Veltins-Arena (Schalke,
   gezeichnete Karte `public/drohne/schalke.svg`), England/Deutschland (Sprachwechsel auf der Startseite). Karten Korsika
   und Europa aus Natural Earth: `node scripts/korsikakarte.mjs …` bzw. `node scripts/europakarte.mjs …` (Pfade zu
