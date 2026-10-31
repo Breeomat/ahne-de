@@ -4,8 +4,10 @@ on:
   push:
     branches: [main]
   schedule:
-    # nachts neu bauen, damit das Drohnen-Logbuch (KI) jeden Tag neu geschrieben wird
-    - cron: '17 3 * * *'
+    # kurz nach Mitternacht (deutsche Zeit) neu bauen, damit das Drohnen-Logbuch (KI) jeden Tag neu geschrieben wird.
+    # GitHub startet geplante Läufe oft Stunden später (bei stockhausen-online bis ~6 h) – früh angesetzt ist der
+    # Eintrag trotzdem morgens da; das Datum nimmt das Skript in deutscher Zeit.
+    - cron: '5 23 * * *'
   workflow_dispatch:
 
 permissions:
