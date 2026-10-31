@@ -85,13 +85,13 @@ const texte = de
   addEventListener('pointermove', (e) => {
     if (e.pointerType === 'touch' && !e.isPrimary) return;
     zuletztBewegt = performance.now();
-    ziel = { x: e.clientX + 36, y: e.clientY - 34 };
+    ziel = { x: e.clientX + 30, y: e.clientY - 28 };
     if (zustand === 'bummeln') zustand = 'folgen';
   }, { passive: true });
   addEventListener('pointerdown', (e) => {
     if ((e.target as HTMLElement).closest('.brummi')) return;
     zuletztBewegt = performance.now();
-    ziel = { x: e.clientX + 36, y: e.clientY - 34 };
+    ziel = { x: e.clientX + 30, y: e.clientY - 28 };
     if (zustand === 'bummeln') zustand = 'folgen';
   }, { passive: true });
 
@@ -170,7 +170,7 @@ const texte = de
 
     const neigung = Math.max(-25, Math.min(25, tempo.x * 1.2));
     const wippen = zustand === 'laden' || zustand === 'schlafen' ? 0 : Math.sin(jetzt / 260) * 3;
-    brummi.style.transform = `translate(${(pos.x - 28).toFixed(1)}px, ${(pos.y - 28 + wippen).toFixed(1)}px)`;
+    brummi.style.transform = `translate(${(pos.x - 21).toFixed(1)}px, ${(pos.y - 21 + wippen).toFixed(1)}px)`;
     brummi.style.setProperty('--neigung', `${neigung.toFixed(1)}deg`);
     brummi.dataset.zustand = zustand;
     akkuBalken.style.width = `${akku.toFixed(0)}%`;
@@ -181,7 +181,7 @@ const texte = de
   if (ruhig) {
     // ohne Bewegung: sitzt auf der Ladestation
     const s = stationsPunkt();
-    brummi.style.transform = `translate(${s.x - 28}px, ${s.y - 28}px)`;
+    brummi.style.transform = `translate(${s.x - 21}px, ${s.y - 21}px)`;
     brummi.dataset.zustand = 'laden';
     brummi.addEventListener('click', () => sagen(zufall(t.tippen)));
   } else {
@@ -191,7 +191,7 @@ const texte = de
 
 <style>
   .brummi {
-    position: fixed; left: 0; top: 0; z-index: 45; width: 56px; height: 56px; padding: 0; border: 0; background: none;
+    position: fixed; left: 0; top: 0; z-index: 45; width: 42px; height: 42px; padding: 0; border: 0; background: none;
     cursor: pointer; -webkit-tap-highlight-color: transparent; will-change: transform;
     filter: drop-shadow(0 8px 10px rgb(0 0 0 / 0.5));
   }
@@ -209,7 +209,7 @@ const texte = de
   .brummi[data-zustand='schlafen'] .brummi__auge { transform: scaleY(0.15); transform-box: fill-box; transform-origin: center; }
   .brummi[data-zustand='schlafen'] .brummi__rotor,
   .brummi[data-zustand='laden'] .brummi__rotor { animation: none; }
-  .brummi__akku { position: absolute; left: 14px; right: 14px; bottom: -4px; height: 4px; border-radius: 2px; background: rgb(255 255 255 / 0.15); overflow: hidden; }
+  .brummi__akku { position: absolute; left: 10px; right: 10px; bottom: -4px; height: 3px; border-radius: 2px; background: rgb(255 255 255 / 0.15); overflow: hidden; }
   .brummi__akku i { display: block; height: 100%; width: 100%; background: #9ff5dc; transition: width 0.3s; }
   .brummi.schwach .brummi__akku i { background: #ff6b7d; }
   .brummi[data-zustand='laden'] .brummi__akku i { background: #ffd76a; animation: brummi-laden 1s ease-in-out infinite; }
