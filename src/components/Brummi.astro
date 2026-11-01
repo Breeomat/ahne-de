@@ -19,7 +19,7 @@ const texte = de
       geweckt: ['Hmpf … es ist mitten in der Nacht.', 'Fünf Minuten noch …', 'Wer stört?'],
       gutenacht: 'Gute Nacht.',
       hallo: ['Na? Tipp mich an!', 'Ich halte still. Versprochen.', 'Hallo da oben!'],
-      plaudern: ['Schönes Dorf, oder?', 'Einfach weiterscrollen, dann fliegen wir übers Dorf.', 'Tipp mal auf die Hobbys, da passiert was.', 'Ich zähle die Dächer. Eins, zwei, drei …', 'Psst: Tipp mal 112.', 'Brumm brumm.'],
+      plaudern: ["Schönes Dorf, oder?", "Einfach weiterscrollen, dann fliegen wir übers Dorf.", "Tipp mal auf die Hobbys, da passiert was.", "Ich zähle die Dächer. Eins, zwei, drei …", "Psst: Tipp mal 112 auf der Tastatur.", "Brumm brumm.", "Wer auf „Drohne fliegen“ klickt, sieht einen Looping.", "Bei „Urlaub“ geht’s nach Korsika. Sonnencreme nicht vergessen!", "Klick mal auf Schalke 04. Aber Vorsicht, laut!", "Bei „Kochen“ gibt’s jeden Tag ein anderes Rezept.", "Die KI-Werkzeuge schicken mich auf eine Dorfrunde.", "Dreimal auf die Feuerwehr tippen … dann wird’s hell.", "Schalt mal auf Englisch um. Ich flieg schon mal nach London.", "Nachts gehen im Dorf die Laternen an.", "Morgens liegt manchmal Nebel über dem Bach.", "Das Wetter hier ist echt. Schau mal rechts bei WX.", "Mein Akku hält nicht ewig. Dann muss ich zur Ladestation.", "Wenn ich schlafe, bitte nicht wecken. Oder doch?", "Unten in der Leiste steht, wo wir gerade sind.", "Ich hab den Sportplatz im Visier.", "Kurz die Rotoren lüften …", "Tipp mich an, ich erzähl dir was.", "Auf der Karte sieht man jeden Feldweg.", "Fliegst du mit? Einfach scrollen.", "Hier oben ist es ganz schön windig."],
       zurueck: 'Da bist du ja wieder!',
       wetter: { regen: 'Bei Regen fliege ich ungern. Meine Rotoren werden nass.', niesel: 'Nur Niesel. Ich fliege trotzdem.', schnee: 'Schnee! Ich fange Flocken.', nebel: 'Ich seh nix. Wo ist der Kirchturm?', gewitter: 'Gewitter! Ich bleib lieber tief.', bedeckt: 'Grau in grau heute.', klar: 'Bestes Flugwetter!' },
       station: 'Brummis Ladestation',
@@ -33,7 +33,7 @@ const texte = de
       geweckt: ['Hmpf … it’s the middle of the night.', 'Five more minutes …', 'Who’s there?'],
       gutenacht: 'Good night.',
       hallo: ['Hey! Tap me!', 'I’ll hold still. Promise.', 'Hello up there!'],
-      plaudern: ['Nice village, isn’t it?', 'Keep scrolling and we’ll fly over the village.', 'Try tapping the hobbies, something happens.', 'Counting rooftops. One, two, three …', 'Psst: type 112.', 'Bzzz bzzz.'],
+      plaudern: ["Nice village, isn’t it?", "Keep scrolling and we’ll fly over the village.", "Try tapping the hobbies, something happens.", "Counting rooftops. One, two, three …", "Psst: type 112 on your keyboard.", "Bzzz bzzz.", "Click “Flying my drone” for a loop.", "“Holidays” takes us to Corsica. Don’t forget the sunscreen!", "Try clicking Schalke 04. Careful, it’s loud!", "“Cooking” has a different recipe every day.", "The AI tools send me on a lap of the village.", "Tap the fire brigade three times … and things light up.", "Switch to German and I’ll fly to Stockhausen.", "At night the street lamps come on in the village.", "Some mornings there’s fog over the brook.", "The weather here is real. Check WX on the right.", "My battery won’t last forever. Then it’s off to the charging pad.", "When I’m asleep, please don’t wake me. Or do.", "The bar at the bottom shows where we are.", "I’ve got the sports ground in my sights.", "Just airing my rotors …", "Tap me and I’ll tell you something.", "You can see every field track on the map.", "Coming along? Just scroll.", "It’s quite windy up here."],
       zurueck: 'There you are again!',
       wetter: { regen: 'I don’t like flying in the rain. Wet rotors.', niesel: 'Just drizzle. Flying anyway.', schnee: 'Snow! I’m catching flakes.', nebel: 'Can’t see a thing. Where’s the church tower?', gewitter: 'Thunderstorm! Staying low.', bedeckt: 'Grey all over today.', klar: 'Perfect flying weather!' },
       station: 'Brummi’s charging pad',
@@ -65,6 +65,13 @@ const texte = de
   const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const zufall = <T,>(liste: T[]) => liste[Math.floor(Math.random() * liste.length)];
   const nacht = () => document.querySelector<HTMLElement>('.drohne')?.dataset.tageszeit === 'nacht';
+
+  // Sprüche ohne Wiederholung: erst alle einmal (gemischt), dann neu mischen
+  const beutel: string[] = [];
+  const naechster = () => {
+    if (!beutel.length) beutel.push(...[...t.plaudern, ...t.tippen].sort(() => Math.random() - 0.5));
+    return beutel.pop()!;
+  };
 
   type Zustand = 'folgen' | 'bummeln' | 'heim' | 'laden' | 'schlafen';
   let zustand: Zustand = 'bummeln';
@@ -123,7 +130,7 @@ const texte = de
       return;
     }
     const wetter = document.querySelector<HTMLElement>('.drohne')?.dataset.wetter;
-    sagen(wetter && t.wetter[wetter] && Math.random() < 0.4 ? t.wetter[wetter] : zufall(t.tippen));
+    sagen(wetter && t.wetter[wetter] && Math.random() < 0.25 ? t.wetter[wetter] : naechster());
     tempo.y -= 6; // kleiner Hüpfer
   });
 
@@ -149,7 +156,7 @@ const texte = de
     if (document.hidden || brummi.classList.contains('spricht') || (zustand !== 'folgen' && zustand !== 'bummeln')) { naechsterSpruch = jetzt + 8000; return; }
     naechsterSpruch = jetzt + 40000 + Math.random() * 30000;
     const wetter = document.querySelector<HTMLElement>('.drohne')?.dataset.wetter;
-    sagen(wetter && t.wetter[wetter] && Math.random() < 0.3 ? t.wetter[wetter] : zufall(t.plaudern), 3200);
+    sagen(wetter && t.wetter[wetter] && Math.random() < 0.2 ? t.wetter[wetter] : naechster(), 3200);
   }
 
   let vorher = performance.now();
@@ -184,8 +191,8 @@ const texte = de
     tempo.y += (z.y - pos.y) * kraft * dt;
     tempo.x *= 0.9;
     tempo.y *= 0.9;
-    pos.x += tempo.x * dt * 6;
-    pos.y += tempo.y * dt * 6;
+    pos.x += tempo.x * dt * 4.5; // 25 % langsamer als anfangs (6)
+    pos.y += tempo.y * dt * 4.5;
 
     // Akku
     const fliegt = zustand === 'folgen' || zustand === 'bummeln' || zustand === 'heim';
@@ -214,7 +221,7 @@ const texte = de
     const s = stationsPunkt();
     brummi.style.transform = `translate(${s.x - 21}px, ${s.y - 21}px)`;
     brummi.dataset.zustand = 'laden';
-    brummi.addEventListener('click', () => sagen(zufall(t.tippen)));
+    brummi.addEventListener('click', () => sagen(naechster()));
   } else {
     requestAnimationFrame(schritt);
   }
