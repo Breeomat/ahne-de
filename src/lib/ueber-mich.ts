@@ -8,6 +8,14 @@ export const einleitung: Text = {
   en: 'I live in Stockhausen, a village in the municipality of Herbstein in the Vogelsberg region of Hesse, Germany. In my spare time I am busy in the village – with the volunteer fire brigade, the local council and the community freezer cooperative.',
 };
 
+// Zweiter Teil der Einleitung: ahne.de als Testfeld (Links werden in Startseite.astro gesetzt)
+const STO = 'https://stockhausen-online.de/';
+const FLUG = 'https://stockhausen-online.de/dorf/karte/drohnenflug/';
+export const testfeld: Text = {
+  de: `Diese Seite ist auch mein Testfeld: Neues probiere ich hier aus, bevor ich es auf anderen Webseiten wie <a href="${STO}">stockhausen-online.de</a> ausrolle – zum Beispiel den <a href="${FLUG}">Drohnenflug</a>.`,
+  en: `This site is also my testing ground: I try out new things here before rolling them out on other websites such as <a href="${STO}">stockhausen-online.de</a> – the <a href="${FLUG}">drone flight</a>, for example.`,
+};
+
 export const ehrenamt: { name: Text; rolle: Text; href?: string }[] = [
   {
     name: { de: 'Freiwillige Feuerwehr Stockhausen', en: 'Volunteer fire brigade Stockhausen' },

@@ -8,7 +8,7 @@ import { rezepte } from '../lib/rezepte';
 import logbuch from '../data/logbuch.json';
 import { person, url } from '../lib/site';
 import { seiten, ui, type Sprache } from '../lib/sprache';
-import { einleitung, ehrenamt, gernMache } from '../lib/ueber-mich';
+import { einleitung, testfeld, ehrenamt, gernMache } from '../lib/ueber-mich';
 
 interface Props {
   sprache: Sprache;
@@ -29,7 +29,7 @@ const logbuchDatum = eintrag.datum
   <h1><span class="vorname" data-visitenkarte={url(seiten.visitenkarte[sprache])}>{person.name.split(' ')[0]}</span> {person.name.split(' ').slice(1).join(' ')}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
-  <p class="einleitung block">{einleitung[sprache]}</p>
+  <p class="einleitung block">{einleitung[sprache]} <Fragment set:html={testfeld[sprache]} /></p>
 
   {eintrag.datum && eintrag[sprache] && (
     <section class="block logbuch">
