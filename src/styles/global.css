@@ -261,6 +261,12 @@ a:hover { text-decoration-thickness: 2px; }
 .kompass i { width: 3.2em; flex: none; text-align: center; font-style: normal; }
 .nur-breit { display: none; }
 .nur-schmal { display: inline; }
+/* Kurzanzeige über der Leiste, nur solange die Seitenleisten fehlen */
+.drohne-hud__kurz {
+  position: absolute; right: 28px; bottom: 54px; display: flex; gap: 0.7rem; white-space: nowrap;
+  font-size: 0.66rem; padding: 0.2rem 0.55rem; border-radius: 999px; background: rgb(5 10 18 / 0.75);
+}
+.drohne-hud__kurz b { font-size: 0.8rem; }
 
 [data-stil='modern'] body:has(.drohne) { padding-bottom: 4.5rem; }
 
@@ -270,6 +276,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 @media (min-width: 1150px) {
   .drohne-hud__seite { display: grid; }
+  .drohne-hud__kurz { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .drohne__karte, .rec i { animation: none; }
@@ -458,13 +465,13 @@ dialog.rezept[open] {
 .ki-terminal__zeile { color: #c9d6d2; }
 .ki-terminal__fertig { color: #ffd76a; font-weight: 700; }
 @media (max-width: 600px) { .ki-terminal { right: 16px; left: 16px; width: auto; font-size: 0.74rem; } }
-@media (max-width: 760px) { .ki-terminal { bottom: 118px; } } /* über der Brummi-Ladestation */
+@media (max-width: 760px) { .ki-terminal { bottom: 142px; } } /* über der Brummi-Ladestation */
 
 /* Drohnen-Logbuch (KI, nachts erzeugt) */
 .logbuch__datum { margin: -0.2rem 0 0.4rem; font: 600 0.8rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #9ff5dc; }
 .logbuch__hinweis { margin-top: 0.6rem; font-size: 0.8rem; color: var(--text-leise); }
 .logbuch__hinweis a { color: inherit; }
-@media (max-width: 760px) { .drohne-quelle { margin-bottom: 4.5rem; } } /* nicht unter der Brummi-Ladestation */
+@media (max-width: 760px) { .drohne-quelle { margin-bottom: 6rem; } } /* nicht unter der Brummi-Ladestation */
 
 /* ---------- Wetterfenster: echtes Wetter der Stunde über Stockhausen (data-wetter an .drohne, scripts/wetter.mjs) ----------
    Nur verschobene Kachelmuster und Flächen (Transform/Deckkraft), keine Filter – kostet beim Scrollen nichts. */
@@ -517,3 +524,6 @@ dialog.rezept[open] {
 .drohne.im-ausflug .drohne__wetter { opacity: 0 !important; }
 .drohne-hud .wx { font-size: 0.85em; }
 @media (prefers-reduced-motion: reduce) { .drohne__wetter i, .drohne__wetter::before { animation: none !important; } }
+
+/* Brummis Ladestation über der HUD-Kurzanzeige, solange diese sichtbar ist */
+@media (max-width: 1149px) { .brummi-station { bottom: 92px !important; } }

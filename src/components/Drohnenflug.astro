@@ -125,6 +125,13 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     <span>TMP</span><b data-hud="temp">–</b><small>°C</small>
     <span>WX</span><b data-hud="wetter" class="wx">–</b><small></small>
   </div>
+  <!-- schmale Bildschirme: Kurzanzeige statt der Seitenleisten (Werte werden aus den Seitenleisten gespiegelt) -->
+  <div class="drohne-hud__kurz">
+    <span>BAT <b data-spiegel="akku">100</b>%</span>
+    <span>SUN <b data-spiegel="sonne">–</b>°</span>
+    <span>TMP <b data-spiegel="temp">–</b>°C</span>
+    <span>WX <b data-spiegel="wetter">–</b></span>
+  </div>
   <div class="drohne-hud__leiste">
     <span class="rec"><i></i>REC <span data-hud="zeit">00:00</span></span>
     <span class="nur-breit" data-hud="status">{status[0]}</span>
@@ -141,6 +148,13 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   const flaeche = ebene.querySelector<HTMLElement>('.drohne__karte')!;
   const hud: Record<string, HTMLElement> = {};
   document.querySelectorAll<HTMLElement>('[data-hud]').forEach((el) => (hud[el.dataset.hud!] = el));
+  // Kurzanzeige (schmale Bildschirme) spiegelt Akku, Sonne, Temperatur und Wetter
+  document.querySelectorAll<HTMLElement>('[data-spiegel]').forEach((kopie) => {
+    const quelle = hud[kopie.dataset.spiegel!];
+    const abgleichen = () => (kopie.textContent = quelle.textContent);
+    abgleichen();
+    new MutationObserver(abgleichen).observe(quelle, { childList: true, characterData: true, subtree: true });
+  });
 
   type Punkt = { p: number; x: number; y: number; z: number; kurs: number; ort: string };
   const route: Punkt[] = JSON.parse(ebene.dataset.route!);
