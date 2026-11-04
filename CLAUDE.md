@@ -29,10 +29,6 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Überschriften, fliegt mit leerem Akku zur Ladestation (unten links, „Brummis Ladestation“), schläft nachts (Tageszeit des
   Drohnenflugs), antwortet beim Antippen, hält still wenn die Maus nahe kommt (damit man ihn anklicken kann), sagt
   alle 40–70 s von selbst etwas (`plaudern`). Ohne Bewegung bei `prefers-reduced-motion`.
-- Jahreszeiten (Startseite): `src/components/Jahreszeit.astro` – nach echtem Datum Herbstlaub, Schnee, Blüten oder im Sommer
-  eine Biene (Brummi jagt ihr nach, Ereignis `brummi:schau`); Deko auf den Kästen wächst im Lauf der Jahreszeit.
-  Test `?jahreszeit=fruehling|sommer|herbst|winter&fortschritt=0..1`. Entfernen: Komponente, Einbindung in `Startseite.astro`
-  und den Abschnitt „Biene“ in `Brummi.astro` löschen.
 - Ausflüge der Drohne (`ausfluege` in `Drohnenflug.astro`, zeitgesteuert): Korsika (Urlaub), Veltins-Arena (Schalke,
   gezeichnete Karte `public/drohne/schalke.svg`), England/Deutschland (Sprachwechsel auf der Startseite). Karten Korsika
   und Europa aus Natural Earth: `node scripts/korsikakarte.mjs …` bzw. `node scripts/europakarte.mjs …` (Pfade zu
