@@ -29,9 +29,6 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Überschriften, fliegt mit leerem Akku zur Ladestation (unten links, „Brummis Ladestation“), schläft nachts (Tageszeit des
   Drohnenflugs), antwortet beim Antippen, hält still wenn die Maus nahe kommt (damit man ihn anklicken kann), sagt
   alle 40–70 s von selbst etwas (`plaudern`). Ohne Bewegung bei `prefers-reduced-motion`.
-- Taschenlampe (Startseite, nur nachts laut Tageszeit): `src/components/Taschenlampe.astro` – Seite dunkel, Maus/Finger
-  leuchten, Brummi hat einen eigenen Lichtkegel, Knopf „Licht an“ oben links schaltet für den Besuch ab. Test `?zeit=nacht`.
-  Entfernen: Komponente und Einbindung in `Startseite.astro` löschen.
 - Ausflüge der Drohne (`ausfluege` in `Drohnenflug.astro`, zeitgesteuert): Korsika (Urlaub), Veltins-Arena (Schalke,
   gezeichnete Karte `public/drohne/schalke.svg`), England/Deutschland (Sprachwechsel auf der Startseite). Karten Korsika
   und Europa aus Natural Earth: `node scripts/korsikakarte.mjs …` bzw. `node scripts/europakarte.mjs …` (Pfade zu
