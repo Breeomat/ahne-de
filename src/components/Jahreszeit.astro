@@ -1,0 +1,154 @@
+---
+// Die Seite altert mit dem Jahr (Startseite): je nach echtem Datum (meteorologische Jahreszeiten)
+// Herbst: fallende Blätter, die sich auf den Kästen sammeln · Winter: Schnee rieselt, Schneehauben auf den Kästen
+// Frühling: Blütenblätter, Blumen wachsen auf den Kästen · Sommer: eine Biene fliegt vorbei, Brummi jagt ihr nach.
+// Je weiter die Jahreszeit fortgeschritten ist, desto mehr Blätter, Schnee oder Blumen. Ohne externen Dienst.
+// Test: ?jahreszeit=fruehling|sommer|herbst|winter&fortschritt=0..1
+// Entfernen: diese Datei, die Einbindung in Startseite.astro und den Abschnitt „Biene“ in Brummi.astro löschen.
+---
+<div class="jz-fallen" aria-hidden="true"></div>
+<div class="jz-biene" aria-hidden="true" hidden>
+  <svg viewBox="0 0 24 18"><ellipse cx="7" cy="5" rx="5" ry="4" class="fluegel" /><ellipse cx="13" cy="4" rx="5" ry="4" class="fluegel" /><ellipse cx="11" cy="11" rx="8" ry="5.5" fill="#f5c542" /><path d="M8 6.5v9M12 5.7v10.6M16 6.8v8.4" stroke="#2a2108" stroke-width="2.2" /><circle cx="18" cy="10" r="1.2" fill="#2a2108" /></svg>
+</div>
+
+<script>
+  const ruhig = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const such = new URLSearchParams(location.search);
+
+  // Jahreszeit und Fortschritt (0 = Anfang, 1 = Ende) nach Datum in Stockhausen
+  const [j, m, t] = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin' }).format(new Date()).split('-').map(Number);
+  const zeiten = [
+    { name: 'winter', ab: [12, 1], bis: [3, 1] },
+    { name: 'fruehling', ab: [3, 1], bis: [6, 1] },
+    { name: 'sommer', ab: [6, 1], bis: [9, 1] },
+    { name: 'herbst', ab: [9, 1], bis: [12, 1] },
+  ];
+  const zeit = m === 12 || m <= 2 ? zeiten[0] : m <= 5 ? zeiten[1] : m <= 8 ? zeiten[2] : zeiten[3];
+  const tag = (y: number, mo: number, d: number) => Date.UTC(y, mo - 1, d);
+  const startJahr = zeit.name === 'winter' && m <= 2 ? j - 1 : j;
+  const anfang = tag(startJahr, zeit.ab[0], 1);
+  const ende = tag(zeit.name === 'winter' ? startJahr + 1 : j, zeit.bis[0], 1);
+  let jahreszeit = such.get('jahreszeit') ?? zeit.name;
+  let fortschritt = such.has('fortschritt') ? Number(such.get('fortschritt')) : (tag(j, m, t) - anfang) / (ende - anfang);
+  fortschritt = Math.max(0, Math.min(1, fortschritt));
+  document.documentElement.dataset.jahreszeit = jahreszeit;
+
+  // feste Zufallsfolge, damit die Deko bei jedem Besuch am selben Tag gleich liegt
+  let saat = j * 1000 + m * 40 + t;
+  const zufall = () => ((saat = (saat * 16807) % 2147483647) / 2147483647);
+  const bild = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+  const blatt = (farbe: string) => bild(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'><path d='M10 1C3 6 3 13 10 19C17 13 17 6 10 1Z' fill='${farbe}'/><path d='M10 3V18' stroke='rgba(0,0,0,.3)' stroke-width='1'/></svg>`);
+  const blume = (farbe: string) => bild(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 28'><path d='M10 12V28' stroke='#4c9a4a' stroke-width='1.6'/><path d='M10 22c-4-1-5-4-5-4c3 0 5 2 5 4z' fill='#4c9a4a'/>${[0, 72, 144, 216, 288].map((w) => `<ellipse cx='10' cy='5.5' rx='2.6' ry='4' fill='${farbe}' transform='rotate(${w} 10 9.5)'/>`).join('')}<circle cx='10' cy='9.5' r='2.4' fill='#ffd76a'/></svg>`);
+  const laubfarben = ['#d9822b', '#b9471f', '#e0b23a', '#8a5a2b', '#c9612a'];
+  const blumenfarben = ['#f7a8c8', '#ffffff', '#b9a6ff', '#ffd2e6', '#ff8f8f'];
+
+  // ---- Deko auf den Kästen (wächst mit der Jahreszeit) ----
+  document.querySelectorAll<HTMLElement>('main .block').forEach((kasten) => {
+    const deko = document.createElement('div');
+    deko.className = 'jz-deko';
+    deko.setAttribute('aria-hidden', 'true');
+    if (jahreszeit === 'herbst') {
+      const n = Math.round(2 + fortschritt * 7);
+      for (let i = 0; i < n; i++) {
+        const b = document.createElement('i');
+        b.className = 'jz-blatt';
+        b.style.left = `${6 + zufall() * 88}%`;
+        b.style.rotate = `${Math.round(60 + zufall() * 60) * (zufall() < 0.5 ? -1 : 1)}deg`;
+        b.style.backgroundImage = blatt(laubfarben[Math.floor(zufall() * laubfarben.length)]);
+        deko.append(b);
+      }
+    } else if (jahreszeit === 'winter') {
+      const haube = document.createElement('i');
+      haube.className = 'jz-schnee';
+      haube.style.setProperty('--dicke', `${(3 + fortschritt * 9).toFixed(1)}px`);
+      haube.style.left = `${4 + zufall() * 6}%`;
+      haube.style.right = `${4 + zufall() * 6}%`;
+      deko.append(haube);
+    } else if (jahreszeit === 'fruehling') {
+      const n = Math.round(1 + fortschritt * 6);
+      for (let i = 0; i < n; i++) {
+        const f = document.createElement('i');
+        f.className = 'jz-blume';
+        f.style.left = `${6 + zufall() * 88}%`;
+        f.style.scale = `${(0.6 + fortschritt * 0.5 + zufall() * 0.2).toFixed(2)}`;
+        f.style.backgroundImage = blume(blumenfarben[Math.floor(zufall() * blumenfarben.length)]);
+        deko.append(f);
+      }
+    }
+    if (deko.childElementCount) kasten.append(deko);
+  });
+
+  // ---- Fallendes: Laub, Schnee, Blütenblätter ----
+  const fallen = document.querySelector<HTMLElement>('.jz-fallen')!;
+  const anzahl = ruhig ? 0 : jahreszeit === 'herbst' ? 9 : jahreszeit === 'winter' ? 26 : jahreszeit === 'fruehling' ? 7 : 0;
+  for (let i = 0; i < anzahl; i++) {
+    const e = document.createElement('i');
+    e.className = jahreszeit === 'winter' ? 'jz-flocke' : 'jz-faellt';
+    e.style.left = `${Math.random() * 100}%`;
+    e.style.animationDuration = `${(jahreszeit === 'winter' ? 9 : 12) + Math.random() * 8}s`;
+    e.style.animationDelay = `${-Math.random() * 20}s`;
+    e.style.setProperty('--schwanken', `${Math.round(30 + Math.random() * 60) * (Math.random() < 0.5 ? -1 : 1)}px`);
+    if (jahreszeit === 'herbst') e.style.backgroundImage = blatt(laubfarben[i % laubfarben.length]);
+    if (jahreszeit === 'fruehling') e.style.backgroundImage = bild(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'><ellipse cx='5' cy='5' rx='3' ry='4.5' fill='${blumenfarben[i % blumenfarben.length]}'/></svg>`);
+    if (jahreszeit === 'winter') e.style.scale = `${(0.5 + Math.random() * 0.8).toFixed(2)}`;
+    fallen.append(e);
+  }
+
+  // ---- Sommer: Biene fliegt ab und zu quer über die Seite, Brummi hinterher ----
+  const biene = document.querySelector<HTMLElement>('.jz-biene')!;
+  if (jahreszeit === 'sommer' && !ruhig) {
+    const flug = () => {
+      const vonLinks = Math.random() < 0.5;
+      const y0 = innerHeight * (0.2 + Math.random() * 0.5);
+      const dauer = 9000;
+      const start = performance.now();
+      biene.hidden = false;
+      biene.classList.toggle('links', !vonLinks);
+      let letzteMeldung = 0;
+      const schritt = (jetzt: number) => {
+        const p = (jetzt - start) / dauer;
+        if (p >= 1) { biene.hidden = true; return; }
+        const x = vonLinks ? -40 + p * (innerWidth + 80) : innerWidth + 40 - p * (innerWidth + 80);
+        const y = y0 + Math.sin(p * 14) * 40 + Math.sin(p * 37) * 8;
+        biene.style.transform = `translate(${x.toFixed(0)}px, ${y.toFixed(0)}px)`;
+        if (jetzt - letzteMeldung > 300) {
+          letzteMeldung = jetzt;
+          dispatchEvent(new CustomEvent('brummi:schau', { detail: { x, y, art: 'biene' } }));
+        }
+        requestAnimationFrame(schritt);
+      };
+      requestAnimationFrame(schritt);
+    };
+    setTimeout(flug, 8000);
+    setInterval(flug, 45000);
+  }
+</script>
+
+<style is:global>
+  /* global, weil die Deko per Skript entsteht */
+  html[data-jahreszeit][data-stil='modern'] .block { position: relative; }
+  .jz-deko { position: absolute; left: 0; right: 0; top: 0; height: 0; pointer-events: none; }
+  .jz-blatt { position: absolute; top: -9px; width: 16px; height: 16px; background-size: contain; translate: -50% 0; filter: drop-shadow(0 2px 2px rgb(0 0 0 / 0.5)); }
+  .jz-blume { position: absolute; bottom: -2px; width: 14px; height: 20px; background-size: contain; background-repeat: no-repeat; transform-origin: 50% 100%; translate: -50% 0; }
+  .jz-schnee {
+    position: absolute; top: calc(var(--dicke) * -0.75); height: var(--dicke); border-radius: 999px 999px 40% 40% / 100% 100% 40% 40%;
+    background: linear-gradient(#ffffff, #dfe9f2); box-shadow: 0 2px 4px rgb(0 0 0 / 0.35);
+  }
+
+  .jz-fallen { position: fixed; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+  .jz-faellt, .jz-flocke { position: absolute; top: -30px; animation: jz-fallen linear infinite; will-change: transform; }
+  .jz-faellt { width: 16px; height: 16px; background-size: contain; background-repeat: no-repeat; }
+  .jz-flocke { width: 6px; height: 6px; border-radius: 50%; background: rgb(255 255 255 / 0.9); }
+  @keyframes jz-fallen {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(var(--schwanken), 55vh) rotate(180deg); }
+    100% { transform: translate(0, calc(100vh + 40px)) rotate(360deg); }
+  }
+
+  .jz-biene { position: fixed; left: -12px; top: -9px; z-index: 46; width: 24px; height: 18px; pointer-events: none; }
+  .jz-biene[hidden] { display: none; }
+  .jz-biene svg { width: 100%; height: 100%; overflow: visible; }
+  .jz-biene.links svg { scale: -1 1; }
+  .jz-biene .fluegel { fill: rgb(230 240 255 / 0.75); animation: jz-fluegel 0.08s linear infinite alternate; transform-origin: 50% 100%; transform-box: fill-box; }
+  @keyframes jz-fluegel { to { scale: 1 0.4; } }
+</style>

@@ -22,6 +22,7 @@ const texte = de
       hallo: ['Na? Tipp mich an!', 'Ich halte still. Versprochen.', 'Hallo da oben!'],
       plaudern: ["Schönes Dorf, oder?", "Einfach weiterscrollen, dann fliegen wir übers Dorf.", "Tipp mal auf die Hobbys, da passiert was.", "Ich zähle die Dächer. Eins, zwei, drei …", "Psst: Tipp mal 112 auf der Tastatur.", "Brumm brumm.", "Wer auf „Drohne fliegen“ klickt, sieht einen Looping.", "Bei „Urlaub“ geht’s nach Korsika. Sonnencreme nicht vergessen!", "Klick mal auf Schalke 04. Aber Vorsicht, laut!", "Bei „Kochen“ gibt’s jeden Tag ein anderes Rezept.", "Die KI-Werkzeuge schicken mich auf eine Dorfrunde.", "Dreimal auf die Feuerwehr tippen … dann wird’s hell.", "Schalt mal auf Englisch um. Ich flieg schon mal nach London.", "Nachts gehen im Dorf die Laternen an.", "Morgens liegt manchmal Nebel über dem Bach.", "Das Wetter hier ist echt. Schau mal rechts bei WX.", "Mein Akku hält nicht ewig. Dann muss ich zur Ladestation.", "Wenn ich schlafe, bitte nicht wecken. Oder doch?", "Unten in der Leiste steht, wo wir gerade sind.", "Ich hab den Sportplatz im Visier.", "Kurz die Rotoren lüften …", "Tipp mich an, ich erzähl dir was.", "Auf der Karte sieht man jeden Feldweg.", "Fliegst du mit? Einfach scrollen.", "Hier oben ist es ganz schön windig."],
       zurueck: 'Da bist du ja wieder!',
+      biene: 'Eine Biene! Warte, ich komme!',
       wetter: { regen: 'Bei Regen fliege ich ungern. Meine Rotoren werden nass.', niesel: 'Nur Niesel. Ich fliege trotzdem.', schnee: 'Schnee! Ich fange Flocken.', nebel: 'Ich seh nix. Wo ist der Kirchturm?', gewitter: 'Gewitter! Ich bleib lieber tief.', bedeckt: 'Grau in grau heute.', klar: 'Bestes Flugwetter!' },
       station: 'Brummis Ladestation',
       spiel: 'Feierabend? Dann lass uns Pakete fliegen!',
@@ -38,6 +39,7 @@ const texte = de
       hallo: ['Hey! Tap me!', 'I’ll hold still. Promise.', 'Hello up there!'],
       plaudern: ["Nice village, isn’t it?", "Keep scrolling and we’ll fly over the village.", "Try tapping the hobbies, something happens.", "Counting rooftops. One, two, three …", "Psst: type 112 on your keyboard.", "Bzzz bzzz.", "Click “Flying my drone” for a loop.", "“Holidays” takes us to Corsica. Don’t forget the sunscreen!", "Try clicking Schalke 04. Careful, it’s loud!", "“Cooking” has a different recipe every day.", "The AI tools send me on a lap of the village.", "Tap the fire brigade three times … and things light up.", "Switch to German and I’ll fly to Stockhausen.", "At night the street lamps come on in the village.", "Some mornings there’s fog over the brook.", "The weather here is real. Check WX on the right.", "My battery won’t last forever. Then it’s off to the charging pad.", "When I’m asleep, please don’t wake me. Or do.", "The bar at the bottom shows where we are.", "I’ve got the sports ground in my sights.", "Just airing my rotors …", "Tap me and I’ll tell you something.", "You can see every field track on the map.", "Coming along? Just scroll.", "It’s quite windy up here."],
       zurueck: 'There you are again!',
+      biene: 'A bee! Wait for me!',
       wetter: { regen: 'I don’t like flying in the rain. Wet rotors.', niesel: 'Just drizzle. Flying anyway.', schnee: 'Snow! I’m catching flakes.', nebel: 'Can’t see a thing. Where’s the church tower?', gewitter: 'Thunderstorm! Staying low.', bedeckt: 'Grey all over today.', klar: 'Perfect flying weather!' },
       station: 'Brummi’s charging pad',
       spiel: 'Done for the day? Let’s fly some parcels!',
@@ -149,6 +151,17 @@ const texte = de
     tempo.y -= 6; // kleiner Hüpfer
   });
 
+  // Biene (Jahreszeit.astro, Sommer): Brummi fliegt hinterher, wenn gerade niemand mit ihm spielt
+  let bieneGesehen = -Infinity;
+  addEventListener('brummi:schau', (e) => {
+    const { x, y } = (e as CustomEvent).detail;
+    const jetzt = performance.now();
+    if ((zustand !== 'bummeln' && zustand !== 'folgen') || jetzt - zuletztBewegt < 2500) return;
+    zustand = 'bummeln';
+    bummelZiel = { x: x - 30, y: y + 10, bis: jetzt + 600 };
+    if (jetzt - bieneGesehen > 30000 && !brummi.classList.contains('spricht')) { bieneGesehen = jetzt; sagen(t.biene); }
+  });
+
   // Langeweile: eine zufällige Überschrift anfliegen oder kleine Kreise drehen
   function neuesBummelZiel(jetzt: number) {
     const ueberschriften = [...document.querySelectorAll<HTMLElement>('main h1, main h2')].filter((h) => {
@@ -204,8 +217,9 @@ const texte = de
     const kraft = zustand === 'folgen' ? 9 : 5;
     tempo.x += (z.x - pos.x) * kraft * dt;
     tempo.y += (z.y - pos.y) * kraft * dt;
-    tempo.x *= 0.9;
-    tempo.y *= 0.9;
+    const daempfung = Math.pow(0.9, dt * 60); // unabhängig von der Bildrate
+    tempo.x *= daempfung;
+    tempo.y *= daempfung;
     pos.x += tempo.x * dt * 4.5; // 25 % langsamer als anfangs (6)
     pos.y += tempo.y * dt * 4.5;
 
