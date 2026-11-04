@@ -2,7 +2,8 @@
 // „Brummi“ – kleine Haustier-Drohne auf der Startseite: folgt Maus/Finger mit Verzögerung, landet bei Langeweile
 // auf Überschriften, fliegt mit leerem Akku zur Ladestation (Mühlweg 11a), schläft nachts und ist beim Wecken mürrisch.
 // Nachts = Tageszeit des Drohnenflugs (data-tageszeit an .drohne). Ohne Bewegung bei prefers-reduced-motion.
-import type { Sprache } from '../lib/sprache';
+import { seiten, type Sprache } from '../lib/sprache';
+import { url } from '../lib/site';
 
 interface Props {
   sprache: Sprache;
@@ -23,6 +24,8 @@ const texte = de
       zurueck: 'Da bist du ja wieder!',
       wetter: { regen: 'Bei Regen fliege ich ungern. Meine Rotoren werden nass.', niesel: 'Nur Niesel. Ich fliege trotzdem.', schnee: 'Schnee! Ich fange Flocken.', nebel: 'Ich seh nix. Wo ist der Kirchturm?', gewitter: 'Gewitter! Ich bleib lieber tief.', bedeckt: 'Grau in grau heute.', klar: 'Bestes Flugwetter!' },
       station: 'Brummis Ladestation',
+      spiel: 'Feierabend? Dann lass uns Pakete fliegen!',
+      spielHinweis: 'Psst: Meine Ladestation kann mehr …',
       name: 'Brummi, die Haustier-Drohne',
     }
   : {
@@ -37,10 +40,12 @@ const texte = de
       zurueck: 'There you are again!',
       wetter: { regen: 'I don’t like flying in the rain. Wet rotors.', niesel: 'Just drizzle. Flying anyway.', schnee: 'Snow! I’m catching flakes.', nebel: 'Can’t see a thing. Where’s the church tower?', gewitter: 'Thunderstorm! Staying low.', bedeckt: 'Grey all over today.', klar: 'Perfect flying weather!' },
       station: 'Brummi’s charging pad',
+      spiel: 'Done for the day? Let’s fly some parcels!',
+      spielHinweis: 'Psst: my charging pad can do more …',
       name: 'Brummi, the pet drone',
     };
 ---
-<div class="brummi-station" aria-hidden="true"><span>H</span><small>{texte.station}</small></div>
+<div class="brummi-station" aria-hidden="true" data-spiel={url(seiten.spiel[sprache])}><span>H</span><small>{texte.station}</small></div>
 <button type="button" class="brummi" aria-label={texte.name} data-texte={JSON.stringify(texte)}>
   <span class="brummi__blase" aria-live="polite"></span>
   <svg viewBox="0 0 64 64" aria-hidden="true">
@@ -59,6 +64,16 @@ const texte = de
 <script>
   const brummi = document.querySelector<HTMLButtonElement>('.brummi')!;
   const station = document.querySelector<HTMLElement>('.brummi-station')!;
+  // Geheimer Zugang zum Spiel: 3× schnell auf die Ladestation tippen (Spiel.astro, /spiel/)
+  let stationKlicks: number[] = [];
+  station.addEventListener('click', () => {
+    const jetzt = performance.now();
+    stationKlicks = [...stationKlicks.filter((z) => jetzt - z < 1500), jetzt];
+    if (stationKlicks.length < 3) return;
+    stationKlicks = [];
+    sagen(t.spiel, 3000);
+    setTimeout(() => (location.href = station.dataset.spiel!), 1400);
+  });
   const blase = brummi.querySelector<HTMLElement>('.brummi__blase')!;
   const akkuBalken = brummi.querySelector<HTMLElement>('.brummi__akku i')!;
   const t = JSON.parse(brummi.dataset.texte!);
@@ -69,7 +84,7 @@ const texte = de
   // Sprüche ohne Wiederholung: erst alle einmal (gemischt), dann neu mischen
   const beutel: string[] = [];
   const naechster = () => {
-    if (!beutel.length) beutel.push(...[...t.plaudern, ...t.tippen].sort(() => Math.random() - 0.5));
+    if (!beutel.length) beutel.push(...[...t.plaudern, ...t.tippen, t.spielHinweis].sort(() => Math.random() - 0.5));
     return beutel.pop()!;
   };
 
@@ -268,7 +283,7 @@ const texte = de
 
   .brummi-station {
     position: fixed; left: 16px; bottom: 70px; z-index: 44; display: flex; flex-direction: column; align-items: center; gap: 2px;
-    pointer-events: none;
+    cursor: default; -webkit-tap-highlight-color: transparent; user-select: none;
   }
   .brummi-station span {
     width: 54px; height: 16px; border-radius: 50%; display: grid; place-items: center;
