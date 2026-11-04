@@ -3,6 +3,7 @@ import Basis from '../layouts/Basis.astro';
 import Drohnenflug from './Drohnenflug.astro';
 import Ueberraschungen from './Ueberraschungen.astro';
 import Brummi from './Brummi.astro';
+import Taschenlampe from './Taschenlampe.astro';
 import wetter from '../data/wetter.json';
 import { rezepte } from '../lib/rezepte';
 import logbuch from '../data/logbuch.json';
@@ -26,6 +27,7 @@ const logbuchDatum = eintrag.datum
   <Drohnenflug sprache={sprache} />
   <Ueberraschungen sprache={sprache} />
   <Brummi sprache={sprache} />
+  <Taschenlampe sprache={sprache} />
   <h1><span class="vorname" data-visitenkarte={url(seiten.visitenkarte[sprache])}>{person.name.split(' ')[0]}</span> {person.name.split(' ').slice(1).join(' ')}</h1>
   <p class="untertitel">{t.untertitel}</p>
 
