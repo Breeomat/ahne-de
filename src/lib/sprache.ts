@@ -8,6 +8,8 @@ export const seiten = {
   datenschutz: { de: 'datenschutz/', en: 'en/privacy/' },
   // versteckt: 5× auf „Marc“ tippen (Ueberraschungen.astro), nicht in der Sitemap, noindex
   visitenkarte: { de: 'visitenkarte/', en: 'en/business-card/' },
+  // versteckt: Browserspiel „Brummis Paketdienst“ (Spiel.astro), nicht in der Sitemap, noindex
+  spiel: { de: 'spiel/', en: 'en/game/' },
 } satisfies Record<string, Text>;
 export type Seite = keyof typeof seiten;
 

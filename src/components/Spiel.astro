@@ -1,0 +1,473 @@
+---
+// „Brummis Paketdienst“ – verstecktes Browserspiel (/spiel/, /en/game/), noindex und nicht in der Sitemap.
+// Brummi holt Pakete an echten Orten im Dorf ab und liefert sie aus (Koordinaten aus der Dorfkarte von
+// stockhausen-online, OpenStreetMap). Akku wird beim Fliegen leer → Ladestation am Sportplatz.
+// Wind (Stärke und Richtung) und Regen kommen aus dem echten Wetter der Stunde (src/data/wetter.json).
+// Test: ?wetter=regen&wind=30&richtung=270
+import Basis from '../layouts/Basis.astro';
+import { url } from '../lib/site';
+import { seiten, type Sprache } from '../lib/sprache';
+import wetter from '../data/wetter.json';
+
+interface Props {
+  sprache: Sprache;
+}
+const { sprache } = Astro.props;
+const de = sprache === 'de';
+
+// Drohnenkarte: gleicher Ausschnitt wie im Drohnenflug (public/drohne/stockhausen.svg)
+const rahmen = { west: 9.4325, sued: 50.555, ost: 9.4565, nord: 50.568, breite: 1000, hoehe: 853 };
+const punkt = (lat: number, lon: number) => ({
+  x: Math.round(((lon - rahmen.west) / (rahmen.ost - rahmen.west)) * rahmen.breite * 10) / 10,
+  y: Math.round(((rahmen.nord - lat) / (rahmen.nord - rahmen.sued)) * rahmen.hoehe * 10) / 10,
+});
+// Orte aus stockhausen-online (src/lib/dorfkarte.ts, lat/lon aus OpenStreetMap)
+const orte = [
+  { name: ['Feuerwehrhaus', 'Fire station'], lat: 50.562767, lon: 9.446901 },
+  { name: ['Altfellhalle', 'Altfellhalle'], lat: 50.561492, lon: 9.451413 },
+  { name: ['Gefrierhaus', 'Freezer house'], lat: 50.562209, lon: 9.448704 },
+  { name: ['Schützenhaus', 'Shooting club house'], lat: 50.56569, lon: 9.44053 },
+  { name: ['Ev. Kirche', 'Church'], lat: 50.56427, lon: 9.445357 },
+  { name: ['Schloss Stockhausen', 'Stockhausen castle'], lat: 50.563582, lon: 9.444021 },
+  { name: ['Spielplatz Altefeldstraße', 'Playground (Altefeldstraße)'], lat: 50.5621818, lon: 9.4490361 },
+  { name: ['Spielplatz am Campus', 'Playground (Campus)'], lat: 50.5617507, lon: 9.4414777 },
+  { name: ['Siegfried-Pickert-Schule', 'Siegfried-Pickert-Schule'], lat: 50.561977, lon: 9.44071 },
+  { name: ['Haltestelle Ortsmitte', 'Bus stop Ortsmitte'], lat: 50.5626677, lon: 9.4463971 },
+  { name: ['Haltestelle Kindergarten', 'Bus stop Kindergarten'], lat: 50.5603635, lon: 9.4486121 },
+].map((o) => ({ name: o.name[de ? 0 : 1], ...punkt(o.lat, o.lon) }));
+const station = punkt(50.561455, 9.45212); // Sportplatz
+
+const t = de
+  ? {
+      titel: 'Brummis Paketdienst',
+      intro: 'Hol die Pakete im Dorf ab und liefere sie aus. Du hast 2 Minuten. Achte auf den Akku: Aufladen geht an der Ladestation am Sportplatz.',
+      steuerung: 'Steuern: Finger oder Maus gedrückt halten (Brummi fliegt dorthin) oder Pfeiltasten / WASD.',
+      start: 'Los geht’s',
+      nochmal: 'Nochmal',
+      zurueck: 'Zur Startseite',
+      abholen: 'Abholen',
+      liefern: 'Liefern',
+      aufgenommen: 'Paket an Bord!',
+      zugestellt: 'Zugestellt! +1',
+      laden: 'Lädt …',
+      leer: 'Akku leer – Notlandung!',
+      zeitUm: 'Zeit um!',
+      ergebnis: (n: number) => (n === 1 ? '1 Paket zugestellt' : `${n} Pakete zugestellt`),
+      bestwert: (n: number) => `Bestwert in dieser Runde: ${n}`,
+      wetter: 'Wetter jetzt',
+      wind: 'Wind',
+      regen: 'Regen: Akku hält kürzer.',
+      ladestation: 'Ladestation',
+      karte: 'Kartendaten © OpenStreetMap-Mitwirkende',
+    }
+  : {
+      titel: 'Brummi’s Parcel Service',
+      intro: 'Pick up the parcels in the village and deliver them. You have 2 minutes. Watch the battery: recharge at the charging pad by the sports ground.',
+      steuerung: 'Controls: hold your finger or mouse down (Brummi flies there) or use the arrow keys / WASD.',
+      start: 'Let’s go',
+      nochmal: 'Play again',
+      zurueck: 'Back to home',
+      abholen: 'Pick up',
+      liefern: 'Deliver',
+      aufgenommen: 'Parcel on board!',
+      zugestellt: 'Delivered! +1',
+      laden: 'Charging …',
+      leer: 'Battery empty – emergency landing!',
+      zeitUm: 'Time’s up!',
+      ergebnis: (n: number) => (n === 1 ? '1 parcel delivered' : `${n} parcels delivered`),
+      bestwert: (n: number) => `Best this session: ${n}`,
+      wetter: 'Weather now',
+      wind: 'Wind',
+      regen: 'Rain: the battery runs down faster.',
+      ladestation: 'Charging pad',
+      karte: 'Map data © OpenStreetMap contributors',
+    };
+const texte = { ...t, ergebnis: undefined, bestwert: undefined, ergebnisVorlage: [t.ergebnis(1), t.ergebnis(99)], bestwertVorlage: t.bestwert(99) };
+---
+<Basis sprache={sprache} seite="spiel" titel={t.titel} verborgen>
+  <div class="spiel" data-orte={JSON.stringify(orte)} data-station={JSON.stringify(station)} data-wetterdaten={JSON.stringify(wetter)} data-texte={JSON.stringify(texte)}>
+    <div class="spiel__welt">
+      <img class="spiel__karte" src={url('drohne/stockhausen.svg')} alt="" width="1000" height="853" draggable="false" />
+      <div class="spiel__station"><span>H</span><small>{t.ladestation}</small></div>
+      <div class="spiel__ziel"><i></i><b></b></div>
+      <div class="spiel__drohne">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <g class="arme"><line x1="16" y1="16" x2="48" y2="48" /><line x1="48" y1="16" x2="16" y2="48" /></g>
+          {[[16, 16], [48, 16], [16, 48], [48, 48]].map(([x, y]) => (
+            <g transform={`translate(${x} ${y})`}><circle r="10" class="ring" /><g class="rotor"><ellipse rx="9" ry="1.8" /><ellipse rx="9" ry="1.8" transform="rotate(90)" /></g></g>
+          ))}
+          <rect x="23" y="23" width="18" height="18" rx="6" class="koerper" />
+          <circle cx="28" cy="30" r="2.2" class="auge" /><circle cx="36" cy="30" r="2.2" class="auge" />
+          <path d="M28 36 Q32 39 36 36" class="mund" />
+        </svg>
+        <span class="spiel__paket"></span>
+      </div>
+    </div>
+    <div class="spiel__regen" aria-hidden="true"></div>
+    <div class="spiel__pfeil" aria-hidden="true"><span></span></div>
+
+    <div class="spiel__kopf">
+      <span class="spiel__wert">⏱ <b data-anzeige="zeit">2:00</b></span>
+      <span class="spiel__wert">📦 <b data-anzeige="punkte">0</b></span>
+      <span class="spiel__wert spiel__akku">BAT <b data-anzeige="akku">100</b>%<i><em></em></i></span>
+      <span class="spiel__wert">{t.wind} <b data-anzeige="wind">–</b> <span class="spiel__windpfeil" data-anzeige="windpfeil">↑</span></span>
+    </div>
+    <div class="spiel__auftrag" aria-live="polite"><span data-anzeige="art"></span> <b data-anzeige="ort"></b> <span data-anzeige="abstand"></span></div>
+    <div class="spiel__meldung" aria-live="assertive"></div>
+
+    <div class="spiel__tafel" data-tafel="start">
+      <div class="spiel__karte-innen">
+        <h1>{t.titel}</h1>
+        <p>{t.intro}</p>
+        <p class="spiel__klein">{t.steuerung}</p>
+        <p class="spiel__klein" data-anzeige="wetterinfo"></p>
+        <div class="spiel__knoepfe">
+          <button type="button" class="spiel__knopf" data-aktion="start">{t.start}</button>
+          <a class="spiel__link" href={url(seiten.start[sprache])}>{t.zurueck}</a>
+        </div>
+        <p class="spiel__quelle">{t.karte}</p>
+      </div>
+    </div>
+  </div>
+</Basis>
+
+<script>
+  type P = { x: number; y: number };
+  const spiel = document.querySelector<HTMLElement>('.spiel')!;
+  const welt = spiel.querySelector<HTMLElement>('.spiel__welt')!;
+  const karte = spiel.querySelector<HTMLImageElement>('.spiel__karte')!;
+  const drohne = spiel.querySelector<HTMLElement>('.spiel__drohne')!;
+  const zielMarke = spiel.querySelector<HTMLElement>('.spiel__ziel')!;
+  const stationMarke = spiel.querySelector<HTMLElement>('.spiel__station')!;
+  const pfeil = spiel.querySelector<HTMLElement>('.spiel__pfeil')!;
+  const meldung = spiel.querySelector<HTMLElement>('.spiel__meldung')!;
+  const tafel = spiel.querySelector<HTMLElement>('.spiel__tafel')!;
+  const anzeige: Record<string, HTMLElement> = {};
+  spiel.querySelectorAll<HTMLElement>('[data-anzeige]').forEach((el) => (anzeige[el.dataset.anzeige!] = el));
+
+  const orte: (P & { name: string })[] = JSON.parse(spiel.dataset.orte!);
+  const station: P = JSON.parse(spiel.dataset.station!);
+  const t = JSON.parse(spiel.dataset.texte!);
+  const W = 1000, H = 853;
+  const METER = 1.7; // ein Kartenpunkt ≈ 1,7 m
+  const DAUER = 120;
+
+  // ---- Wetter der aktuellen Stunde (wie im Drohnenflug) ----
+  const daten = JSON.parse(spiel.dataset.wetterdaten!);
+  const such = new URLSearchParams(location.search);
+  let windKmh = 8, windAus = 250, regen = false; // ohne Daten: leichter Westwind
+  if (daten.start) {
+    const jetzt = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Berlin', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', hourCycle: 'h23' }).format(new Date());
+    const i = Math.round((Date.parse(jetzt.replace(' ', 'T') + ':00Z') - Date.parse(daten.start + 'Z')) / 3600000);
+    if (i >= 0 && i < daten.code.length) {
+      windKmh = daten.wind[i];
+      if (daten.richtung) windAus = daten.richtung[i];
+      const c = daten.code[i];
+      regen = (c >= 51 && c <= 67) || (c >= 71 && c <= 86) || c >= 95;
+    }
+  }
+  if (such.get('wind')) windKmh = Number(such.get('wind'));
+  if (such.get('richtung')) windAus = Number(such.get('richtung'));
+  if (such.get('wetter')) regen = ['regen', 'niesel', 'schnee', 'gewitter'].includes(such.get('wetter')!);
+  // Wind weht dorthin, wohin er nicht herkommt; Stärke gedämpft, damit es spielbar bleibt
+  const windRad = ((windAus + 180) * Math.PI) / 180;
+  const windStaerke = Math.min(26, windKmh * 0.55);
+  const wind: P = { x: Math.sin(windRad) * windStaerke, y: -Math.cos(windRad) * windStaerke };
+  anzeige.wind.textContent = `${windKmh} km/h`;
+  anzeige.windpfeil.style.rotate = `${windAus + 180}deg`;
+  spiel.classList.toggle('regnet', regen);
+  anzeige.wetterinfo.textContent = `${t.wetter}: ${t.wind} ${windKmh} km/h${regen ? ' · ' + t.regen : ''}`;
+
+  // ---- Darstellung: Karte als Bild in passender Größe, Kamera folgt Brummi ----
+  let Z = 2.5;
+  function groesse() {
+    Z = Math.max(1.8, Math.min(3.4, Math.min(innerWidth, innerHeight) / 250));
+    karte.style.width = `${W * Z}px`;
+    karte.style.height = `${H * Z}px`;
+    stationMarke.style.transform = `translate(${station.x * Z}px, ${station.y * Z}px)`;
+    if (ziel) zielMarke.style.transform = `translate(${ziel.x * Z}px, ${ziel.y * Z}px)`;
+  }
+
+  // ---- Zustand ----
+  let pos: P = { ...station };
+  let tempo: P = { x: 0, y: 0 };
+  let kamera: P = { ...station };
+  let akku = 100, punkte = 0, rest = DAUER, laeuft = false, bestwert = 0;
+  let hatPaket = false, abhol: (P & { name: string }) | null = null, ziel: (P & { name: string }) | null = null;
+  let letzter = performance.now();
+
+  function neuerAuftrag() {
+    const frei = orte.filter((o) => o !== ziel);
+    abhol = frei[Math.floor(Math.random() * frei.length)];
+    const rest2 = orte.filter((o) => o !== abhol && Math.hypot(o.x - abhol!.x, o.y - abhol!.y) > 120);
+    const nach = rest2[Math.floor(Math.random() * rest2.length)];
+    hatPaket = false;
+    ziel = abhol;
+    (zielMarke as any).naechstes = nach;
+    zielZeigen();
+  }
+  function zielZeigen() {
+    zielMarke.style.transform = `translate(${ziel!.x * Z}px, ${ziel!.y * Z}px)`;
+    zielMarke.classList.toggle('liefern', hatPaket);
+    zielMarke.querySelector('b')!.textContent = ziel!.name;
+    anzeige.art.textContent = hatPaket ? t.liefern : t.abholen;
+    anzeige.ort.textContent = ziel!.name;
+    drohne.classList.toggle('mit-paket', hatPaket);
+  }
+
+  let meldungZeit: number | undefined;
+  function melden(text: string, art = '') {
+    meldung.textContent = text;
+    meldung.className = `spiel__meldung zeigen ${art}`;
+    clearTimeout(meldungZeit);
+    meldungZeit = window.setTimeout(() => meldung.classList.remove('zeigen'), 1400);
+  }
+
+  // ---- Eingabe ----
+  const tasten = new Set<string>();
+  addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
+    if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(k)) {
+      tasten.add(k);
+      if (laeuft) e.preventDefault();
+    }
+    if ((k === 'enter' || k === ' ') && !laeuft && !tafel.hidden) { e.preventDefault(); starten(); }
+  });
+  addEventListener('keyup', (e) => tasten.delete(e.key.toLowerCase()));
+  let zeiger: P | null = null;
+  const zeigerWelt = (e: PointerEvent): P => ({ x: kamera.x + (e.clientX - innerWidth / 2) / Z, y: kamera.y + (e.clientY - innerHeight / 2) / Z });
+  spiel.addEventListener('pointerdown', (e) => {
+    if (!laeuft || (e.target as HTMLElement).closest('a, button')) return;
+    spiel.setPointerCapture(e.pointerId);
+    zeiger = zeigerWelt(e);
+  });
+  spiel.addEventListener('pointermove', (e) => { if (zeiger) zeiger = zeigerWelt(e); });
+  const loslassen = () => (zeiger = null);
+  spiel.addEventListener('pointerup', loslassen);
+  spiel.addEventListener('pointercancel', loslassen);
+
+  // ---- Spielablauf ----
+  function starten() {
+    pos = { x: station.x, y: station.y - 20 };
+    tempo = { x: 0, y: 0 };
+    kamera = { ...pos };
+    akku = 100; punkte = 0; rest = DAUER; ziel = null;
+    neuerAuftrag();
+    tafel.hidden = true;
+    laeuft = true;
+    letzter = performance.now();
+  }
+  function beenden(grund: string) {
+    laeuft = false;
+    zeiger = null;
+    bestwert = Math.max(bestwert, punkte);
+    const ergebnis = punkte === 1 ? t.ergebnisVorlage[0] : t.ergebnisVorlage[1].replace('99', String(punkte));
+    const innen = tafel.querySelector('.spiel__karte-innen')!;
+    innen.querySelector('h1')!.textContent = grund;
+    const absaetze = innen.querySelectorAll('p');
+    absaetze[0].textContent = ergebnis;
+    absaetze[1].textContent = t.bestwertVorlage.replace('99', String(bestwert));
+    tafel.querySelector<HTMLElement>('[data-aktion="start"]')!.textContent = t.nochmal;
+    tafel.hidden = false;
+    tafel.querySelector<HTMLElement>('[data-aktion="start"]')!.focus();
+  }
+  tafel.querySelector('[data-aktion="start"]')!.addEventListener('click', starten);
+
+  function schritt(jetzt: number) {
+    const dt = Math.min(0.05, (jetzt - letzter) / 1000);
+    letzter = jetzt;
+    if (laeuft) {
+      // Schub aus Tasten oder Zeiger
+      let ax = 0, ay = 0;
+      if (tasten.has('arrowleft') || tasten.has('a')) ax -= 1;
+      if (tasten.has('arrowright') || tasten.has('d')) ax += 1;
+      if (tasten.has('arrowup') || tasten.has('w')) ay -= 1;
+      if (tasten.has('arrowdown') || tasten.has('s')) ay += 1;
+      if (zeiger) {
+        const dx = zeiger.x - pos.x, dy = zeiger.y - pos.y, d = Math.hypot(dx, dy);
+        if (d > 3) { const s = Math.min(1, d / 40); ax += (dx / d) * s; ay += (dy / d) * s; }
+      }
+      const schub = Math.min(1, Math.hypot(ax, ay));
+      if (schub > 0) { const l = Math.hypot(ax, ay); ax = (ax / l) * schub; ay = (ay / l) * schub; }
+      tempo.x += ax * 230 * dt;
+      tempo.y += ay * 230 * dt;
+      const bremse = Math.exp(-2.4 * dt);
+      tempo.x *= bremse; tempo.y *= bremse;
+      const v = Math.hypot(tempo.x, tempo.y), vMax = 62;
+      if (v > vMax) { tempo.x *= vMax / v; tempo.y *= vMax / v; }
+      pos.x = Math.max(8, Math.min(W - 8, pos.x + (tempo.x + wind.x) * dt));
+      pos.y = Math.max(8, Math.min(H - 8, pos.y + (tempo.y + wind.y) * dt));
+
+      // Akku: Schweben kostet wenig, Schub mehr, Regen mehr
+      const amLaden = Math.hypot(pos.x - station.x, pos.y - station.y) < 18;
+      if (amLaden) {
+        akku = Math.min(100, akku + 28 * dt);
+        if (akku < 100 && !meldung.classList.contains('zeigen')) melden(t.laden, 'laden');
+      } else {
+        akku -= (0.7 + 1.3 * schub) * (regen ? 1.25 : 1) * dt;
+      }
+      rest -= dt;
+
+      // Abholen / Liefern
+      if (ziel && Math.hypot(pos.x - ziel.x, pos.y - ziel.y) < 14) {
+        if (!hatPaket) {
+          hatPaket = true;
+          ziel = (zielMarke as any).naechstes;
+          melden(t.aufgenommen);
+          zielZeigen();
+        } else {
+          punkte++;
+          melden(t.zugestellt, 'gut');
+          neuerAuftrag();
+        }
+      }
+      if (akku <= 0) { akku = 0; beenden(t.leer); }
+      else if (rest <= 0) { rest = 0; beenden(t.zeitUm); }
+    }
+
+    // Kamera folgt weich, bleibt auf der Karte
+    kamera.x += (pos.x - kamera.x) * Math.min(1, dt * 5);
+    kamera.y += (pos.y - kamera.y) * Math.min(1, dt * 5);
+    const hw = innerWidth / 2 / Z, hh = innerHeight / 2 / Z;
+    const kx = W > hw * 2 ? Math.max(hw, Math.min(W - hw, kamera.x)) : W / 2;
+    const ky = H > hh * 2 ? Math.max(hh, Math.min(H - hh, kamera.y)) : H / 2;
+    welt.style.transform = `translate(${(innerWidth / 2 - kx * Z).toFixed(1)}px, ${(innerHeight / 2 - ky * Z).toFixed(1)}px)`;
+    const neigung = Math.max(-22, Math.min(22, tempo.x * 0.25));
+    drohne.style.transform = `translate(${(pos.x * Z).toFixed(1)}px, ${(pos.y * Z).toFixed(1)}px) rotate(${neigung.toFixed(1)}deg)`;
+
+    // Anzeige
+    const s = Math.ceil(rest);
+    anzeige.zeit.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    anzeige.punkte.textContent = String(punkte);
+    anzeige.akku.textContent = String(Math.round(akku));
+    spiel.style.setProperty('--akku', `${akku}%`);
+    spiel.classList.toggle('akku-knapp', akku < 25);
+    if (ziel) {
+      anzeige.abstand.textContent = `· ${Math.round((Math.hypot(ziel.x - pos.x, ziel.y - pos.y) * METER) / 10) * 10} m`;
+      // Pfeil am Bildrand, wenn das Ziel nicht zu sehen ist
+      const sx = innerWidth / 2 + (ziel.x - kx) * Z, sy = innerHeight / 2 + (ziel.y - ky) * Z, rand = 40;
+      const sichtbar = sx > rand && sx < innerWidth - rand && sy > rand + 50 && sy < innerHeight - rand;
+      pfeil.hidden = sichtbar || !laeuft;
+      if (!sichtbar) {
+        const mx = innerWidth / 2, my = innerHeight / 2, w = Math.atan2(sy - my, sx - mx);
+        const f = Math.min((innerWidth / 2 - rand) / Math.abs(Math.cos(w) || 1e-6), (innerHeight / 2 - rand - 30) / Math.abs(Math.sin(w) || 1e-6));
+        pfeil.style.transform = `translate(${(mx + Math.cos(w) * f).toFixed(0)}px, ${(my + 15 + Math.sin(w) * f).toFixed(0)}px) rotate(${w}rad)`;
+        pfeil.classList.toggle('liefern', hatPaket);
+      }
+    }
+    requestAnimationFrame(schritt);
+  }
+
+  addEventListener('resize', groesse);
+  groesse();
+  requestAnimationFrame(schritt);
+</script>
+
+<style>
+  .spiel {
+    position: fixed; inset: 0; z-index: 60; overflow: hidden; background: #0b1218; touch-action: none; user-select: none;
+    -webkit-user-select: none; font-family: var(--sans); color: #eafff8;
+  }
+  .spiel__welt { position: absolute; left: 0; top: 0; will-change: transform; }
+  .spiel__karte { display: block; max-width: none; pointer-events: none; }
+
+  .spiel__drohne { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; will-change: transform; filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.55)); }
+  .spiel__drohne svg { width: 100%; height: 100%; overflow: visible; }
+  .arme line { stroke: #8a94a4; stroke-width: 4; stroke-linecap: round; }
+  .ring { fill: rgb(10 12 24 / 0.35); stroke: #ffd76a; stroke-width: 1.4; }
+  .rotor { animation: rotor 0.16s linear infinite; }
+  .rotor ellipse { fill: rgb(230 236 245 / 0.6); }
+  @keyframes rotor { to { rotate: 360deg; } }
+  .koerper { fill: #1a1d26; stroke: #ffd76a; stroke-width: 1.6; }
+  .auge { fill: #9ff5dc; }
+  .mund { fill: none; stroke: #9ff5dc; stroke-width: 1.6; stroke-linecap: round; }
+  .spiel__paket {
+    position: absolute; left: 50%; top: 100%; width: 16px; height: 13px; translate: -50% -2px; border-radius: 2px; display: none;
+    background: linear-gradient(90deg, transparent 43%, #e8c27a 43% 57%, transparent 57%), #a8763e; box-shadow: 0 0 0 1px #5c3d1c;
+  }
+  .mit-paket .spiel__paket { display: block; }
+
+  .spiel__station, .spiel__ziel { position: absolute; left: 0; top: 0; }
+  .spiel__station span {
+    position: absolute; left: -24px; top: -9px; width: 48px; height: 18px; border-radius: 50%; display: grid; place-items: center;
+    background: radial-gradient(circle, rgb(255 215 106 / 0.45), rgb(10 12 24 / 0.7) 70%); border: 1px solid #ffd76a;
+    font: 800 0.65rem var(--sans); color: #ffd76a;
+  }
+  .spiel__station small { position: absolute; left: 0; top: 12px; translate: -50% 0; white-space: nowrap; font: 700 0.62rem ui-monospace, Menlo, monospace; color: #ffd76a; }
+  .spiel__ziel i {
+    position: absolute; left: -16px; top: -16px; width: 32px; height: 32px; border-radius: 50%;
+    border: 3px solid #9ff5dc; box-shadow: 0 0 14px #9ff5dc; animation: ziel 1.1s ease-in-out infinite;
+  }
+  .spiel__ziel.liefern i { border-color: #ffb36b; box-shadow: 0 0 14px #ffb36b; }
+  @keyframes ziel { 50% { scale: 1.35; opacity: 0.6; } }
+  .spiel__ziel b {
+    position: absolute; left: 0; top: 20px; translate: -50% 0; white-space: nowrap; padding: 0.1rem 0.45rem; border-radius: 6px;
+    background: rgb(5 10 18 / 0.8); font-size: 0.75rem; color: #9ff5dc;
+  }
+  .spiel__ziel.liefern b { color: #ffb36b; }
+
+  .spiel__pfeil { position: absolute; left: 0; top: 0; pointer-events: none; }
+  .spiel__pfeil span { display: block; width: 26px; height: 22px; translate: -50% -50%; background: #9ff5dc; clip-path: polygon(0 0, 100% 50%, 0 100%, 22% 50%); filter: drop-shadow(0 0 6px #9ff5dc); }
+  .spiel__pfeil.liefern span { background: #ffb36b; }
+  .spiel__pfeil[hidden] { display: none; }
+
+  .spiel__kopf {
+    position: absolute; left: 50%; top: 10px; translate: -50% 0; display: flex; gap: 0.9rem; align-items: center; white-space: nowrap;
+    padding: 0.4rem 0.9rem; border-radius: 999px; background: rgb(5 10 18 / 0.75); border: 1px solid rgb(159 245 220 / 0.3);
+    font: 600 0.75rem ui-monospace, Menlo, monospace; color: #9ff5dc;
+  }
+  .spiel__kopf b { color: #eafff8; font-size: 0.95rem; }
+  .spiel__akku { display: inline-flex; align-items: baseline; gap: 0.25rem; }
+  .spiel__akku i { display: inline-block; width: 34px; height: 6px; border-radius: 3px; background: rgb(255 255 255 / 0.15); overflow: hidden; }
+  .spiel__akku em { display: block; height: 100%; width: var(--akku, 100%); background: #9ff5dc; }
+  .akku-knapp .spiel__akku em { background: #ff6b7d; }
+  .akku-knapp .spiel__akku b { color: #ff6b7d; }
+  .spiel__windpfeil { display: inline-block; color: #eafff8; }
+
+  .spiel__auftrag {
+    position: absolute; left: 50%; top: 52px; translate: -50% 0; white-space: nowrap; padding: 0.3rem 0.8rem; border-radius: 999px;
+    background: rgb(5 10 18 / 0.75); font-size: 0.85rem; color: #c9d4d0;
+  }
+  .spiel__auftrag b { color: #9ff5dc; }
+  .spiel:has(.spiel__ziel.liefern) .spiel__auftrag b { color: #ffb36b; }
+
+  .spiel__meldung {
+    position: absolute; left: 50%; top: 40%; translate: -50% 0; padding: 0.5rem 1rem; border-radius: 12px; pointer-events: none;
+    background: rgb(5 10 18 / 0.85); font-weight: 700; font-size: 1.05rem; opacity: 0; transition: opacity 0.2s;
+  }
+  .spiel__meldung.zeigen { opacity: 1; }
+  .spiel__meldung.gut { color: #ffd76a; }
+  .spiel__meldung.laden { color: #ffd76a; font-size: 0.85rem; }
+
+  .spiel__regen { position: absolute; inset: 0; pointer-events: none; display: none; opacity: 0.4;
+    background: repeating-linear-gradient(100deg, transparent 0 18px, rgb(200 220 240 / 0.5) 18px 19px, transparent 19px 41px);
+    background-size: 100% 160px; animation: spiel-regen 0.5s linear infinite; }
+  .regnet .spiel__regen { display: block; }
+  @keyframes spiel-regen { to { background-position: -20px 160px; } }
+
+  .spiel__tafel { position: absolute; inset: 0; display: grid; place-items: center; padding: 16px; background: rgb(5 8 14 / 0.55); }
+  .spiel__tafel[hidden] { display: none; }
+  .spiel__karte-innen {
+    max-width: 30rem; padding: 1.4rem 1.5rem; border-radius: 16px; background: rgb(10 14 22 / 0.92);
+    border: 1px solid rgb(255 215 106 / 0.45); box-shadow: 0 30px 70px -25px #000;
+  }
+  .spiel__karte-innen h1 { margin: 0 0 0.6rem; font-size: 1.6rem; color: #ffd76a; }
+  .spiel__karte-innen p { margin: 0 0 0.7rem; line-height: 1.5; }
+  .spiel__klein { font-size: 0.85rem; color: #aab8b4; }
+  .spiel__knoepfe { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-top: 1rem; }
+  .spiel__knopf {
+    padding: 0.6rem 1.3rem; border: 0; border-radius: 999px; background: #ffd76a; color: #1a1406; font: 700 1rem var(--sans); cursor: pointer;
+  }
+  .spiel__link { color: #9ff5dc; }
+  .spiel__quelle { margin: 1rem 0 0 !important; font-size: 0.7rem; color: #7d8a87; }
+
+  @media (max-width: 520px) {
+    .spiel__kopf { gap: 0.55rem; font-size: 0.66rem; padding: 0.35rem 0.7rem; }
+    .spiel__kopf b { font-size: 0.82rem; }
+    .spiel__akku i { width: 22px; }
+    .spiel__auftrag { font-size: 0.75rem; max-width: calc(100% - 24px); overflow: hidden; text-overflow: ellipsis; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rotor, .spiel__ziel i, .spiel__regen { animation: none; }
+  }
+</style>

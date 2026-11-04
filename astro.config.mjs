@@ -7,5 +7,5 @@ export default defineConfig({
   base: '/',
   trailingSlash: 'always',
   // Visitenkarte ist versteckt (5× auf „Marc“) und soll nicht in die Sitemap
-  integrations: [sitemap({ filter: (seite) => !/\/(visitenkarte|business-card)\//.test(seite) })],
+  integrations: [sitemap({ filter: (seite) => !/\/(visitenkarte|business-card|spiel|game)\//.test(seite) })],
 });

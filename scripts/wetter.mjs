@@ -14,7 +14,7 @@ try {
   const url = new URL('https://api.open-meteo.com/v1/forecast');
   url.search = new URLSearchParams({
     latitude: ORT.lat, longitude: ORT.lon, timezone: 'Europe/Berlin', forecast_days: '3',
-    hourly: 'weather_code,temperature_2m,wind_speed_10m',
+    hourly: 'weather_code,temperature_2m,wind_speed_10m,wind_direction_10m',
   });
   const antwort = await fetch(url);
   if (!antwort.ok) throw new Error(`HTTP ${antwort.status}`);
@@ -24,6 +24,7 @@ try {
     code: h.weather_code,
     temp: h.temperature_2m.map((t) => Math.round(t)),
     wind: h.wind_speed_10m.map((w) => Math.round(w)),
+    richtung: h.wind_direction_10m.map((r) => Math.round(r)), // woher der Wind kommt, Grad (0 = Nord)
     erzeugt: new Date().toISOString(),
   };
   writeFileSync(ZIEL, JSON.stringify(daten) + '\n');
