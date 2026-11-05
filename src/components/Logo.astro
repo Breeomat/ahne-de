@@ -1,0 +1,25 @@
+---
+// Logo „MA“ als goldener Stempel mit „Stockhausen · Vogelsberg“ im Ring (Startseite neben dem Namen).
+// Vereinfachte Fassung ohne Ringtext fürs Browser-Symbol: public/favicon.svg (PNG-Fassungen daraus erzeugt).
+interface Props {
+  groesse?: number;
+}
+const { groesse = 96 } = Astro.props;
+---
+<svg class="logo" viewBox="0 0 200 200" width={groesse} height={groesse} role="img" aria-label="Logo MA">
+  <defs>
+    <linearGradient id="logo-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b8" /><stop offset="0.5" stop-color="#ffd76a" /><stop offset="1" stop-color="#c9952f" /></linearGradient>
+    <path id="logo-ring" d="M100 100m-66 0a66 66 0 1 1 132 0a66 66 0 1 1 -132 0" />
+  </defs>
+  <g transform="rotate(-10 100 100)" fill="none" stroke="url(#logo-gold)">
+    <circle cx="100" cy="100" r="86" stroke-width="6" />
+    <circle cx="100" cy="100" r="54" stroke-width="2.5" stroke-dasharray="4 4" />
+    <text class="logo__ring" fill="url(#logo-gold)" stroke="none"><textPath href="#logo-ring" textLength="408" lengthAdjust="spacing">STOCKHAUSEN · VOGELSBERG ·</textPath></text>
+    <g stroke-width="8" stroke-linejoin="round"><path d="M66 120V82L82 102L98 82V120" /><path d="M106 120L120 82L134 120M111 108H129" /></g>
+  </g>
+</svg>
+
+<style>
+  .logo { flex: none; display: block; overflow: visible; }
+  .logo__ring { font-family: var(--sans); font-weight: 800; font-size: 15px; }
+</style>

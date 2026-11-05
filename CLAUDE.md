@@ -48,6 +48,9 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   echten Orten abholen/liefern (Koordinaten aus `dorfkarte.ts` von stockhausen-online), 2 Minuten, Akku → Ladestation am
   Sportplatz; Wind (Stärke/Richtung) und Regen aus `src/data/wetter.json`. `noindex`, nicht in der Sitemap, speichert nichts.
   Test: `?wetter=regen&wind=30&richtung=270`. Zugang: 3× schnell auf „Brummis Ladestation“ tippen (`Brummi.astro`), Brummi gibt ab und zu den Hinweis.
+- Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
+  Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
+  `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
   Arbeitgeber (Wunsch des Seiteninhabers) – das steht nur auf der versteckten Visitenkarte.

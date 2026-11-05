@@ -527,3 +527,8 @@ dialog.rezept[open] {
 
 /* Brummis Ladestation über der HUD-Kurzanzeige, solange diese sichtbar ist */
 @media (max-width: 1149px) { .brummi-station { bottom: 92px !important; } }
+
+/* Kopf der Startseite: Logo (Logo.astro) neben Name und Untertitel */
+.kopfzeile { display: flex; align-items: center; gap: clamp(0.8rem, 3vw, 1.6rem); }
+.kopfzeile .logo { width: clamp(64px, 14vw, 112px); height: auto; }
+.kopfzeile h1 { margin-bottom: 0.3rem; }
