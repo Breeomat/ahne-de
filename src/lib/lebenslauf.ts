@@ -123,7 +123,7 @@ export const weiterbildung: { zeit: string; text: Text }[] = [
 ];
 
 export const schule: { zeit: string; text: Text }[] = [
-  { zeit: '1984 – 1988', text: { de: 'Realschule, Wascherde Lauterbach – Mittlere Reife', en: 'Secondary school (Realschule), Wascherde Lauterbach – intermediate school certificate' } },
+  { zeit: '1984 – 1988', text: { de: 'Realschule, Schule an der Wascherde, Lauterbach – Mittlere Reife', en: 'Secondary school (Realschule), Schule an der Wascherde, Lauterbach – intermediate school certificate' } },
   { zeit: '1980 – 1984', text: { de: 'Mittelpunktschule Wartenberg', en: 'Mittelpunktschule Wartenberg' } },
   { zeit: '1978 – 1980', text: { de: 'Grundschule Stockhausen', en: 'Primary school Stockhausen' } },
 ];
