@@ -69,7 +69,7 @@ const strukturiert = {
     </main>
     <footer class="fuss">
       <div class="huelle">
-        <span>© {new Date().getFullYear()} {person.name}</span>
+        <span>© {new Date().getFullYear()} {person.name} · <a href={url('waermepumpe/')}>{sprache === 'de' ? 'Wärmepumpe' : 'Heat pump (German)'}</a></span>
         <nav aria-label={t.rechtliches}>
           <a href={url(seiten.impressum[sprache])}>{t.impressum}</a>
           <a href={url(seiten.datenschutz[sprache])}>{t.datenschutz}</a>
