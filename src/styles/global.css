@@ -194,14 +194,9 @@ a:hover { text-decoration-thickness: 2px; }
 [data-stil='modern'] .drohne-quelle a { color: inherit; }
 
 .drohne { position: fixed; inset: 0; z-index: -3; overflow: hidden; background: #0d181b; pointer-events: none; }
-.drohne__karte { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; animation: schweben 7s ease-in-out infinite; }
+.drohne__karte { position: absolute; inset: 0; opacity: 0; transition: opacity 1.2s ease; }
 .drohne.bereit .drohne__karte { opacity: 0.9; }
 .drohne__karte svg { position: absolute; left: 50%; top: 50%; will-change: transform; }
-@keyframes schweben {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(3px, -2px) rotate(0.25deg); }
-  66% { transform: translate(-2px, 2px) rotate(-0.2deg); }
-}
 /* Vignette wie bei einer Kameralinse, dazu leichte Bildzeilen */
 .drohne::after {
   content: ''; position: absolute; inset: 0;

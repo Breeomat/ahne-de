@@ -267,6 +267,12 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
   let svg: SVGSVGElement | null = null;
   let laedt = false;
   let geplant = false;
+  // Kamera ohne ständiges Neuzeichnen: Die Karte wird nur gelegentlich als Bild mit Rand (RAND) neu gezeichnet
+  // (basis); dazwischen verschieben, drehen und zoomen CSS-Transformationen das fertige Bild (Grafikkarte).
+  // Neu gezeichnet wird, wenn der Rand nicht mehr reicht, der Zoom zu weit abweicht oder das Scrollen pausiert.
+  const RAND = 1.35;
+  let basis: { x: number; y: number; sicht: number; groesse: number } | null = null;
+  let scharfstellen: number | undefined;
   let vorher = { x: route[0].x, y: route[0].y, t: performance.now() };
   let tempo = 0;
   let flugbeginn = performance.now();
@@ -335,9 +341,23 @@ const kompass = ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'].map((r) => (de ? r 
     const diag = Math.ceil(Math.hypot(innerWidth, innerHeight));
     const pxJeEinheit = Math.max(innerWidth / rahmen.breite, innerHeight / rahmen.hoehe) * 1.05 * s.z;
     const sicht = diag / pxJeEinheit;
-    svg.style.width = svg.style.height = diag + 'px';
-    svg.setAttribute('viewBox', `${(s.x - sicht / 2).toFixed(2)} ${(s.y - sicht / 2).toFixed(2)} ${sicht.toFixed(2)} ${sicht.toFixed(2)}`);
-    svg.style.transform = `translate(-50%, -50%) rotate(${(-s.kurs - extraDreh).toFixed(2)}deg)`;
+    const neuZeichnen = () => {
+      const groesse = Math.ceil(diag * RAND);
+      basis = { x: s.x, y: s.y, sicht: sicht * RAND, groesse };
+      svg!.style.width = svg!.style.height = groesse + 'px';
+      svg!.setAttribute('viewBox', `${(s.x - basis.sicht / 2).toFixed(2)} ${(s.y - basis.sicht / 2).toFixed(2)} ${basis.sicht.toFixed(2)} ${basis.sicht.toFixed(2)}`);
+    };
+    if (!basis || Math.abs(basis.groesse - Math.ceil(diag * RAND)) > 2) neuZeichnen();
+    let pxU = basis!.groesse / basis!.sicht;
+    let k = pxJeEinheit / pxU;
+    // sichtbarer Bereich (halbe Diagonale) muss im gezeichneten Bild liegen, Zoom nicht zu weit weg (Unschärfe)
+    const reicht = () => Math.hypot(s.x - basis!.x, s.y - basis!.y) + sicht / 2 < basis!.sicht / 2 && k > 0.8 && k < 1.5;
+    if (!reicht()) { neuZeichnen(); pxU = basis!.groesse / basis!.sicht; k = pxJeEinheit / pxU; }
+    const dx = (basis!.x - s.x) * pxU, dy = (basis!.y - s.y) * pxU;
+    svg.style.transform = `translate(-50%, -50%) rotate(${(-s.kurs - extraDreh).toFixed(2)}deg) scale(${k.toFixed(4)}) translate(${dx.toFixed(1)}px, ${dy.toFixed(1)}px)`;
+    // nach kurzer Ruhe scharf neu zeichnen (gleiche Ansicht, nur ohne Zoomfaktor)
+    clearTimeout(scharfstellen);
+    if (Math.abs(k - 1) > 0.02 || Math.abs(dx) > 1 || Math.abs(dy) > 1) scharfstellen = window.setTimeout(() => { basis = null; planen(); }, 220);
 
     // Anzeige
     const jetzt = performance.now();
