@@ -292,7 +292,12 @@ def dashboard(jetzt=None):
         return None
     for n, d in wd.daten.items():
         d["host"] = ""  # keine IP-Adressen veroeffentlichen
-        d["letzte"], d["stand"], d["fehler"] = letzte.get(n), stand.get(n), None
+        # Der Schnappschuss ist statisch: aktuellen Betriebszustand (laeuft/aus, Betriebsart) nicht anzeigen
+        l = dict(letzte.get(n) or {}) or None
+        if l:
+            for k in list(getattr(wd, "BOOLS", ())) + ["modus"]:
+                l[k] = None
+        d["letzte"], d["stand"], d["fehler"] = l, stand.get(n), None
     if strom_pfad() and hasattr(wd, "STROM"):
         wd.STROM["aktiv"] = True
         wd.STROM["stand"] = os.path.getmtime(strom_pfad())  # letzte Strommessung statt "nur Verlaufsdatei"
@@ -345,6 +350,11 @@ def dashboard(jetzt=None):
                           json.dumps(f"Stand {stand_text} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
     seite = seite.replace("${p.rolle} · ${p.host}", "${p.rolle}")
     seite = seite.replace("setInterval(load,10000);", "")
+    # kein "Verdichter an/aus", keine Betriebsart und keine Laufanzeige (statische Seite)
+    seite = seite.replace('const [ico,txt]=modusInfo(l),an=!!l.vd;', 'const ico="🌡️",txt="letzte Messwerte",an=false;')
+    seite = re.sub(r'<span class="dot \$\{an\?"on":""\}"></span><span style="color:var\(--mut\)">\$\{an\?"Verdichter an":"Verdichter aus"\}</span>', '', seite)
+    seite = seite.replace('<span class="badge">${l.modus||"–"}</span>', '')
+    seite = seite.replace("</style>", ".pill .dot,.pill .dot+span{display:none}</style>", 1)
     # Zeitraum-Auswahl nur bis 1 Woche, Strom-Verlauf nur 1 Woche
     def kuerzen(m):
         teile = re.findall(r'\[(\d+),"[^"]*"\]', m.group(1))
