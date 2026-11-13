@@ -25,6 +25,7 @@ import base64
 import csv
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
@@ -205,8 +206,7 @@ def strom_daten(jetzt):
         return {"wm": round(w, 1), "strom": round(s, 1), "cop": round(w / s, 2) if s >= 1 else None}
 
     heute0 = int(time.mktime(date.today().timetuple()))
-    bereiche = {"Gestern": (heute0 - 86400, heute0), "7 Tage": (heute0 - 7 * 86400, jetzt),
-                "30 Tage": (heute0 - 30 * 86400, jetzt), "Gesamt": (0, jetzt)}
+    bereiche = {"Gestern": (heute0 - 86400, heute0), "7 Tage": (heute0 - 7 * 86400, jetzt)}
     zeitraeume = {}
     for name, (t0, t1) in bereiche.items():
         spalte, sw, ss, ok = {}, 0.0, 0.0, True
@@ -222,7 +222,7 @@ def strom_daten(jetzt):
                 spalte["Gesamt"] = zelle(sw, ss)
             zeitraeume[name] = spalte
     tage = []
-    for i in range(14, 0, -1):
+    for i in range(7, 0, -1):
         t0 = heute0 - i * 86400
         t1 = t0 + 86400
         w = s = 0.0
@@ -255,7 +255,7 @@ Date.now=function(){return ENDE};
 function passend(liste,wert){var ks=Object.keys(liste).map(Number).sort(function(a,b){return a-b});
  for(var i=0;i<ks.length;i++)if(ks[i]>=wert-0.01)return liste[ks[i]];return liste[ks[ks.length-1]]}
 function antwort(u){var pfad=u.split("?")[0],q=new URLSearchParams(u.split("?")[1]||"");
- if(pfad=="/api"){var t1=+q.get("bis")||DD.ende,t0=+q.get("von")||t1-6*3600;return passend(DD.api,(t1-t0)/3600)}
+ if(pfad=="/api"){var t1=+q.get("bis")||DD.ende,t0=+q.get("von")||t1-6*3600;return passend(DD.api,Math.min(t1-t0,DD.ende-t0)/3600)}
  if(pfad=="/api/stromverlauf")return passend(DD.stromverlauf,+q.get("tage")||28)||null;
  return DD.einzeln[pfad]===undefined?null:DD.einzeln[pfad]}
 window.fetch=function(u){var a=antwort(String(u));return Promise.resolve({ok:a!=null,status:a!=null?200:404,
@@ -263,8 +263,12 @@ window.fetch=function(u){var a=antwort(String(u));return Promise.resolve({ok:a!=
 })();
 </script>"""
 
-ZEITRAEUME_H = (1, 3, 12, 48, 168, 720, 2184, 8760)   # Antworten fuer die Zeitraum-Knoepfe (kleinere nutzen die naechstgroessere)
-STROM_TAGE = (7, 14, 21, 28, 92, 183, 365)
+# Veroeffentlicht werden hoechstens die Daten der letzten Woche (Wunsch des Seiteninhabers); laengere Zeitraeume
+# verschwinden auch aus der Auswahl der Seite.
+MAX_STUNDEN = 168
+ZEITRAEUME_H = (1, 3, 12, 48, 168)   # Antworten fuer die Zeitraum-Knoepfe (kleinere nutzen die naechstgroessere)
+STROM_TAGE = (7,)
+LANG = re.compile(r"30|gesamt|monat|quartal|jahr|alle", re.I)   # Strom-Zeitraeume ueber eine Woche
 
 
 def dashboard(jetzt=None):
@@ -317,6 +321,12 @@ def dashboard(jetzt=None):
     sv = {t: frage(f"/api/stromverlauf?tage={t}") for t in STROM_TAGE}
     einzeln = {"/api/alle": frage("/api/alle"), "/api/laeufe": frage("/api/laeufe"),
                "/api/strom": frage("/api/strom") or strom_daten(jetzt)}
+    st = einzeln["/api/strom"]
+    if isinstance(st, dict):
+        if isinstance(st.get("zeitraeume"), dict):
+            st["zeitraeume"] = {k: v for k, v in st["zeitraeume"].items() if not LANG.search(str(k))}
+        if isinstance(st.get("tage"), list):
+            st["tage"] = st["tage"][-7:]
     if einzeln["/api/alle"]:
         for v in einzeln["/api/alle"].values():
             v["host"] = ""
@@ -334,6 +344,14 @@ def dashboard(jetzt=None):
                           json.dumps(f"Stand {stand_text} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
     seite = seite.replace("${p.rolle} · ${p.host}", "${p.rolle}")
     seite = seite.replace("setInterval(load,10000);", "")
+    # Zeitraum-Auswahl nur bis 1 Woche, Strom-Verlauf nur 1 Woche
+    def kuerzen(m):
+        teile = re.findall(r'\[(\d+),"[^"]*"\]', m.group(1))
+        behalten = [t for t, z in zip(re.findall(r'\[\d+,"[^"]*"\]', m.group(1)), teile) if int(z) <= MAX_STUNDEN]
+        return "const BEREICH=[" + ",".join(behalten) + "];"
+    seite = re.sub(r"const BEREICH=\[(.*?)\];", kuerzen, seite, count=1)
+    seite = re.sub(r'\[\[7,"1 Woche"\](,\[\d+,"[^"]*"\])+\]', '[[7,"1 Woche"]]', seite)
+    seite = seite.replace("SVT=28", "SVT=7")
     return seite
 
 
