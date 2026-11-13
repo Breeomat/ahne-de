@@ -65,6 +65,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   und `public/waermepumpe/bericht/index.html` = Tagesauswertung des Vortags (`waermepumpen_auswertung.py`, auf eine
   Messung je Minute ausgedünnt). Ohne Dashboard-Skript nur die Auswertung als index.html. `noindex`, nicht in der
   Sitemap, keine IP-Adressen. Die Dateien nicht von Hand bearbeiten, sie werden jede Nacht überschrieben.
+- „Wärmepumpen live“ (Seitenfuß, `Basis.astro`): Link auf das lokale Dashboard http://192.168.178.95:8080/ – nur im
+  Heimnetz erreichbar (Wunsch des Seiteninhabers).
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
   Arbeitgeber (Wunsch des Seiteninhabers) – das steht nur auf der versteckten Visitenkarte.
