@@ -2,7 +2,7 @@
 """Waermepumpen-Bericht vom Vortag erzeugen und auf www.ahne.de/waermepumpe/ veroeffentlichen.
 
 Laeuft auf dem PC neben waermepumpen_auswertung.py (gleicher Ordner, gleicher Ordner "logs", dazu
-waermepumpen_strom_verlauf.csv fuer Strom und COP, falls vorhanden), z. B. jede Nacht
+waermepumpen_strom_verlauf.csv in logs oder daneben fuer Strom und COP, falls vorhanden), z. B. jede Nacht
 um 1 Uhr per Windows-Aufgabenplanung (waermepumpe_hochladen.bat). Nur Python-Standardbibliothek.
 
 Ablauf: Logs des Vortags lesen -> auf eine Messung je Minute ausduennen (Schaltvorgaenge bleiben erhalten)
@@ -71,7 +71,10 @@ def strom_des_tages(tag):
     (Messpunkte alle ca. 15 Minuten). None, wenn waermepumpen_auswertung.py noch keine Strom-Auswertung kennt."""
     if not hasattr(wa, "lese_strom"):
         return None
-    alle = wa.lese_strom(os.path.join(HIER, "waermepumpen_strom_verlauf.csv"))
+    # das Dashboard legt die Datei im Ordner logs ab, aeltere Fassungen neben dem Skript
+    pfade = [os.path.join(HIER, "logs", "waermepumpen_strom_verlauf.csv"), os.path.join(HIER, "waermepumpen_strom_verlauf.csv")]
+    pfad = next((p for p in pfade if os.path.exists(p)), None)
+    alle = wa.lese_strom(pfad) if pfad else {}
     beginn = int(datetime.combine(tag, datetime.min.time()).timestamp())
     ende = beginn + 86400
     ergebnis = {}
@@ -83,7 +86,10 @@ def strom_des_tages(tag):
 
 
 def bericht(tag):
-    dateien = wa.dateien_sammeln([])
+    # nur die Wärmepumpen-Logs; Strom-Verlauf, Shelly-Werte usw. im selben Ordner nicht als Log lesen
+    alle_csv = wa.dateien_sammeln([])
+    dateien = [d for d in alle_csv if os.path.basename(d).lower().startswith("waermepumpen_log")] or \
+              [d for d in alle_csv if "strom_verlauf" not in os.path.basename(d) and not os.path.basename(d).lower().startswith("shelly")]
     if not dateien:
         sys.exit("Keine CSV-Dateien im Ordner logs gefunden.")
     zeilen, hinweise = wa.lese_logs(dateien)

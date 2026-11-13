@@ -58,7 +58,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Ordner `logs`, gestartet nachts um 1 Uhr per Aufgabenplanung über `waermepumpe_hochladen.bat`) den Bericht, dünnt auf
   eine Messung je Minute aus und schreibt ihn per GitHub-API (Token in `github_token.txt` auf dem PC, nur Contents
   read/write für dieses Repository) als `public/waermepumpe/index.html`; der Commit startet die Veröffentlichung.
-  Strom und COP aus `waermepumpen_strom_verlauf.csv` (auf dem PC, falls vorhanden). `noindex`, nicht in der Sitemap.
+  Strom und COP aus `waermepumpen_strom_verlauf.csv` (auf dem PC in `logs` oder daneben, falls vorhanden); als Logs gelten nur
+  Dateien `waermepumpen_log*.csv` (Shelly- und Strom-CSV im selben Ordner werden nicht mitgelesen). `noindex`, nicht in der Sitemap.
   Die Datei nicht von Hand bearbeiten, sie wird jede Nacht überschrieben.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
