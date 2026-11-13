@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Waermepumpen-Bericht vom Vortag erzeugen und auf www.ahne.de/waermepumpe/ veroeffentlichen.
 
-Laeuft auf dem PC neben waermepumpen_auswertung.py (gleicher Ordner, gleicher Ordner "logs"), z. B. jede Nacht
+Laeuft auf dem PC neben waermepumpen_auswertung.py (gleicher Ordner, gleicher Ordner "logs", dazu
+waermepumpen_strom_verlauf.csv fuer Strom und COP, falls vorhanden), z. B. jede Nacht
 um 1 Uhr per Windows-Aufgabenplanung (waermepumpe_hochladen.bat). Nur Python-Standardbibliothek.
 
 Ablauf: Logs des Vortags lesen -> auf eine Messung je Minute ausduennen (Schaltvorgaenge bleiben erhalten)
@@ -65,6 +66,22 @@ def ausduennen(zeilen):
     return behalten
 
 
+def strom_des_tages(tag):
+    """Strom- und Waermezaehler aus waermepumpen_strom_verlauf.csv (neben dem Skript) fuer diesen Tag
+    (Messpunkte alle ca. 15 Minuten). None, wenn waermepumpen_auswertung.py noch keine Strom-Auswertung kennt."""
+    if not hasattr(wa, "lese_strom"):
+        return None
+    alle = wa.lese_strom(os.path.join(HIER, "waermepumpen_strom_verlauf.csv"))
+    beginn = int(datetime.combine(tag, datetime.min.time()).timestamp())
+    ende = beginn + 86400
+    ergebnis = {}
+    for pumpe, reihen in alle.items():
+        heute = [r for r in reihen if beginn <= r[0] < ende]
+        if heute:
+            ergebnis[pumpe] = heute
+    return ergebnis
+
+
 def bericht(tag):
     dateien = wa.dateien_sammeln([])
     if not dateien:
@@ -75,7 +92,11 @@ def bericht(tag):
         sys.exit(f"Keine Messdaten vom {tag:%d.%m.%Y}.")
     zeilen = ausduennen(zeilen)
     des_tages = [d for d in dateien if tag.isoformat() in os.path.basename(d)] or dateien
-    text = wa.html_bericht(wa.auswerten(zeilen), zeilen, hinweise, des_tages)
+    strom = strom_des_tages(tag)
+    if strom is None:  # aeltere waermepumpen_auswertung.py ohne Strom/COP
+        text = wa.html_bericht(wa.auswerten(zeilen), zeilen, hinweise, des_tages)
+    else:
+        text = wa.html_bericht(wa.auswerten(zeilen), zeilen, hinweise, des_tages, strom)
     # fuer die Webseite: nicht in Suchmaschinen, Titel mit Datum, Link zurueck zu ahne.de
     jetzt = datetime.now()
     text = text.replace("<title>Waermepumpen Auswertung</title>",
