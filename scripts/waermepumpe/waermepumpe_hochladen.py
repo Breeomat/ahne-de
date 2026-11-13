@@ -1,27 +1,31 @@
 #!/usr/bin/env python3
-"""Waermepumpen-Bericht vom Vortag erzeugen und auf www.ahne.de/waermepumpe/ veroeffentlichen.
+"""Waermepumpen-Seiten auf www.ahne.de/waermepumpe/ veroeffentlichen (laeuft jede Nacht auf dem PC).
 
-Laeuft auf dem PC neben waermepumpen_auswertung.py (gleicher Ordner, gleicher Ordner "logs", dazu
-waermepumpen_strom_verlauf.csv in logs oder daneben fuer Strom und COP, falls vorhanden), z. B. jede Nacht
-um 1 Uhr per Windows-Aufgabenplanung (waermepumpe_hochladen.bat). Nur Python-Standardbibliothek.
+Laeuft auf dem PC neben waermepumpen_dashboard.py und waermepumpen_auswertung.py (gleicher Ordner, Ordner "logs"
+mit den Logdateien und waermepumpen_strom_verlauf.csv), z. B. jede Nacht um 1 Uhr per Windows-Aufgabenplanung
+(waermepumpe_hochladen.bat). Nur Python-Standardbibliothek.
 
-Ablauf: Logs des Vortags lesen -> auf eine Messung je Minute ausduennen (Schaltvorgaenge bleiben erhalten)
--> HTML-Bericht mit waermepumpen_auswertung.py bauen -> per GitHub-API als public/waermepumpe/index.html ins
-Repository breeomat/ahne-de schreiben. Der Commit loest die Veroeffentlichung der Webseite aus.
+Es entstehen zwei Seiten, beide in einem Commit ins Repository breeomat/ahne-de (loest die Veroeffentlichung aus):
+- public/waermepumpe/index.html: dieselbe Ansicht wie das Dashboard (Seite aus waermepumpen_dashboard.py), gefuellt
+  mit den Logdaten der letzten 7 Tage und dem Strom-Verlauf; Stand = Zeitpunkt des Hochladens, keine Live-Abfrage.
+- public/waermepumpe/bericht/index.html: Tagesauswertung des Vortags (waermepumpen_auswertung.py).
+Ist waermepumpen_dashboard.py nicht da, wird nur die Tagesauswertung hochgeladen (wie frueher als index.html).
 
 Zugang: ein GitHub-Token (fein-granular, nur Repository ahne-de, Recht "Contents: Read and write") in der Datei
 github_token.txt neben diesem Skript oder in der Umgebungsvariablen AHNE_GITHUB_TOKEN.
 
 Aufruf:
-    python waermepumpe_hochladen.py                    # Vortag hochladen
-    python waermepumpe_hochladen.py --tag 2026-11-06   # bestimmten Tag hochladen
-    python waermepumpe_hochladen.py --nur-datei test.html   # nur Datei schreiben, nichts hochladen
+    python waermepumpe_hochladen.py                    # Dashboard + Auswertung vom Vortag hochladen
+    python waermepumpe_hochladen.py --tag 2026-11-06   # Auswertung fuer einen bestimmten Tag
+    python waermepumpe_hochladen.py --nur-datei test.html   # nur Dateien schreiben (test.html und test_bericht.html)
 """
 import argparse
 import base64
+import csv
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta
@@ -31,9 +35,12 @@ sys.path.insert(0, HIER)
 import waermepumpen_auswertung as wa  # noqa: E402
 
 REPO = "breeomat/ahne-de"
-ZIEL = "public/waermepumpe/index.html"
+ZIEL_DASHBOARD = "public/waermepumpe/index.html"
+ZIEL_BERICHT = "public/waermepumpe/bericht/index.html"
 ZWEIG = "main"
-RASTER_S = 60
+RASTER_S = 60          # Tagesauswertung: eine Messung je Minute
+VERLAUF_TAGE = 7       # Dashboard: Verlauf der letzten 7 Tage ...
+VERLAUF_FEIN_H = 48    # ... die letzten 48 h je Minute, davor alle 5 Minuten
 
 
 def token_lesen():
@@ -47,6 +54,20 @@ def token_lesen():
     return t
 
 
+def log_dateien():
+    """Nur die Waermepumpen-Logs; Strom-Verlauf, Shelly-Werte usw. im selben Ordner nicht als Log lesen."""
+    alle_csv = wa.dateien_sammeln([])
+    return [d for d in alle_csv if os.path.basename(d).lower().startswith("waermepumpen_log")] or \
+           [d for d in alle_csv if "strom_verlauf" not in os.path.basename(d) and not os.path.basename(d).lower().startswith("shelly")]
+
+
+def strom_pfad():
+    # das Dashboard legt die Datei im Ordner logs ab, aeltere Fassungen neben dem Skript
+    pfade = [os.path.join(HIER, "logs", "waermepumpen_strom_verlauf.csv"), os.path.join(HIER, "waermepumpen_strom_verlauf.csv")]
+    return next((p for p in pfade if os.path.exists(p)), None)
+
+
+# ---------------------------------------------------------------- Tagesauswertung (Vortag)
 def ausduennen(zeilen):
     """Eine Messung je Pumpe und Minute; Zeilen mit geaendertem Schaltzustand bleiben immer."""
     behalten, letzte, roh_davor = [], {}, {}
@@ -67,13 +88,11 @@ def ausduennen(zeilen):
 
 
 def strom_des_tages(tag):
-    """Strom- und Waermezaehler aus waermepumpen_strom_verlauf.csv (neben dem Skript) fuer diesen Tag
-    (Messpunkte alle ca. 15 Minuten). None, wenn waermepumpen_auswertung.py noch keine Strom-Auswertung kennt."""
+    """Strom- und Waermezaehler fuer diesen Tag (Messpunkte alle ca. 15 Minuten).
+    None, wenn waermepumpen_auswertung.py noch keine Strom-Auswertung kennt."""
     if not hasattr(wa, "lese_strom"):
         return None
-    # das Dashboard legt die Datei im Ordner logs ab, aeltere Fassungen neben dem Skript
-    pfade = [os.path.join(HIER, "logs", "waermepumpen_strom_verlauf.csv"), os.path.join(HIER, "waermepumpen_strom_verlauf.csv")]
-    pfad = next((p for p in pfade if os.path.exists(p)), None)
+    pfad = strom_pfad()
     alle = wa.lese_strom(pfad) if pfad else {}
     beginn = int(datetime.combine(tag, datetime.min.time()).timestamp())
     ende = beginn + 86400
@@ -85,11 +104,8 @@ def strom_des_tages(tag):
     return ergebnis
 
 
-def bericht(tag):
-    # nur die Wärmepumpen-Logs; Strom-Verlauf, Shelly-Werte usw. im selben Ordner nicht als Log lesen
-    alle_csv = wa.dateien_sammeln([])
-    dateien = [d for d in alle_csv if os.path.basename(d).lower().startswith("waermepumpen_log")] or \
-              [d for d in alle_csv if "strom_verlauf" not in os.path.basename(d) and not os.path.basename(d).lower().startswith("shelly")]
+def bericht(tag, zurueck="/", zurueck_text="← ahne.de"):
+    dateien = log_dateien()
     if not dateien:
         sys.exit("Keine CSV-Dateien im Ordner logs gefunden.")
     zeilen, hinweise = wa.lese_logs(dateien)
@@ -103,55 +119,258 @@ def bericht(tag):
         text = wa.html_bericht(wa.auswerten(zeilen), zeilen, hinweise, des_tages)
     else:
         text = wa.html_bericht(wa.auswerten(zeilen), zeilen, hinweise, des_tages, strom)
-    # fuer die Webseite: nicht in Suchmaschinen, Titel mit Datum, Link zurueck zu ahne.de
+    # fuer die Webseite: nicht in Suchmaschinen, Titel mit Datum, Link zurueck
     jetzt = datetime.now()
     text = text.replace("<title>Waermepumpen Auswertung</title>",
                         f'<meta name="robots" content="noindex"><title>Wärmepumpe {tag:%d.%m.%Y} · Marc Ahne</title>', 1)
     text = text.replace("<h1>Waermepumpen Auswertung</h1>",
-                        f'<p class="m"><a href="/" style="color:inherit">← ahne.de</a></p>'
+                        f'<p class="m"><a href="{zurueck}" style="color:inherit">{zurueck_text}</a></p>'
                         f"<h1>Wärmepumpe – Auswertung vom {tag:%d.%m.%Y}</h1>"
                         f'<p class="m">Automatisch erstellt am {jetzt:%d.%m.%Y um %H:%M} Uhr aus den Logdaten des Vortags.</p>', 1)
     return text
 
 
-def hochladen(text, tag, token):
-    url = f"https://api.github.com/repos/{REPO}/contents/{ZIEL}"
+# ---------------------------------------------------------------- Dashboard-Ansicht (Schnappschuss)
+def _wert(k, v, wd):
+    """Wert aus der Log-CSV so umwandeln, wie das Dashboard ihn live liefert."""
+    if v in (None, ""):
+        return None
+    if k in wd.BOOLS:
+        return v.strip().lower() == "true"
+    if k in wd.ZEITEN or k == "modus":
+        return v
+    try:
+        z = round(float(v.replace(",", ".")), 1)
+    except ValueError:
+        return v
+    if k == "starts":
+        return int(z)
+    return None if z <= -49 else z
+
+
+def dashboard_daten(wd, jetzt):
+    """Log-CSV der letzten Tage -> Daten wie /api des Dashboards (letzte Werte und Verlauf je Pumpe)."""
+    grenze = jetzt - VERLAUF_TAGE * 86400
+    fein_ab = jetzt - VERLAUF_FEIN_H * 3600
+    letzte, verlauf, stand, raster = {}, {n: [] for n in wd.PUMPEN}, {}, {}
+    for pfad in log_dateien():
+        try:
+            if os.path.getmtime(pfad) < grenze:
+                continue
+            with open(pfad, newline="", encoding="utf-8-sig") as f:
+                for r in csv.DictReader(f):
+                    n = r.get("pumpe")
+                    if n not in verlauf:
+                        continue
+                    try:
+                        t = int(time.mktime(time.strptime(r["zeit"], "%Y-%m-%d %H:%M:%S")))
+                    except (ValueError, KeyError, TypeError):
+                        continue
+                    if t < grenze or t > jetzt + 60:
+                        continue
+                    if t >= stand.get(n, 0):
+                        stand[n] = t
+                        letzte[n] = {k: _wert(k, r.get(k), wd) for k in wd.WERTE}
+                    # Verlauf ausduennen: zuletzt je Minute, davor je 5 Minuten; Schaltwechsel bleiben
+                    p = {"t": t, **{k: _wert(k, r.get(k), wd) for k in wd.VERLAUF_KEYS},
+                         "vd": _wert("vd", r.get("vd"), wd), "modus": r.get("modus") or ""}
+                    fach = (n, t // (60 if t >= fein_ab else 300))
+                    zust = (p["vd"], p["modus"])
+                    if raster.get(n) != (fach, zust):
+                        raster[n] = (fach, zust)
+                        verlauf[n].append(p)
+        except OSError:
+            continue
+    pumpen = {}
+    for n, p in wd.PUMPEN.items():
+        v = sorted(verlauf[n], key=lambda q: q["t"])
+        pumpen[n] = {"host": "", "rolle": p["rolle"],
+                     "zeige": {"kacheln": p["kacheln"], "serien": p["serien"], "details": p["details"]},
+                     "letzte": letzte.get(n), "fehler": None, "stand": stand.get(n), "verlauf": v}
+    return {"intervall": getattr(wd, "INTERVALL", 10), "demo": False, "pumpen": pumpen}
+
+
+def strom_daten(jetzt):
+    """waermepumpen_strom_verlauf.csv -> Daten wie /api/strom des Dashboards."""
+    pfad = strom_pfad()
+    if not pfad:
+        return {"aktiv": False}
+    reihen = {}
+    with open(pfad, newline="", encoding="utf-8-sig") as f:
+        for r in csv.DictReader(f):
+            try:
+                t = int(time.mktime(time.strptime(r["zeit"], "%Y-%m-%d %H:%M:%S")))
+                wm, st = float(r["wm_gesamt"]), float(r["strom_gesamt"])
+            except (ValueError, KeyError, TypeError):
+                continue
+            hs = r.get("heizstab_strom")
+            try:
+                hs = float(hs) if hs not in (None, "") else None
+            except ValueError:
+                hs = None
+            reihen.setdefault(r.get("pumpe") or "?", []).append((t, wm, st, hs))
+    for v in reihen.values():
+        v.sort()
+    if not reihen:
+        return {"aktiv": False}
+
+    def zuwachs(rs, t0, t1):
+        rs = [x for x in rs if t0 <= x[0] <= t1]
+        if len(rs) < 2:
+            return None
+        return rs[-1][1] - rs[0][1], rs[-1][2] - rs[0][2], rs[0][0], rs[-1][0]
+
+    def zelle(w, s):
+        return {"wm": round(w, 1), "strom": round(s, 1), "cop": round(w / s, 2) if s >= 1 else None}
+
+    heute0 = int(time.mktime(date.today().timetuple()))
+    bereiche = {"Gestern": (heute0 - 86400, heute0), "7 Tage": (heute0 - 7 * 86400, jetzt),
+                "30 Tage": (heute0 - 30 * 86400, jetzt), "Gesamt": (0, jetzt)}
+    zeitraeume = {}
+    for name, (t0, t1) in bereiche.items():
+        spalte, sw, ss, ok = {}, 0.0, 0.0, True
+        for n, rs in reihen.items():
+            z = zuwachs(rs, t0, t1)
+            if z is None:
+                ok = False
+                continue
+            spalte[n] = zelle(z[0], z[1])
+            sw, ss = sw + z[0], ss + z[1]
+        if spalte:
+            if ok and len(spalte) > 1:
+                spalte["Gesamt"] = zelle(sw, ss)
+            zeitraeume[name] = spalte
+    tage = []
+    for i in range(14, 0, -1):
+        t0 = heute0 - i * 86400
+        t1 = t0 + 86400
+        w = s = 0.0
+        teil, ok = False, True
+        for rs in reihen.values():
+            z = zuwachs(rs, t0, t1 - 1)
+            if z is None:
+                ok = False
+                break
+            w, s = w + z[0], s + z[1]
+            teil = teil or z[2] - t0 > 1800 or t1 - z[3] > 1800
+        if ok and s >= 1:
+            tage.append({"tag": time.strftime("%Y-%m-%d", time.localtime(t0)), "cop": round(w / s, 2),
+                         "wm": round(w, 1), "strom": round(s, 1), "teilweise": teil})
+    letzte = {}
+    for n, rs in reihen.items():
+        t, wm, st, hs = rs[-1]
+        letzte[n] = {"wm_gesamt": wm, "strom_gesamt": st, "heizstab_strom": hs}
+    stand = max(rs[-1][0] for rs in reihen.values())
+    return {"aktiv": True, "intervall": 15, "fehler": None, "stand": stand, "letzte": letzte,
+            "zeitraeume": zeitraeume, "tage": tage, "punkte": sum(len(v) for v in reihen.values())}
+
+
+# Wird VOR dem Skript des Dashboards eingefuegt: liefert dessen Abfragen aus den eingebetteten Daten und
+# stellt die Uhr auf den Stand des Schnappschusses (die Zeitraum-Knoepfe zaehlen von dort zurueck).
+EINSATZ = r"""<script>
+(function(){
+var DD=__DATEN__,ENDE=DD.ende*1000,jetzt=Date.now;
+Date.now=function(){return ENDE};
+function fenster(v,t0,t1,maxn){var pts=v.filter(function(p){return p.t>=t0&&p.t<=t1});if(pts.length<=maxn)return pts;
+ var k=Math.ceil(pts.length/maxn),aus=[];for(var i=0;i<pts.length;i+=k){var b=pts.slice(i,i+k),e={t:Math.round(b.reduce(function(a,p){return a+p.t},0)/b.length)};
+ DD.keys.forEach(function(key){var vs=b.map(function(p){return p[key]}).filter(function(x){return x!=null});e[key]=vs.length?Math.round(vs.reduce(function(a,c){return a+c},0)/vs.length*10)/10:null});
+ e.vd=b.filter(function(p){return p.vd}).length*2>b.length;var m={};b.forEach(function(p){if(p.modus)m[p.modus]=(m[p.modus]||0)+1});
+ e.modus=Object.keys(m).sort(function(x,y){return m[y]-m[x]})[0]||"";aus.push(e)}return aus}
+window.fetch=function(u){return Promise.resolve({json:function(){
+ if(u.indexOf("/api/strom")==0)return Promise.resolve(DD.strom);
+ if(u.indexOf("/api/alle")==0)return Promise.resolve(null);
+ var q=new URLSearchParams(u.split("?")[1]||""),t1=+q.get("bis")||DD.ende,t0=+q.get("von")||t1-6*3600,out=JSON.parse(JSON.stringify(DD.api));
+ Object.keys(out.pumpen).forEach(function(n){out.pumpen[n].verlauf=fenster(DD.api.pumpen[n].verlauf,t0,t1,900)});
+ return Promise.resolve(out)}})};
+})();
+</script>"""
+
+
+def dashboard(jetzt=None):
+    """Dashboard-Seite als Schnappschuss; None, wenn waermepumpen_dashboard.py nicht im Ordner liegt."""
+    try:
+        import waermepumpen_dashboard as wd
+    except Exception as exc:  # fehlt oder laesst sich nicht laden: nur die Tagesauswertung hochladen
+        print(f"Dashboard-Ansicht übersprungen ({type(exc).__name__}: {exc})")
+        return None
+    jetzt = int(jetzt or time.time())
+    api = dashboard_daten(wd, jetzt)
+    if not any(p["verlauf"] for p in api["pumpen"].values()):
+        print("Dashboard-Ansicht übersprungen (keine Logdaten der letzten Tage)")
+        return None
+    daten = {"ende": jetzt, "keys": wd.VERLAUF_KEYS, "api": api, "strom": strom_daten(jetzt)}
+    seite = wd.SEITE
+    stand = time.strftime("%d.%m.%Y um %H:%M", time.localtime(jetzt))
+    seite = seite.replace("<title>Wärmepumpen</title>",
+                          '<meta name="robots" content="noindex"><title>Wärmepumpen · Marc Ahne</title>', 1)
+    seite = seite.replace("<script>", EINSATZ.replace("__DATEN__", json.dumps(daten, separators=(",", ":"))) + "<script>", 1)
+    seite = seite.replace("<h1>Wärmepumpen</h1>",
+                          '<p style="margin:0 0 6px"><a href="/" style="color:inherit">← ahne.de</a> · '
+                          '<a href="bericht/" style="color:inherit">Tagesauswertung vom Vortag</a></p><h1>Wärmepumpen</h1>', 1)
+    # Unterzeile: Stand des Schnappschusses statt "Aktualisiert … Abfrage alle 10 s"
+    seite = seite.replace('"Aktualisiert "+new Date().toLocaleTimeString("de-DE")+" · Abfrage alle "+D.intervall+" s"',
+                          json.dumps(f"Stand {stand} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
+    seite = seite.replace("${p.rolle} · ${p.host}", "${p.rolle}")
+    seite = seite.replace("setInterval(load,10000);", "")
+    return seite
+
+
+# ---------------------------------------------------------------- Hochladen (ein Commit fuer alle Dateien)
+def hochladen(dateien, nachricht, token):
+    basis = f"https://api.github.com/repos/{REPO}/git"
     kopf = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "waermepumpe-hochladen"}
-    sha = None
-    try:
-        with urllib.request.urlopen(urllib.request.Request(f"{url}?ref={ZWEIG}", headers=kopf), timeout=60) as r:
-            sha = json.load(r).get("sha")
-    except urllib.error.HTTPError as e:
-        if e.code != 404:
-            sys.exit(f"GitHub antwortet beim Lesen mit {e.code}: {e.read().decode(errors='replace')[:300]}")
-    daten = {"message": f"Wärmepumpe: Bericht vom {tag:%d.%m.%Y}", "branch": ZWEIG,
-             "content": base64.b64encode(text.encode("utf-8")).decode("ascii")}
-    if sha:
-        daten["sha"] = sha
-    anfrage = urllib.request.Request(url, data=json.dumps(daten).encode("utf-8"), method="PUT",
-                                     headers={**kopf, "Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(anfrage, timeout=120) as r:
-            print(f"Hochgeladen ({r.status}). In 1-2 Minuten unter https://www.ahne.de/waermepumpe/")
-    except urllib.error.HTTPError as e:
-        sys.exit(f"GitHub antwortet beim Hochladen mit {e.code}: {e.read().decode(errors='replace')[:300]}")
+            "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "waermepumpe-hochladen", "Content-Type": "application/json"}
+
+    def api(methode, pfad, daten=None):
+        anfrage = urllib.request.Request(basis + pfad, method=methode, headers=kopf,
+                                         data=None if daten is None else json.dumps(daten).encode("utf-8"))
+        try:
+            with urllib.request.urlopen(anfrage, timeout=120) as r:
+                return json.load(r)
+        except urllib.error.HTTPError as e:
+            sys.exit(f"GitHub antwortet mit {e.code} ({methode} {pfad}): {e.read().decode(errors='replace')[:300]}")
+
+    blobs = [{"path": p, "mode": "100644", "type": "blob",
+              "sha": api("POST", "/blobs", {"content": base64.b64encode(t.encode("utf-8")).decode("ascii"),
+                                            "encoding": "base64"})["sha"]} for p, t in dateien.items()]
+    for versuch in range(3):  # falls zwischendurch jemand anderes committet hat: neu aufsetzen
+        spitze = api("GET", f"/ref/heads/{ZWEIG}")["object"]["sha"]
+        baum = api("GET", f"/commits/{spitze}")["tree"]["sha"]
+        neu_baum = api("POST", "/trees", {"base_tree": baum, "tree": blobs})["sha"]
+        commit = api("POST", "/commits", {"message": nachricht, "tree": neu_baum, "parents": [spitze]})["sha"]
+        anfrage = urllib.request.Request(f"{basis}/refs/heads/{ZWEIG}", method="PATCH", headers=kopf,
+                                         data=json.dumps({"sha": commit}).encode("utf-8"))
+        try:
+            with urllib.request.urlopen(anfrage, timeout=60):
+                print(f"Hochgeladen ({', '.join(dateien)}). In 1-2 Minuten unter https://www.ahne.de/waermepumpe/")
+                return
+        except urllib.error.HTTPError as e:
+            if e.code != 422 or versuch == 2:
+                sys.exit(f"GitHub antwortet beim Aktualisieren mit {e.code}: {e.read().decode(errors='replace')[:300]}")
+            time.sleep(3)
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Waermepumpen-Bericht vom Vortag auf ahne.de veroeffentlichen.")
-    ap.add_argument("--tag", help="Tag als JJJJ-MM-TT (Standard: gestern)")
-    ap.add_argument("--nur-datei", help="nur in diese Datei schreiben, nicht hochladen")
+    ap = argparse.ArgumentParser(description="Waermepumpen-Seiten auf ahne.de veroeffentlichen.")
+    ap.add_argument("--tag", help="Tag der Auswertung als JJJJ-MM-TT (Standard: gestern)")
+    ap.add_argument("--nur-datei", help="nur in diese Datei schreiben (Auswertung daneben als …_bericht.html)")
     a = ap.parse_args()
     tag = date.fromisoformat(a.tag) if a.tag else date.today() - timedelta(days=1)
-    text = bericht(tag)
-    print(f"Bericht vom {tag:%d.%m.%Y}: {len(text) // 1024} KB")
-    if a.nur_datei:
-        with open(a.nur_datei, "w", encoding="utf-8") as f:
-            f.write(text)
-        print(f"Gespeichert: {a.nur_datei}")
+    seite = dashboard()
+    if seite:
+        dateien = {ZIEL_DASHBOARD: seite, ZIEL_BERICHT: bericht(tag, "../", "← Wärmepumpen-Übersicht")}
     else:
-        hochladen(text, tag, token_lesen())
+        dateien = {ZIEL_DASHBOARD: bericht(tag)}
+    for p, t in dateien.items():
+        print(f"{p}: {len(t) // 1024} KB")
+    if a.nur_datei:
+        for p, t in dateien.items():
+            ziel = a.nur_datei if p == ZIEL_DASHBOARD else a.nur_datei.replace(".html", "_bericht.html")
+            with open(ziel, "w", encoding="utf-8") as f:
+                f.write(t)
+            print(f"Gespeichert: {ziel}")
+    else:
+        hochladen(dateien, f"Wärmepumpe: Übersicht und Bericht vom {tag:%d.%m.%Y}", token_lesen())
 
 
 if __name__ == "__main__":

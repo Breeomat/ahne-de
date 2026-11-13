@@ -53,14 +53,16 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
   Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
   `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.
-- Wärmepumpe (/waermepumpe/, Link im Seitenfuß): Tagesbericht vom Vortag, kommt NICHT aus dem Build, sondern vom PC des
-  Seiteninhabers. Dort erzeugt `scripts/waermepumpe/waermepumpe_hochladen.py` (neben `waermepumpen_auswertung.py` und dem
-  Ordner `logs`, gestartet nachts um 1 Uhr per Aufgabenplanung über `waermepumpe_hochladen.bat`) den Bericht, dünnt auf
-  eine Messung je Minute aus und schreibt ihn per GitHub-API (Token in `github_token.txt` auf dem PC, nur Contents
-  read/write für dieses Repository) als `public/waermepumpe/index.html`; der Commit startet die Veröffentlichung.
-  Strom und COP aus `waermepumpen_strom_verlauf.csv` (auf dem PC in `logs` oder daneben, falls vorhanden); als Logs gelten nur
-  Dateien `waermepumpen_log*.csv` (Shelly- und Strom-CSV im selben Ordner werden nicht mitgelesen). `noindex`, nicht in der Sitemap.
-  Die Datei nicht von Hand bearbeiten, sie wird jede Nacht überschrieben.
+- Wärmepumpe (/waermepumpe/, Link im Seitenfuß): kommt NICHT aus dem Build, sondern vom PC des Seiteninhabers.
+  `scripts/waermepumpe/waermepumpe_hochladen.py` liegt dort neben `waermepumpen_dashboard.py` und
+  `waermepumpen_auswertung.py` (Ordner `logs` mit den Logdateien und `waermepumpen_strom_verlauf.csv`) und läuft nachts
+  um 1 Uhr per Aufgabenplanung (`waermepumpe_hochladen.bat`). Es schreibt in EINEM Commit per GitHub-API (Token in
+  `github_token.txt` auf dem PC, nur Contents read/write) zwei Seiten:
+  `public/waermepumpe/index.html` = Dashboard-Ansicht als Schnappschuss (Seite `SEITE` aus `waermepumpen_dashboard.py`,
+  deren Abfragen per eingebettetem Skript aus den Logdaten der letzten 7 Tage und dem Strom-Verlauf beantwortet werden)
+  und `public/waermepumpe/bericht/index.html` = Tagesauswertung des Vortags (`waermepumpen_auswertung.py`, auf eine
+  Messung je Minute ausgedünnt). Ohne Dashboard-Skript nur die Auswertung als index.html. `noindex`, nicht in der
+  Sitemap, keine IP-Adressen. Die Dateien nicht von Hand bearbeiten, sie werden jede Nacht überschrieben.
 - Name, E-Mail, Anschrift (nur Impressum): `src/lib/site.ts`.
 - Texte „über mich“ (Einleitung, Ehrenamt, Hobbys) je Sprache: `src/lib/ueber-mich.ts`. Nichts über Beruf und
   Arbeitgeber (Wunsch des Seiteninhabers) – das steht nur auf der versteckten Visitenkarte.
