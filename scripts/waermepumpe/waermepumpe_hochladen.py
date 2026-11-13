@@ -268,7 +268,7 @@ window.fetch=function(u){var a=antwort(String(u));return Promise.resolve({ok:a!=
 MAX_STUNDEN = 168
 ZEITRAEUME_H = (1, 3, 12, 48, 168)   # Antworten fuer die Zeitraum-Knoepfe (kleinere nutzen die naechstgroessere)
 STROM_TAGE = (7,)
-LANG = re.compile(r"30|gesamt|monat|quartal|jahr|alle", re.I)   # Strom-Zeitraeume ueber eine Woche
+LANG = re.compile(r"30|beginn|gesamt|monat|quartal|jahr|alle", re.I)   # Strom-Zeitraeume ueber eine Woche
 
 
 def dashboard(jetzt=None):
@@ -295,6 +295,7 @@ def dashboard(jetzt=None):
         d["letzte"], d["stand"], d["fehler"] = letzte.get(n), stand.get(n), None
     if strom_pfad() and hasattr(wd, "STROM"):
         wd.STROM["aktiv"] = True
+        wd.STROM["stand"] = os.path.getmtime(strom_pfad())  # letzte Strommessung statt "nur Verlaufsdatei"
 
     gemeldet = set()
 
