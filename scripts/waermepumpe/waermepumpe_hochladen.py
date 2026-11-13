@@ -6,8 +6,9 @@ mit den Logdateien und waermepumpen_strom_verlauf.csv), z. B. jede Nacht um 1 Uh
 (waermepumpe_hochladen.bat). Nur Python-Standardbibliothek.
 
 Es entstehen zwei Seiten, beide in einem Commit ins Repository breeomat/ahne-de (loest die Veroeffentlichung aus):
-- public/waermepumpe/index.html: dieselbe Ansicht wie das Dashboard (Seite aus waermepumpen_dashboard.py), gefuellt
-  mit den Logdaten der letzten 7 Tage und dem Strom-Verlauf; Stand = Zeitpunkt des Hochladens, keine Live-Abfrage.
+- public/waermepumpe/index.html: dieselbe Ansicht wie das Dashboard (Seite aus waermepumpen_dashboard.py). Dessen
+  Abfragen werden vorab mit den Programmteilen des Dashboards berechnet (Logs, Strom-Verlauf, Shelly) und eingebettet;
+  Stand = Zeitpunkt des Hochladens, keine Live-Abfrage.
 - public/waermepumpe/bericht/index.html: Tagesauswertung des Vortags (waermepumpen_auswertung.py).
 Ist waermepumpen_dashboard.py nicht da, wird nur die Tagesauswertung hochgeladen (wie frueher als index.html).
 
@@ -39,8 +40,6 @@ ZIEL_DASHBOARD = "public/waermepumpe/index.html"
 ZIEL_BERICHT = "public/waermepumpe/bericht/index.html"
 ZWEIG = "main"
 RASTER_S = 60          # Tagesauswertung: eine Messung je Minute
-VERLAUF_TAGE = 7       # Dashboard: Verlauf der letzten 7 Tage ...
-VERLAUF_FEIN_H = 48    # ... die letzten 48 h je Minute, davor alle 5 Minuten
 
 
 def token_lesen():
@@ -148,46 +147,28 @@ def _wert(k, v, wd):
     return None if z <= -49 else z
 
 
-def dashboard_daten(wd, jetzt):
-    """Log-CSV der letzten Tage -> Daten wie /api des Dashboards (letzte Werte und Verlauf je Pumpe)."""
-    grenze = jetzt - VERLAUF_TAGE * 86400
-    fein_ab = jetzt - VERLAUF_FEIN_H * 3600
-    letzte, verlauf, stand, raster = {}, {n: [] for n in wd.PUMPEN}, {}, {}
+def letzte_werte(wd, jetzt):
+    """Letzte Messung je Pumpe aus den Logs (fuer Kacheln, Zustaende und Details), Werte wie live umgewandelt."""
+    grenze = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(jetzt - 6 * 3600))
+    letzte, stand = {}, {}
     for pfad in log_dateien():
         try:
-            if os.path.getmtime(pfad) < grenze:
+            if os.path.getmtime(pfad) < jetzt - 6 * 3600:
                 continue
             with open(pfad, newline="", encoding="utf-8-sig") as f:
                 for r in csv.DictReader(f):
-                    n = r.get("pumpe")
-                    if n not in verlauf:
+                    if (r.get("zeit") or "") < grenze or r.get("pumpe") not in wd.PUMPEN:
                         continue
                     try:
                         t = int(time.mktime(time.strptime(r["zeit"], "%Y-%m-%d %H:%M:%S")))
                     except (ValueError, KeyError, TypeError):
                         continue
-                    if t < grenze or t > jetzt + 60:
-                        continue
-                    if t >= stand.get(n, 0):
-                        stand[n] = t
-                        letzte[n] = {k: _wert(k, r.get(k), wd) for k in wd.WERTE}
-                    # Verlauf ausduennen: zuletzt je Minute, davor je 5 Minuten; Schaltwechsel bleiben
-                    p = {"t": t, **{k: _wert(k, r.get(k), wd) for k in wd.VERLAUF_KEYS},
-                         "vd": _wert("vd", r.get("vd"), wd), "modus": r.get("modus") or ""}
-                    fach = (n, t // (60 if t >= fein_ab else 300))
-                    zust = (p["vd"], p["modus"])
-                    if raster.get(n) != (fach, zust):
-                        raster[n] = (fach, zust)
-                        verlauf[n].append(p)
+                    if t >= stand.get(r["pumpe"], 0):
+                        stand[r["pumpe"]] = t
+                        letzte[r["pumpe"]] = {k: _wert(k, r.get(k), wd) for k in wd.WERTE}
         except OSError:
             continue
-    pumpen = {}
-    for n, p in wd.PUMPEN.items():
-        v = sorted(verlauf[n], key=lambda q: q["t"])
-        pumpen[n] = {"host": "", "rolle": p["rolle"],
-                     "zeige": {"kacheln": p["kacheln"], "serien": p["serien"], "details": p["details"]},
-                     "letzte": letzte.get(n), "fehler": None, "stand": stand.get(n), "verlauf": v}
-    return {"intervall": getattr(wd, "INTERVALL", 10), "demo": False, "pumpen": pumpen}
+    return letzte, stand
 
 
 def strom_daten(jetzt):
@@ -265,51 +246,92 @@ def strom_daten(jetzt):
             "zeitraeume": zeitraeume, "tage": tage, "punkte": sum(len(v) for v in reihen.values())}
 
 
-# Wird VOR dem Skript des Dashboards eingefuegt: liefert dessen Abfragen aus den eingebetteten Daten und
-# stellt die Uhr auf den Stand des Schnappschusses (die Zeitraum-Knoepfe zaehlen von dort zurueck).
+# Wird VOR dem Skript des Dashboards eingefuegt: beantwortet dessen Abfragen (/api, /api/strom, ...) aus den
+# eingebetteten, vorab berechneten Antworten und stellt die Uhr auf den Stand des Schnappschusses.
 EINSATZ = r"""<script>
 (function(){
-var DD=__DATEN__,ENDE=DD.ende*1000,jetzt=Date.now;
+var DD=__DATEN__,ENDE=DD.ende*1000;
 Date.now=function(){return ENDE};
-function fenster(v,t0,t1,maxn){var pts=v.filter(function(p){return p.t>=t0&&p.t<=t1});if(pts.length<=maxn)return pts;
- var k=Math.ceil(pts.length/maxn),aus=[];for(var i=0;i<pts.length;i+=k){var b=pts.slice(i,i+k),e={t:Math.round(b.reduce(function(a,p){return a+p.t},0)/b.length)};
- DD.keys.forEach(function(key){var vs=b.map(function(p){return p[key]}).filter(function(x){return x!=null});e[key]=vs.length?Math.round(vs.reduce(function(a,c){return a+c},0)/vs.length*10)/10:null});
- e.vd=b.filter(function(p){return p.vd}).length*2>b.length;var m={};b.forEach(function(p){if(p.modus)m[p.modus]=(m[p.modus]||0)+1});
- e.modus=Object.keys(m).sort(function(x,y){return m[y]-m[x]})[0]||"";aus.push(e)}return aus}
-window.fetch=function(u){return Promise.resolve({json:function(){
- if(u.indexOf("/api/strom")==0)return Promise.resolve(DD.strom);
- if(u.indexOf("/api/alle")==0)return Promise.resolve(null);
- var q=new URLSearchParams(u.split("?")[1]||""),t1=+q.get("bis")||DD.ende,t0=+q.get("von")||t1-6*3600,out=JSON.parse(JSON.stringify(DD.api));
- Object.keys(out.pumpen).forEach(function(n){out.pumpen[n].verlauf=fenster(DD.api.pumpen[n].verlauf,t0,t1,900)});
- return Promise.resolve(out)}})};
+function passend(liste,wert){var ks=Object.keys(liste).map(Number).sort(function(a,b){return a-b});
+ for(var i=0;i<ks.length;i++)if(ks[i]>=wert-0.01)return liste[ks[i]];return liste[ks[ks.length-1]]}
+function antwort(u){var pfad=u.split("?")[0],q=new URLSearchParams(u.split("?")[1]||"");
+ if(pfad=="/api"){var t1=+q.get("bis")||DD.ende,t0=+q.get("von")||t1-6*3600;return passend(DD.api,(t1-t0)/3600)}
+ if(pfad=="/api/stromverlauf")return passend(DD.stromverlauf,+q.get("tage")||28)||null;
+ return DD.einzeln[pfad]===undefined?null:DD.einzeln[pfad]}
+window.fetch=function(u){var a=antwort(String(u));return Promise.resolve({ok:a!=null,status:a!=null?200:404,
+ json:function(){return Promise.resolve(a==null?null:JSON.parse(JSON.stringify(a)))}})};
 })();
 </script>"""
 
+ZEITRAEUME_H = (1, 3, 12, 48, 168, 720, 2184, 8760)   # Antworten fuer die Zeitraum-Knoepfe (kleinere nutzen die naechstgroessere)
+STROM_TAGE = (7, 14, 21, 28, 92, 183, 365)
+
 
 def dashboard(jetzt=None):
-    """Dashboard-Seite als Schnappschuss; None, wenn waermepumpen_dashboard.py nicht im Ordner liegt."""
+    """Dashboard-Seite als Schnappschuss; None, wenn waermepumpen_dashboard.py nicht im Ordner liegt.
+    Die Antworten berechnen die Programmteile des Dashboards selbst (Handler.do_GET), wie beim Live-Betrieb."""
     try:
         import waermepumpen_dashboard as wd
+        wd.Handler, wd.SEITE, wd.daten  # noqa: B018  (ist es das erwartete Dashboard?)
     except Exception as exc:  # fehlt oder laesst sich nicht laden: nur die Tagesauswertung hochladen
         print(f"Dashboard-Ansicht übersprungen ({type(exc).__name__}: {exc})")
         return None
     jetzt = int(jetzt or time.time())
-    api = dashboard_daten(wd, jetzt)
-    if not any(p["verlauf"] for p in api["pumpen"].values()):
-        print("Dashboard-Ansicht übersprungen (keine Logdaten der letzten Tage)")
+    try:
+        if hasattr(wd, "lade_historie"):
+            wd.lade_historie()
+    except Exception as exc:
+        print(f"Hinweis: Verlauf nicht geladen ({type(exc).__name__}: {exc})")
+    letzte, stand = letzte_werte(wd, jetzt)
+    if not letzte:
+        print("Dashboard-Ansicht übersprungen (keine Logdaten der letzten Stunden)")
         return None
-    daten = {"ende": jetzt, "keys": wd.VERLAUF_KEYS, "api": api, "strom": strom_daten(jetzt)}
+    for n, d in wd.daten.items():
+        d["host"] = ""  # keine IP-Adressen veroeffentlichen
+        d["letzte"], d["stand"], d["fehler"] = letzte.get(n), stand.get(n), None
+    if strom_pfad() and hasattr(wd, "STROM"):
+        wd.STROM["aktiv"] = True
+
+    gemeldet = set()
+
+    def frage(pfad):
+        h = wd.Handler.__new__(wd.Handler)
+        h.path, ergebnis = pfad, {}
+        h._send = lambda code, ctype, body: ergebnis.update(code=code, body=body)
+        try:
+            h.do_GET()
+            return json.loads(ergebnis["body"]) if ergebnis.get("code") == 200 else None
+        except Exception as exc:
+            meldung = f"Hinweis: {pfad.split('?')[0]} nicht verfügbar ({type(exc).__name__}: {exc})"
+            if meldung not in gemeldet:
+                gemeldet.add(meldung)
+                print(meldung)
+            return None
+
+    api = {h: frage(f"/api?von={jetzt - h * 3600}&bis={jetzt}") for h in ZEITRAEUME_H}
+    api = {h: v for h, v in api.items() if v}
+    if not api:
+        return None
+    for v in api.values():
+        v["handy"] = None
+    sv = {t: frage(f"/api/stromverlauf?tage={t}") for t in STROM_TAGE}
+    einzeln = {"/api/alle": frage("/api/alle"), "/api/laeufe": frage("/api/laeufe"),
+               "/api/strom": frage("/api/strom") or strom_daten(jetzt)}
+    if einzeln["/api/alle"]:
+        for v in einzeln["/api/alle"].values():
+            v["host"] = ""
+    daten = {"ende": jetzt, "api": api, "stromverlauf": {t: v for t, v in sv.items() if v}, "einzeln": einzeln}
     seite = wd.SEITE
-    stand = time.strftime("%d.%m.%Y um %H:%M", time.localtime(jetzt))
+    stand_text = time.strftime("%d.%m.%Y um %H:%M", time.localtime(jetzt))
     seite = seite.replace("<title>Wärmepumpen</title>",
                           '<meta name="robots" content="noindex"><title>Wärmepumpen · Marc Ahne</title>', 1)
-    seite = seite.replace("<script>", EINSATZ.replace("__DATEN__", json.dumps(daten, separators=(",", ":"))) + "<script>", 1)
+    seite = seite.replace("<script>", EINSATZ.replace("__DATEN__", json.dumps(daten, separators=(",", ":"), default=str)) + "<script>", 1)
     seite = seite.replace("<h1>Wärmepumpen</h1>",
                           '<p style="margin:0 0 6px"><a href="/" style="color:inherit">← ahne.de</a> · '
                           '<a href="bericht/" style="color:inherit">Tagesauswertung vom Vortag</a></p><h1>Wärmepumpen</h1>', 1)
     # Unterzeile: Stand des Schnappschusses statt "Aktualisiert … Abfrage alle 10 s"
     seite = seite.replace('"Aktualisiert "+new Date().toLocaleTimeString("de-DE")+" · Abfrage alle "+D.intervall+" s"',
-                          json.dumps(f"Stand {stand} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
+                          json.dumps(f"Stand {stand_text} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
     seite = seite.replace("${p.rolle} · ${p.host}", "${p.rolle}")
     seite = seite.replace("setInterval(load,10000);", "")
     return seite
