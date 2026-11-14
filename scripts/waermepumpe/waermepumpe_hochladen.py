@@ -325,7 +325,7 @@ def dashboard(jetzt=None):
     for v in api.values():
         v["handy"] = None
     einzeln = {"/api/alle": frage("/api/alle"), "/api/laeufe": frage("/api/laeufe")}
-    if einzeln["/api/alle"]:
+    if einzeln["/api/alle"]:  # wird noch fuer den Fehlerspeicher gebraucht
         for v in einzeln["/api/alle"].values():
             v["host"] = ""
     daten = {"ende": jetzt, "api": api, "stromverlauf": {}, "einzeln": einzeln}
@@ -348,7 +348,10 @@ def dashboard(jetzt=None):
     seite = seite.replace("</style>", ".pill .dot,.pill .dot+span{display:none}</style>", 1)
     # immer 24 h; Zeitraum-Knoepfe, freie Zeitraum-Wahl und Strom & COP ausblenden
     seite = re.sub(r"let std=\d+", f"let std={STUNDEN}", seite, count=1)
-    seite = seite.replace("</style>", "#ctl,#rng,#stromk{display:none!important}</style>", 1)
+    # ausserdem ohne "Auswertung je Tag, Woche, Monat" und ohne "Alle Messwerte"
+    seite = seite.replace("</style>", "#ctl,#rng,#stromk,#zahlk{display:none!important}</style>", 1)
+    seite = seite.replace("function zahlDraw(){", "function zahlDraw(){return;", 1)
+    seite = seite.replace("function alle(n){", 'function alle(n){return"";', 1)
     return seite
 
 

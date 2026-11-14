@@ -60,7 +60,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   `github_token.txt` auf dem PC, nur Contents read/write) EINE Seite `public/waermepumpe/index.html`: die Dashboard-Ansicht
   (Seite `SEITE` aus `waermepumpen_dashboard.py`) im Design von ahne.de (`ahne_stil()`: dunkel, Gold, Schrift Inter aus
   `public/schriften/`). Alle Abfragen werden vorab über `Handler.do_GET` des Dashboards berechnet und eingebettet.
-  Nur die 24 Stunden des Vortags (endet um Mitternacht), keine Zeitraum-Auswahl, kein Strom & COP, kein aktueller
+  Nur die 24 Stunden des Vortags (endet um Mitternacht), keine Zeitraum-Auswahl, kein Strom & COP, keine „Auswertung je Tag,
+  Woche, Monat“, keine „Alle Messwerte“, kein aktueller
   Betriebszustand (Verdichter an/aus, Betriebsart) – Wunsch des Seiteninhabers. Oben zwei gezeichnete Außengeräte
   (`WP_ANIMATION`, `WP_GERAET`) als Zeitraffer des Vortags (24 h in ca. 48 s, Regler, Pause): Ventilator dreht, wenn der
   Verdichter zu der Uhrzeit lief, Leuchtfarbe nach Betriebsart – Wiedergabe, keine Live-Anzeige. Ohne Dashboard-Skript
