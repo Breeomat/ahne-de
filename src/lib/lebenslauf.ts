@@ -5,7 +5,8 @@ import type { Text } from './sprache';
 // Teilnahmebescheinigung Datenschutzbeauftragter (01/2013), Lebenslauf (2003), Profil „about-me.md“ (2026).
 // Ergänzt nach Angaben von Marc (10/2026): Rolle seit 2024, IT/ERP 2020–2024, Integration Infra → SAP,
 // seit 2020 Vorgesetzter in den USA und rund die Hälfte der Meetings auf Englisch (für die Bewerbung umformuliert).
-// Bewusst nicht: vollständiges Geburtsdatum, Namen von Kolleg:innen, interne Projektnamen und Termine.
+// Geburtsdatum (26.04.1972) und Anschrift auf Wunsch von Marc (11/2026).
+// Bewusst nicht: Namen von Kolleg:innen, interne Projektnamen und Termine.
 
 export const titel: Text = { de: 'Solutions Analyst · Business Platform IT', en: 'Solutions Analyst · Business Platform IT' };
 
