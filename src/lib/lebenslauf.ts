@@ -138,4 +138,4 @@ export const kenntnisse: { bereich: Text; text: Text }[] = [
   { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
 ];
 
-export const persoenlich: Text = { de: 'Jahrgang 1972, geboren in Fulda, wohnhaft in Herbstein-Stockhausen', en: 'Born 1972 in Fulda, lives in Herbstein-Stockhausen' };
+export const persoenlich: Text = { de: 'Geboren am 26.04.1972 in Fulda, wohnhaft in Herbstein-Stockhausen', en: 'Born 26 April 1972 in Fulda, lives in Herbstein-Stockhausen' };
