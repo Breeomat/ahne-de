@@ -9,7 +9,7 @@ Es entstehen zwei Seiten, beide in einem Commit ins Repository breeomat/ahne-de 
 - public/waermepumpe/index.html: dieselbe Ansicht wie das Dashboard (Seite aus waermepumpen_dashboard.py). Dessen
   Abfragen werden vorab mit den Programmteilen des Dashboards berechnet (Logs, Strom-Verlauf, Shelly) und eingebettet;
   Stand = Zeitpunkt des Hochladens, keine Live-Abfrage.
-- public/waermepumpe/bericht/index.html: Tagesauswertung des Vortags (waermepumpen_auswertung.py).
+- public/waermepumpe/bericht/index.html: dieselbe Ansicht mit denselben Daten im Design von ahne.de.
 Ist waermepumpen_dashboard.py nicht da, wird nur die Tagesauswertung hochgeladen (wie frueher als index.html).
 
 Zugang: ein GitHub-Token (fein-granular, nur Repository ahne-de, Recht "Contents: Read and write") in der Datei
@@ -361,7 +361,7 @@ def dashboard(jetzt=None):
     seite = seite.replace("<script>", EINSATZ.replace("__DATEN__", json.dumps(daten, separators=(",", ":"), default=str)) + "<script>", 1)
     seite = seite.replace("<h1>Wärmepumpen</h1>",
                           '<p style="margin:0 0 6px"><a href="/" style="color:inherit">← ahne.de</a> · '
-                          '<a href="bericht/" style="color:inherit">Tagesauswertung vom Vortag</a></p><h1>Wärmepumpen</h1>', 1)
+                          '<a href="bericht/" style="color:inherit">im ahne.de-Design</a></p><h1>Wärmepumpen</h1>', 1)
     # Unterzeile: Stand des Schnappschusses statt "Aktualisiert … Abfrage alle 10 s"
     seite = seite.replace('"Aktualisiert "+new Date().toLocaleTimeString("de-DE")+" · Abfrage alle "+D.intervall+" s"',
                           json.dumps(f"Daten bis {tag_text}, 24:00 Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
@@ -381,6 +381,36 @@ def dashboard(jetzt=None):
     seite = re.sub(r'\[\[7,"1 Woche"\](,\[\d+,"[^"]*"\])+\]', '[[7,"1 Woche"]]', seite)
     seite = seite.replace("SVT=28", "SVT=7")
     return seite
+
+
+# ---------------------------------------------------------------- dieselbe Ansicht im Design von ahne.de
+AHNE_STIL = """<style>
+@font-face{font-family:"Inter Variable";src:url(/schriften/inter-latin-wght-normal.woff2) format("woff2");font-weight:100 900;font-display:swap}
+html:root{color-scheme:dark;--bg:#0a0c18;--card:rgb(255 255 255/.05);--tx:#eef0ff;--mut:#a9aecb;--line:rgb(255 255 255/.12);
+ --vl:#ff922b;--rl:#f06595;--hz:#4dabf7;--h2:#3bc9db;--wb:#fcc419;--ww:#b197fc;--rs:#adb5bd;--rx:#b197fc;--au:#69db7c;--ok:#c9a03f;--bad:#ff6b6b}
+html{background:#0a0c18}
+body{font-family:"Inter Variable",system-ui,sans-serif;max-width:1400px;margin:0 auto;padding:24px 20px 48px;
+ background:radial-gradient(ellipse at 10% -10%,rgb(212 166 58/.16),transparent 55%),radial-gradient(ellipse at 95% 15%,rgb(90 110 255/.13),transparent 50%),#0a0c18;background-attachment:fixed}
+a{color:#f2d27a}
+h1{font-size:clamp(2.2rem,7vw,3.6rem);font-weight:800;letter-spacing:-.03em;line-height:1.05;margin:4px 0 6px;
+ background:linear-gradient(100deg,#b8862b,#f6e39b 30%,#d4a63a 50%,#fff0b8 70%,#b8862b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#a9aecb}
+.card,.pill,details.card{border:1px solid rgb(242 210 122/.25);border-radius:22px;background:rgb(255 255 255/.05);box-shadow:0 20px 50px -30px #000}
+.card .head b,h2,h3{color:#eef0ff}
+.badge{background:rgb(242 210 122/.15);color:#f2d27a}
+.ctl button,.ctl input{background:rgb(255 255 255/.06);border-color:rgb(255 255 255/.14);color:#eef0ff}
+.ctl button.on{background:#f2d27a;border-color:#f2d27a;color:#1a1406}
+.chip.on{background:#c9a03f;border-color:#c9a03f;color:#1a1406}
+.kpi span{color:#fff}
+</style>"""
+
+
+def ahne_stil(seite):
+    """Dieselbe Dashboard-Seite (gleiche Daten) im Design von ahne.de: dunkel, Gold, Schrift Inter."""
+    s = seite.replace("</head>", AHNE_STIL + "</head>", 1)
+    s = s.replace('<a href="/" style="color:inherit">← ahne.de</a> · <a href="bericht/" style="color:inherit">im ahne.de-Design</a>',
+                  '<a href="/">← ahne.de</a> · <a href="../">im Dashboard-Design</a>', 1)
+    return s
 
 
 # ---------------------------------------------------------------- Hochladen (ein Commit fuer alle Dateien)
@@ -427,7 +457,7 @@ def main():
     ende = int(time.mktime((tag + timedelta(days=1)).timetuple()))  # Mitternacht nach dem Auswertungstag
     seite = dashboard(ende)
     if seite:
-        dateien = {ZIEL_DASHBOARD: seite, ZIEL_BERICHT: bericht(tag, "../", "← Wärmepumpen-Übersicht")}
+        dateien = {ZIEL_DASHBOARD: seite, ZIEL_BERICHT: ahne_stil(seite)}
     else:
         dateien = {ZIEL_DASHBOARD: bericht(tag)}
     for p, t in dateien.items():
