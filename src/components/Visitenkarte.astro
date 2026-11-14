@@ -28,7 +28,7 @@ const t = de
       <dl class="vk__kontakt">
         <dt>{de ? 'E-Mail' : 'Email'}</dt><dd><a href={`mailto:${person.email}`}>{person.email}</a></dd>
         <dt>Web</dt><dd><a href={url(seiten.start[sprache])}>www.ahne.de</a></dd>
-        <dt>{de ? 'Wohnort' : 'Location'}</dt><dd>36358 Herbstein-Stockhausen</dd>
+        <dt>{de ? 'Anschrift' : 'Address'}</dt><dd>{person.anschrift[0]}<br />{person.anschrift[1]}</dd>
       </dl>
     </header>
 
