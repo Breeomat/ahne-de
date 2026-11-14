@@ -253,7 +253,7 @@ def strom_daten(jetzt):
 # eingebetteten, vorab berechneten Antworten und stellt die Uhr auf den Stand des Schnappschusses.
 EINSATZ = r"""<script>
 (function(){
-var DD=__DATEN__,ENDE=DD.ende*1000;
+var DD=__DATEN__,ENDE=DD.ende*1000;window.__WP_DATEN=DD;
 Date.now=function(){return ENDE};
 function passend(liste,wert){var ks=Object.keys(liste).map(Number).sort(function(a,b){return a-b});
  for(var i=0;i<ks.length;i++)if(ks[i]>=wert-0.01)return liste[ks[i]];return liste[ks[ks.length-1]]}
@@ -405,9 +405,85 @@ h1{font-size:clamp(2.2rem,7vw,3.6rem);font-weight:800;letter-spacing:-.03em;line
 </style>"""
 
 
+# Zwei Aussengeraete, die den Vortag im Zeitraffer abspielen: Ventilator dreht, wenn der Verdichter zu der
+# angezeigten Uhrzeit lief (Verlauf des 48-h-Fensters); Farbe nach Betriebsart. Kein aktueller Zustand.
+WP_ANIMATION = r"""<style>
+.wpa{margin:18px 0 20px;padding:18px;border:1px solid rgb(242 210 122/.25);border-radius:22px;background:rgb(255 255 255/.04)}
+.wpa__geraete{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.wpa__geraet{text-align:center}
+.wpa__geraet svg{width:100%;max-width:260px;height:auto;display:block;margin:0 auto}
+.wpa__rotor{transform-origin:100px 82px;transform-box:view-box;animation:wpa-dreh .45s linear infinite;animation-play-state:paused}
+.wpa__geraet.an .wpa__rotor{animation-play-state:running}
+@keyframes wpa-dreh{to{transform:rotate(360deg)}}
+.wpa__schein{opacity:0;transition:opacity .4s,fill .4s}
+.wpa__geraet.an .wpa__schein{opacity:.55}
+.wpa__name{font-weight:700;margin-top:4px}
+.wpa__zust{font-size:.9rem;color:#a9aecb;min-height:1.3em}
+.wpa__geraet.an .wpa__zust{color:#f2d27a}
+.wpa__leiste{display:flex;gap:12px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.wpa__leiste button{font:inherit;font-size:.9rem;border:1px solid #f2d27a;background:#f2d27a;color:#1a1406;border-radius:999px;padding:5px 14px;cursor:pointer;font-weight:700}
+.wpa__leiste input{flex:1;min-width:160px;accent-color:#f2d27a}
+.wpa__zeit{font-variant-numeric:tabular-nums;font-weight:700;min-width:7.5em;color:#eef0ff}
+.wpa__hinweis{font-size:.82rem;color:#a9aecb;margin:8px 0 0}
+@media (max-width:520px){.wpa__geraete{gap:10px}}
+</style>
+<section class="wpa" aria-label="Wiedergabe des Vortags">
+ <div class="wpa__geraete">
+  <div class="wpa__geraet" data-pumpe="Master">__GERAET__<div class="wpa__name">Pumpe 1</div><div class="wpa__zust">–</div></div>
+  <div class="wpa__geraet" data-pumpe="Slave">__GERAET__<div class="wpa__name">Pumpe 2</div><div class="wpa__zust">–</div></div>
+ </div>
+ <div class="wpa__leiste"><button type="button" class="wpa__knopf">▶ Abspielen</button>
+  <input type="range" class="wpa__regler" min="0" max="1439" value="0" aria-label="Uhrzeit"><span class="wpa__zeit">–</span></div>
+ <p class="wpa__hinweis">Zeitraffer des Vortags (24 Stunden in etwa 48 Sekunden). Der Ventilator dreht sich, wenn die Pumpe zu dieser Uhrzeit lief – keine Live-Anzeige.</p>
+</section>
+<script>
+addEventListener("DOMContentLoaded",function(){  // erst wenn die eingebetteten Daten (weiter unten) geladen sind
+ var D=window.__WP_DATEN;if(!D)return;
+ var api=D.api["48"]||D.api[48]||D.api[Object.keys(D.api).sort(function(a,b){return b-a})[0]];
+ var ende=D.ende,start=ende-86400,box=document.querySelector(".wpa");
+ var reihen={};Object.keys(api.pumpen).forEach(function(n){reihen[n]=(api.pumpen[n].verlauf||[]).filter(function(p){return p.t>=start-900&&p.t<=ende}).sort(function(a,b){return a.t-b.t})});
+ if(!Object.keys(reihen).some(function(n){return reihen[n].length})){box.hidden=true;return}
+ function art(m){m=(m||"").toLowerCase();if(/abtau|defrost/.test(m))return["Abtauen","#e8f3ff"];if(/warm|hot/.test(m))return["Warmwasser","#4dabf7"];
+  if(/heiz|heat/.test(m))return["Heizen","#ff922b"];return["läuft","#f2d27a"]}
+ function punkt(r,t){var lo=0,hi=r.length-1,b=null;while(lo<=hi){var mi=(lo+hi)>>1;if(r[mi].t<=t){b=r[mi];lo=mi+1}else hi=mi-1}return b&&t-b.t<1800?b:null}
+ var regler=box.querySelector(".wpa__regler"),zeit=box.querySelector(".wpa__zeit"),knopf=box.querySelector(".wpa__knopf");
+ function zeigen(min){var t=start+min*60,d=new Date(t*1000);
+  zeit.textContent=d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
+  box.querySelectorAll(".wpa__geraet").forEach(function(g){var p=punkt(reihen[g.dataset.pumpe]||[],t),an=!!(p&&p.vd),a=art(p&&p.modus);
+   g.classList.toggle("an",an);g.querySelector(".wpa__schein").setAttribute("fill",a[1]);
+   g.querySelector(".wpa__zust").textContent=p?(an?a[0]:"aus"):"keine Daten"})}
+ var laeuft=false,min=0,vorher=0;
+ function schritt(j){if(!laeuft)return;if(vorher){min+=(j-vorher)/1000*30;if(min>1439)min=0}vorher=j;regler.value=Math.floor(min);zeigen(Math.floor(min));requestAnimationFrame(schritt)}
+ function spielen(an){laeuft=an;vorher=0;knopf.textContent=an?"⏸ Pause":"▶ Abspielen";if(an)requestAnimationFrame(schritt)}
+ knopf.onclick=function(){spielen(!laeuft)};
+ regler.oninput=function(){min=+regler.value;zeigen(min)};
+ zeigen(0);
+ if(!matchMedia("(prefers-reduced-motion: reduce)").matches)spielen(true);
+});
+</script>"""
+
+WP_GERAET = """<svg viewBox="0 0 200 170" role="img" aria-hidden="true">
+ <rect x="18" y="146" width="164" height="10" rx="3" fill="#2a2f3f"/>
+ <rect x="10" y="12" width="180" height="136" rx="12" fill="#1c2130" stroke="rgb(242 210 122 / .45)" stroke-width="2"/>
+ <circle class="wpa__schein" cx="100" cy="82" r="56" fill="#ff922b"/>
+ <circle cx="100" cy="82" r="52" fill="#0d1018" stroke="#3a4155" stroke-width="3"/>
+ <g class="wpa__rotor"><g fill="#c9cfdf">
+  <path d="M100 82 C 96 60, 104 40, 118 34 C 122 50, 114 70, 100 82Z"/>
+  <path d="M100 82 C 96 60, 104 40, 118 34 C 122 50, 114 70, 100 82Z" transform="rotate(120 100 82)"/>
+  <path d="M100 82 C 96 60, 104 40, 118 34 C 122 50, 114 70, 100 82Z" transform="rotate(240 100 82)"/></g>
+  <circle cx="100" cy="82" r="8" fill="#f2d27a"/></g>
+ <g stroke="#3a4155" stroke-width="1.5">
+  <line x1="48" y1="82" x2="152" y2="82"/><line x1="100" y1="30" x2="100" y2="134"/>
+  <circle cx="100" cy="82" r="36" fill="none"/><circle cx="100" cy="82" r="20" fill="none"/></g>
+ <rect x="22" y="20" width="22" height="6" rx="2" fill="#f2d27a" opacity=".7"/>
+</svg>"""
+
+
 def ahne_stil(seite):
     """Dieselbe Dashboard-Seite (gleiche Daten) im Design von ahne.de: dunkel, Gold, Schrift Inter."""
     s = seite.replace("</head>", AHNE_STIL + "</head>", 1)
+    s = s.replace('<div class="sub" id="sub">lädt …</div>',
+                  '<div class="sub" id="sub">lädt …</div>' + WP_ANIMATION.replace("__GERAET__", WP_GERAET), 1)
     s = s.replace('<a href="/" style="color:inherit">← ahne.de</a> · <a href="bericht/" style="color:inherit">im ahne.de-Design</a>',
                   '<a href="/">← ahne.de</a> · <a href="../">im Dashboard-Design</a>', 1)
     return s

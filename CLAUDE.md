@@ -64,7 +64,9 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Daten der letzten Woche, die Auswahl endet bei „1 Woche“; kein aktueller
   Betriebszustand (Verdichter an/aus, Betriebsart, Zustands-Chips), weil die Seite statisch ist – Wunsch des Seiteninhabers)
   und `public/waermepumpe/bericht/index.html` = dieselbe Seite mit denselben Daten im Design von ahne.de (`ahne_stil()`:
-  dunkel, Gold, Schrift Inter aus `public/schriften/`). Ohne Dashboard-Skript nur die Tagesauswertung des Vortags
+  dunkel, Gold, Schrift Inter aus `public/schriften/`); dort oben zwei gezeichnete Außengeräte (`WP_ANIMATION`,
+  `WP_GERAET`) als Zeitraffer des Vortags (24 h in ca. 48 s, Regler, Pause): Ventilator dreht, wenn der Verdichter zu
+  der Uhrzeit lief, Leuchtfarbe nach Betriebsart – Wiedergabe, keine Live-Anzeige. Ohne Dashboard-Skript nur die Tagesauswertung des Vortags
   (`waermepumpen_auswertung.py`) als index.html. `noindex`, nicht in der
   Sitemap, keine IP-Adressen. Die Dateien nicht von Hand bearbeiten, sie werden jede Nacht überschrieben.
 - „Wärmepumpen live“ (Seitenfuß, `Basis.astro`): Link auf das lokale Dashboard http://192.168.178.95:8080/ – nur im
