@@ -29,6 +29,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
       de: [
         'Aktuell: Integration des ERP-Systems Infra (Standort Lauterbach) in das SAP-System des Standorts Neuwied – danach Zusammenführung zu einem Unternehmen, BW Converting',
         'Parallel dazu: Neueinführung von Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), danach in Lucca (Italien); anschließend Einführung weiterer Unternehmensteile in Finance & Operations – künftiger Schwerpunkt des Teams',
+        'IT- und ERP-Betreuung für den Standort Lauterbach mit rund 110 Mitarbeitenden (zeitweise drei Standorte mit insgesamt rund 150 Mitarbeitenden)',
         'ERP-Administration (Infra)',
         'Abschaltung des ERP-Altsystems BAAN',
         'Bluestar PLM: Anbindung der Konstruktionsdaten (Produkte, Stücklisten) und EPLAN',
@@ -40,6 +41,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
       en: [
         'Currently: integrating the Infra ERP system (Lauterbach site) into the SAP system of the Neuwied site – followed by the merger into one company, BW Converting',
         'In parallel: new implementation of Microsoft Dynamics 365 Finance & Operations in Green Bay (USA), then in Lucca (Italy); afterwards rollout to further parts of the company – the team’s future focus',
+        'IT and ERP support for the Lauterbach site with around 110 employees (at times three sites with around 150 employees in total)',
         'ERP administration (Infra)',
         'Decommissioning of the legacy BAAN ERP system',
         'Bluestar PLM: integration of engineering data (products, bills of materials) and EPLAN',
