@@ -121,7 +121,7 @@ export const weiterbildung: { zeit: string; text: Text }[] = [
     },
   },
   { zeit: '2005', text: { de: 'Industriemeister Elektro', en: 'Master craftsman in electrical engineering (Industriemeister Elektro)' } },
-  { zeit: '', text: { de: 'Seminare zu speicherprogrammierbaren Steuerungen (SIMATIC)', en: 'Seminars on programmable logic controllers (SIMATIC)' } },
+  { zeit: '1996 – 1998', text: { de: 'Seminare zu speicherprogrammierbaren Steuerungen (SIMATIC)', en: 'Seminars on programmable logic controllers (SIMATIC)' } },
 ];
 
 export const schule: { zeit: string; text: Text }[] = [
