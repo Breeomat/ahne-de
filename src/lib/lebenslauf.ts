@@ -136,6 +136,7 @@ export const kenntnisse: { bereich: Text; text: Text }[] = [
   { bereich: { de: 'Projekterfahrung', en: 'Project experience' }, text: { de: 'SAP, iScala, Bluestar PLM – Erfahrung aus der Projektleitung (Integration, Upgrade, Anbindung), nicht als Anwender', en: 'SAP, iScala, Bluestar PLM – experience from project management (integration, upgrade, interfaces), not as an end user' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
   { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch fließend (Business English), tägliche Arbeitssprache im internationalen Umfeld', en: 'German (native), English (fluent, business English), everyday working language in an international environment' } },
+  { bereich: { de: 'Führerschein', en: 'Driving licence' }, text: { de: 'Klassen AM, A1, A, B, BE, C1, C1E, L', en: 'Categories AM, A1, A, B, BE, C1, C1E, L' } },
   { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
 ];
 

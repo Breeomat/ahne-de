@@ -82,6 +82,15 @@ const t = de
       </ol>
     </section>
 
+    <div class="vk__unterschrift" aria-hidden="true">
+      <span class="vk__ort">{person.anschrift[1].replace(/^\d+\s*/, '')}, <span class="vk__datum"></span></span>
+      <span class="vk__linie">{de ? 'Unterschrift' : 'Signature'}</span>
+    </div>
+    <script>
+      // Datum des Ausdrucks (nur beim Drucken sichtbar)
+      const datum = document.querySelector<HTMLElement>('.vk__datum');
+      if (datum) datum.textContent = new Date().toLocaleDateString(document.documentElement.lang === 'en' ? 'en-GB' : 'de-DE');
+    </script>
     <p class="vk__aktionen">
       <button type="button" onclick="print()">{t.drucken}</button>
       <a href={url(seiten.start[sprache])}>← {t.zurueck}</a>
@@ -109,6 +118,9 @@ const t = de
   .vk__zeit { color: var(--text-leise); font-variant-numeric: tabular-nums; font-size: 0.95rem; }
   .vk__liste ul { margin: 0.25rem 0 0; padding-left: 1.1rem; }
   .vk__liste ul li { margin-bottom: 0.15rem; }
+  /* Ort, Datum und Unterschriftslinie nur im Ausdruck/PDF; die Unterschrift selbst wird nicht veröffentlicht */
+  .vk__unterschrift { display: none; justify-content: space-between; align-items: end; gap: 2rem; margin-top: 3rem; break-inside: avoid; }
+  .vk__linie { min-width: 16rem; padding-top: 0.3rem; border-top: 1px solid currentColor; font-size: 0.85rem; text-align: center; }
   .vk__aktionen { margin-top: 2.5rem; display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
   .vk__aktionen button {
     padding: 0.5rem 1rem; border: 1px solid var(--wald); border-radius: 6px; background: var(--wald); color: #fff; font: inherit; cursor: pointer;
@@ -119,6 +131,7 @@ const t = de
   }
   @media print {
     :global(.kopf), :global(.fuss), .vk__aktionen { display: none !important; }
+    .vk__unterschrift { display: flex !important; }
     :global(body) { background: #fff !important; color: #000; font-size: 10.5pt; }
     :global(main) { padding: 0 !important; }
     .vk { width: 100%; }

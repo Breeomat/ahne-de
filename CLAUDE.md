@@ -46,6 +46,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   „Marc“ in der Überschrift der Startseite. Bewusst schlicht (`Basis` mit `schlicht`, ohne Drohne), druckbar, `noindex`
   und nicht in der Sitemap (`verborgen`, Filter in `astro.config.mjs`). Inhalte in `src/lib/lebenslauf.ts` (Quellen im
   Dateikopf); Seite `src/components/Visitenkarte.astro`. Beruf und Arbeitgeber nur hier, nicht auf der Startseite.
+  Im Ausdruck/PDF unten Ort, Datum und Unterschriftslinie (`.vk__unterschrift`); die Unterschrift selbst NICHT
+  veröffentlichen (Bild nur lokal beim Seiteninhaber).
 - Browserspiel „Brummis Paketdienst“ (versteckt): `/spiel/` bzw. `/en/game/`, `src/components/Spiel.astro`. Pakete an
   echten Orten abholen/liefern (Koordinaten aus `dorfkarte.ts` von stockhausen-online), 2 Minuten, Akku → Ladestation am
   Sportplatz; Wind (Stärke/Richtung) und Regen aus `src/data/wetter.json`. `noindex`, nicht in der Sitemap, speichert nichts.
