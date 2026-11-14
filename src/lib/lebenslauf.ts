@@ -49,6 +49,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
     },
   },
   {
+    // 02–12/2006 parallel zur Abteilungsleitung (laut Marc, 11/2026)
     zeit: { de: '02/2006 – 2024', en: '02/2006 – 2024' },
     rolle: { de: 'IT-Administrator und ERP-Systembetreuer', en: 'IT administrator and ERP system administrator' },
     punkte: {
