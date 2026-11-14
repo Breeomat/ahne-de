@@ -22,8 +22,8 @@ export const firma: Text = {
 
 export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: string[] } }[] = [
   {
-    // laut Marc seit etwa zwei Jahren (Stand Oktober 2026)
-    zeit: { de: '2024 – heute', en: '2024 – today' },
+    // laut Marc seit 05/2024
+    zeit: { de: '05/2024 – heute', en: '05/2024 – today' },
     rolle: { de: 'Solutions Analyst, Business Platform IT – Schwerpunkt Engineering und Quality', en: 'Solutions Analyst, Business Platform IT – focus on engineering and quality' },
     punkte: {
       de: [
@@ -50,7 +50,7 @@ export const stationen: { zeit: Text; rolle: Text; punkte?: { de: string[]; en: 
   },
   {
     // 02–12/2006 parallel zur Abteilungsleitung (laut Marc, 11/2026)
-    zeit: { de: '02/2006 – 2024', en: '02/2006 – 2024' },
+    zeit: { de: '02/2006 – 04/2024', en: '02/2006 – 04/2024' },
     rolle: { de: 'IT-Administrator und ERP-Systembetreuer', en: 'IT administrator and ERP system administrator' },
     punkte: {
       de: [
