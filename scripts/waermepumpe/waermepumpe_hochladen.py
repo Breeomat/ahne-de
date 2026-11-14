@@ -164,6 +164,8 @@ def letzte_werte(wd, jetzt):
                         t = int(time.mktime(time.strptime(r["zeit"], "%Y-%m-%d %H:%M:%S")))
                     except (ValueError, KeyError, TypeError):
                         continue
+                    if t > jetzt:
+                        continue
                     if t >= stand.get(r["pumpe"], 0):
                         stand[r["pumpe"]] = t
                         letzte[r["pumpe"]] = {k: _wert(k, r.get(k), wd) for k in wd.WERTE}
@@ -190,7 +192,8 @@ def strom_daten(jetzt):
                 hs = float(hs) if hs not in (None, "") else None
             except ValueError:
                 hs = None
-            reihen.setdefault(r.get("pumpe") or "?", []).append((t, wm, st, hs))
+            if t <= jetzt:
+                reihen.setdefault(r.get("pumpe") or "?", []).append((t, wm, st, hs))
     for v in reihen.values():
         v.sort()
     if not reihen:
@@ -205,7 +208,7 @@ def strom_daten(jetzt):
     def zelle(w, s):
         return {"wm": round(w, 1), "strom": round(s, 1), "cop": round(w / s, 2) if s >= 1 else None}
 
-    heute0 = int(time.mktime(date.today().timetuple()))
+    heute0 = int(time.mktime(datetime.fromtimestamp(jetzt).date().timetuple()))
     bereiche = {"Gestern": (heute0 - 86400, heute0), "7 Tage": (heute0 - 7 * 86400, jetzt)}
     zeitraeume = {}
     for name, (t0, t1) in bereiche.items():
@@ -272,6 +275,7 @@ LANG = re.compile(r"30|beginn|gesamt|monat|quartal|jahr|alle", re.I)   # Strom-Z
 
 
 def dashboard(jetzt=None):
+    # jetzt = Ende des Schnappschusses (beim naechtlichen Lauf Mitternacht nach dem Vortag)
     """Dashboard-Seite als Schnappschuss; None, wenn waermepumpen_dashboard.py nicht im Ordner liegt.
     Die Antworten berechnen die Programmteile des Dashboards selbst (Handler.do_GET), wie beim Live-Betrieb."""
     try:
@@ -284,8 +288,21 @@ def dashboard(jetzt=None):
     try:
         if hasattr(wd, "lade_historie"):
             wd.lade_historie()
+            for d in wd.daten.values():  # nichts nach dem Ende des Tages (z. B. 0 bis 1 Uhr)
+                v = [p for p in d["verlauf"] if p.get("t", 0) <= jetzt]
+                d["verlauf"].clear()
+                d["verlauf"].extend(v)
     except Exception as exc:
         print(f"Hinweis: Verlauf nicht geladen ({type(exc).__name__}: {exc})")
+    try:  # Strom-Auswertung des Dashboards ebenfalls am Ende des Tages enden lassen
+        import waermepumpen_strom as ws
+        _lesen, _zr, _vl, _ca = ws.csv_lesen, ws.zeitraeume, ws.verlauf, ws.cop_aussen
+        ws.csv_lesen = lambda pfad=ws.STROM_CSV: [z for z in _lesen(pfad) if z["t"] <= jetzt]
+        ws.zeitraeume = lambda zeilen, j=None: _zr(zeilen, j or jetzt)
+        ws.verlauf = lambda zeilen, tage, j=None: _vl(zeilen, tage, j or jetzt)
+        ws.cop_aussen = lambda zeilen, tage, breite=2, j=None: _ca(zeilen, tage, breite, j or jetzt)
+    except Exception:
+        pass  # ohne waermepumpen_strom.py rechnet strom_daten()
     letzte, stand = letzte_werte(wd, jetzt)
     if not letzte:
         print("Dashboard-Ansicht übersprungen (keine Logdaten der letzten Stunden)")
@@ -300,7 +317,7 @@ def dashboard(jetzt=None):
         d["letzte"], d["stand"], d["fehler"] = l, stand.get(n), None
     if strom_pfad() and hasattr(wd, "STROM"):
         wd.STROM["aktiv"] = True
-        wd.STROM["stand"] = os.path.getmtime(strom_pfad())  # letzte Strommessung statt "nur Verlaufsdatei"
+        wd.STROM["stand"] = min(os.path.getmtime(strom_pfad()), jetzt)  # Stand statt "nur Verlaufsdatei"
 
     gemeldet = set()
 
@@ -338,7 +355,7 @@ def dashboard(jetzt=None):
             v["host"] = ""
     daten = {"ende": jetzt, "api": api, "stromverlauf": {t: v for t, v in sv.items() if v}, "einzeln": einzeln}
     seite = wd.SEITE
-    stand_text = time.strftime("%d.%m.%Y um %H:%M", time.localtime(jetzt))
+    tag_text = time.strftime("%d.%m.%Y", time.localtime(jetzt - 1))
     seite = seite.replace("<title>Wärmepumpen</title>",
                           '<meta name="robots" content="noindex"><title>Wärmepumpen · Marc Ahne</title>', 1)
     seite = seite.replace("<script>", EINSATZ.replace("__DATEN__", json.dumps(daten, separators=(",", ":"), default=str)) + "<script>", 1)
@@ -347,7 +364,7 @@ def dashboard(jetzt=None):
                           '<a href="bericht/" style="color:inherit">Tagesauswertung vom Vortag</a></p><h1>Wärmepumpen</h1>', 1)
     # Unterzeile: Stand des Schnappschusses statt "Aktualisiert … Abfrage alle 10 s"
     seite = seite.replace('"Aktualisiert "+new Date().toLocaleTimeString("de-DE")+" · Abfrage alle "+D.intervall+" s"',
-                          json.dumps(f"Stand {stand_text} Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
+                          json.dumps(f"Daten bis {tag_text}, 24:00 Uhr · wird jede Nacht aktualisiert (keine Live-Werte)"), 1)
     seite = seite.replace("${p.rolle} · ${p.host}", "${p.rolle}")
     seite = seite.replace("setInterval(load,10000);", "")
     # kein "Verdichter an/aus", keine Betriebsart und keine Laufanzeige (statische Seite)
@@ -407,7 +424,8 @@ def main():
     ap.add_argument("--nur-datei", help="nur in diese Datei schreiben (Auswertung daneben als …_bericht.html)")
     a = ap.parse_args()
     tag = date.fromisoformat(a.tag) if a.tag else date.today() - timedelta(days=1)
-    seite = dashboard()
+    ende = int(time.mktime((tag + timedelta(days=1)).timetuple()))  # Mitternacht nach dem Auswertungstag
+    seite = dashboard(ende)
     if seite:
         dateien = {ZIEL_DASHBOARD: seite, ZIEL_BERICHT: bericht(tag, "../", "← Wärmepumpen-Übersicht")}
     else:

@@ -60,7 +60,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   `github_token.txt` auf dem PC, nur Contents read/write) zwei Seiten:
   `public/waermepumpe/index.html` = Dashboard-Ansicht als Schnappschuss (Seite `SEITE` aus `waermepumpen_dashboard.py`;
   alle Abfragen der Seite werden vorab über `Handler.do_GET` des Dashboards berechnet und eingebettet, je Zeitraum-Knopf;
-  veröffentlicht werden höchstens die Daten der letzten Woche, die Auswahl endet bei „1 Woche“; kein aktueller
+  der Schnappschuss endet um Mitternacht nach dem Vortag (auch Strom veröffentlicht werden höchstens die Daten der letzten Woche, die Auswahl endet bei „1 Woche“; kein aktueller COP); veröffentlicht werden höchstens die
+  Daten der letzten Woche, die Auswahl endet bei „1 Woche“; kein aktueller
   Betriebszustand (Verdichter an/aus, Betriebsart, Zustands-Chips), weil die Seite statisch ist – Wunsch des Seiteninhabers)
   und `public/waermepumpe/bericht/index.html` = Tagesauswertung des Vortags (`waermepumpen_auswertung.py`, auf eine
   Messung je Minute ausgedünnt). Ohne Dashboard-Skript nur die Auswertung als index.html. `noindex`, nicht in der
