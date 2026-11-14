@@ -57,17 +57,14 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   `scripts/waermepumpe/waermepumpe_hochladen.py` liegt dort neben `waermepumpen_dashboard.py` und
   `waermepumpen_auswertung.py` (Ordner `logs` mit den Logdateien und `waermepumpen_strom_verlauf.csv`) und läuft nachts
   um 1 Uhr per Aufgabenplanung (`waermepumpe_hochladen.bat`). Es schreibt in EINEM Commit per GitHub-API (Token in
-  `github_token.txt` auf dem PC, nur Contents read/write) zwei Seiten:
-  `public/waermepumpe/index.html` = Dashboard-Ansicht als Schnappschuss (Seite `SEITE` aus `waermepumpen_dashboard.py`;
-  alle Abfragen der Seite werden vorab über `Handler.do_GET` des Dashboards berechnet und eingebettet, je Zeitraum-Knopf;
-  der Schnappschuss endet um Mitternacht nach dem Vortag, auch Strom & COP; veröffentlicht werden höchstens die
-  Daten der letzten Woche, die Auswahl endet bei „1 Woche“; kein aktueller
-  Betriebszustand (Verdichter an/aus, Betriebsart, Zustands-Chips), weil die Seite statisch ist – Wunsch des Seiteninhabers)
-  und `public/waermepumpe/bericht/index.html` = dieselbe Seite mit denselben Daten im Design von ahne.de (`ahne_stil()`:
-  dunkel, Gold, Schrift Inter aus `public/schriften/`); dort oben zwei gezeichnete Außengeräte (`WP_ANIMATION`,
-  `WP_GERAET`) als Zeitraffer des Vortags (24 h in ca. 48 s, Regler, Pause): Ventilator dreht, wenn der Verdichter zu
-  der Uhrzeit lief, Leuchtfarbe nach Betriebsart – Wiedergabe, keine Live-Anzeige. Ohne Dashboard-Skript nur die Tagesauswertung des Vortags
-  (`waermepumpen_auswertung.py`) als index.html. `noindex`, nicht in der
+  `github_token.txt` auf dem PC, nur Contents read/write) EINE Seite `public/waermepumpe/index.html`: die Dashboard-Ansicht
+  (Seite `SEITE` aus `waermepumpen_dashboard.py`) im Design von ahne.de (`ahne_stil()`: dunkel, Gold, Schrift Inter aus
+  `public/schriften/`). Alle Abfragen werden vorab über `Handler.do_GET` des Dashboards berechnet und eingebettet.
+  Nur die 24 Stunden des Vortags (endet um Mitternacht), keine Zeitraum-Auswahl, kein Strom & COP, kein aktueller
+  Betriebszustand (Verdichter an/aus, Betriebsart) – Wunsch des Seiteninhabers. Oben zwei gezeichnete Außengeräte
+  (`WP_ANIMATION`, `WP_GERAET`) als Zeitraffer des Vortags (24 h in ca. 48 s, Regler, Pause): Ventilator dreht, wenn der
+  Verdichter zu der Uhrzeit lief, Leuchtfarbe nach Betriebsart – Wiedergabe, keine Live-Anzeige. Ohne Dashboard-Skript
+  nur die Tagesauswertung des Vortags (`waermepumpen_auswertung.py`) als index.html. `noindex`, nicht in der
   Sitemap, keine IP-Adressen. Die Dateien nicht von Hand bearbeiten, sie werden jede Nacht überschrieben.
 - „Wärmepumpen live“ (Seitenfuß, `Basis.astro`): Link auf das lokale Dashboard http://192.168.178.95:8080/ – nur im
   Heimnetz erreichbar (Wunsch des Seiteninhabers).
