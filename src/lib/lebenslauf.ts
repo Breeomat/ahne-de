@@ -130,15 +130,20 @@ export const schule: { zeit: string; text: Text }[] = [
   { zeit: '1978 – 1980', text: { de: 'Grundschule Stockhausen', en: 'Primary school Stockhausen' } },
 ];
 
+// Einstufungen aus Marcs Kompetenzbewertung (11/2026): Advanced = sehr gut, Intermediate = gut.
 export const kenntnisse: { bereich: Text; text: Text }[] = [
-  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Infra (umfassende Kenntnisse inkl. Administration), Microsoft Dynamics 365 Finance & Operations (Grundkenntnisse), Crystal Reports', en: 'Infra (in-depth knowledge incl. administration), Microsoft Dynamics 365 Finance & Operations (basic knowledge), Crystal Reports' } },
-  { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'EPLAN, WSCAD, SolidWorks (CAD-Administration)', en: 'EPLAN, WSCAD, SolidWorks (CAD administration)' } },
+  { bereich: { de: 'ERP', en: 'ERP' }, text: { de: 'Infra (umfassende Kenntnisse inkl. Administration), Microsoft Dynamics 365 Finance & Operations (Grundkenntnisse); ERP-Infrastruktur, -Integration und -Migration', en: 'Infra (in-depth knowledge incl. administration), Microsoft Dynamics 365 Finance & Operations (basic knowledge); ERP infrastructure, integration and migration' } },
+  { bereich: { de: 'IT-Infrastruktur', en: 'IT infrastructure' }, text: { de: 'Windows-Client-Administration, Active Directory und Microsoft Entra ID (gut), Benutzerverwaltung, KACE Systems Management (gut), Fernwartung, Migration und Upgrade von Systemen, Abschaltung von Altsystemen', en: 'Windows client administration, Active Directory and Microsoft Entra ID (intermediate), user management, KACE Systems Management (intermediate), remote support, system migrations and upgrades, legacy system decommissioning' } },
+  { bereich: { de: 'Daten und Berichte', en: 'Data and reporting' }, text: { de: 'Crystal Reports (sehr gut), Excel (sehr gut), SQL (gut), Microsoft Access (gut), Datenmigration und -validierung, Datenanalyse', en: 'Crystal Reports (advanced), Excel (advanced), SQL (intermediate), Microsoft Access (intermediate), data migration and validation, data analysis' } },
+  { bereich: { de: 'Projektarbeit', en: 'Project work' }, text: { de: 'Koordination internationaler IT-Projekte, Anforderungsmanagement mit Azure DevOps (gut), Workshops, Solution Validation und User Acceptance Testing', en: 'Coordination of international IT projects, requirements management with Azure DevOps (intermediate), workshops, solution validation and user acceptance testing' } },
   // laut Marc: nur aus Projektsicht, keine Anwenderkenntnisse
   { bereich: { de: 'Projekterfahrung', en: 'Project experience' }, text: { de: 'SAP, iScala, Bluestar PLM – Erfahrung aus der Projektleitung (Integration, Upgrade, Anbindung), nicht als Anwender', en: 'SAP, iScala, Bluestar PLM – experience from project management (integration, upgrade, interfaces), not as an end user' } },
+  { bereich: { de: 'Microsoft 365 und KI', en: 'Microsoft 365 and AI' }, text: { de: 'Teams, Outlook, Word, PowerPoint, SharePoint, OneDrive; Microsoft Copilot und KI-gestützte Auswertungen', en: 'Teams, Outlook, Word, PowerPoint, SharePoint, OneDrive; Microsoft Copilot and AI-assisted analysis' } },
+  { bereich: { de: 'PLM / CAD', en: 'PLM / CAD' }, text: { de: 'EPLAN, WSCAD (sehr gut), SolidWorks (CAD-Administration), Konstruktionsdaten und Stücklisten', en: 'EPLAN, WSCAD (advanced), SolidWorks (CAD administration), engineering data and bills of materials' } },
   { bereich: { de: 'Elektrotechnik', en: 'Electrical engineering' }, text: { de: 'Maschinensteuerungen, speicherprogrammierbare Steuerungen', en: 'Machine controls, programmable logic controllers' } },
   { bereich: { de: 'Sprachen', en: 'Languages' }, text: { de: 'Deutsch (Muttersprache), Englisch C1, fließend (Business English), tägliche Arbeitssprache im internationalen Umfeld', en: 'German (native), English C1, fluent (business English), everyday working language in an international environment' } },
   { bereich: { de: 'Führerschein', en: 'Driving licence' }, text: { de: 'Klassen AM, A1, A, B, BE, C1, C1E, L', en: 'Categories AM, A1, A, B, BE, C1, C1E, L' } },
-  { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Systemadministration, Datenschutz, Dokumentation', en: 'System administration, data protection, documentation' } },
+  { bereich: { de: 'Weitere', en: 'Other' }, text: { de: 'Datenschutz, Dokumentation', en: 'Data protection, documentation' } },
 ];
 
 export const persoenlich: Text = { de: 'Geboren am 26.04.1972 in Fulda, wohnhaft in Herbstein-Stockhausen', en: 'Born 26 April 1972 in Fulda, lives in Herbstein-Stockhausen' };
