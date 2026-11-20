@@ -70,7 +70,8 @@ const strukturiert = {
     <footer class="fuss">
       <div class="huelle">
         <span>© {new Date().getFullYear()} {person.name} · <a href={url('waermepumpe/')}>{sprache === 'de' ? 'Wärmepumpe' : 'Heat pump (German)'}</a>
-          · <a href="http://192.168.178.95:8080/" title={sprache === 'de' ? 'Live-Dashboard, nur im Heimnetz erreichbar' : 'Live dashboard, home network only'}>{sprache === 'de' ? 'Wärmepumpen live' : 'Heat pumps live'}</a></span>
+          · <a href="http://192.168.178.95:8080/" title={sprache === 'de' ? 'Live-Dashboard, nur im Heimnetz erreichbar' : 'Live dashboard, home network only'}>{sprache === 'de' ? 'Wärmepumpen live' : 'Heat pumps live'}</a>
+          · <a href={url('unterlagen/')} rel="nofollow" title={sprache === 'de' ? 'Dokumentenablage, passwortgeschützt' : 'Document archive, password protected'}>{sprache === 'de' ? 'Unterlagen' : 'Documents'}</a></span>
         <nav aria-label={t.rechtliches}>
           <a href={url(seiten.impressum[sprache])}>{t.impressum}</a>
           <a href={url(seiten.datenschutz[sprache])}>{t.datenschutz}</a>
