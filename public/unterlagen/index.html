@@ -68,7 +68,10 @@ select option{background:#14172a}
 .knopf{border:1px solid var(--linie);background:transparent;border-radius:8px;padding:2px 10px;font-size:.8rem;cursor:pointer;color:var(--leise)}
 .knopf:hover{color:var(--text);border-color:rgb(232 194 90 / .5)}
 .knopf.rot:hover{color:#ff9a9a;border-color:rgb(255 120 120 / .6)}
-.aktionen select{width:auto;padding:2px 8px;font-size:.8rem;border-radius:8px}
+.aktionen{min-width:0;max-width:100%}
+.aktionen select{width:auto;min-width:0;max-width:220px;flex:1 1 auto;padding:2px 8px;font-size:.8rem;border-radius:8px;text-overflow:ellipsis}
+.aktionen .knopf{flex:none}
+@media (max-width:600px){.aktionen{width:100%;margin-left:0}.aktionen select{max-width:none}}
 .vorgemerkt{background:rgb(139 157 255 / .18);color:#c3ccff;border-radius:6px;padding:1px 8px;font-weight:600}
 .dok.markiert{opacity:.6}
 .meldung{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1b1f36;border:1px solid var(--linie);border-radius:12px;padding:10px 16px;font-size:.9rem;z-index:5}
