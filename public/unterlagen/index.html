@@ -58,6 +58,14 @@ select option{background:#14172a}
 .hin{background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:1px 8px}
 .leer{color:var(--leise);text-align:center;padding:40px 0}
 .zahl{color:var(--leise);font-size:.9rem;margin-bottom:8px}
+.aktionen{margin-left:auto;display:flex;gap:6px;align-items:center}
+.knopf{border:1px solid var(--linie);background:transparent;border-radius:8px;padding:2px 10px;font-size:.8rem;cursor:pointer;color:var(--leise)}
+.knopf:hover{color:var(--text);border-color:rgb(232 194 90 / .5)}
+.knopf.rot:hover{color:#ff9a9a;border-color:rgb(255 120 120 / .6)}
+.aktionen select{width:auto;padding:2px 8px;font-size:.8rem;border-radius:8px}
+.vorgemerkt{background:rgb(139 157 255 / .18);color:#c3ccff;border-radius:6px;padding:1px 8px;font-weight:600}
+.dok.markiert{opacity:.6}
+.meldung{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#1b1f36;border:1px solid var(--linie);border-radius:12px;padding:10px 16px;font-size:.9rem;z-index:5}
 </style>
 </head>
 <body>
@@ -92,15 +100,85 @@ select option{background:#14172a}
 const EINGEBETTET = /*EINGEBETTET*/null;
 const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let DATEN = null, aktKat = "";
+let DATEN = null, aktKat = "", KEY = null, PAKET = null;
+const OFFEN = {};  // id -> {aktion, kategorie, path, sha}: vorgemerkte Auftraege, die der PC noch nicht ausgefuehrt hat
+const zuB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
 
 async function entschluesseln(paket, pw) {
   const basis = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
-  const key = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(paket.salz), iterations:paket.runden, hash:"SHA-256"},
-    basis, {name:"AES-GCM", length:256}, false, ["decrypt"]);
-  const klar = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(paket.iv)}, key, b64(paket.daten));
+  KEY = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(paket.salz), iterations:paket.runden, hash:"SHA-256"},
+    basis, {name:"AES-GCM", length:256}, false, ["decrypt", "encrypt"]);
+  const klar = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(paket.iv)}, KEY, b64(paket.daten));
   return JSON.parse(new TextDecoder().decode(klar));
 }
+
+// ---- Auftraege (Loeschen / Verschieben) ueber das private Repository; der PC fuehrt sie zur vollen/halben Stunde aus
+async function gh(methode, pfad, body) {
+  const a = DATEN.auftrag;
+  const r = await fetch(`https://api.github.com/repos/${a.repo}/contents/${pfad}`, {method: methode,
+    headers: {"Authorization": `Bearer ${a.token}`, "Accept": "application/vnd.github+json"},
+    body: body ? JSON.stringify(body) : undefined, cache: "no-store"});
+  if (r.status === 404 && methode === "GET") return null;
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  return r.status === 204 ? null : r.json();
+}
+async function verschluesseln(obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({name:"AES-GCM", iv}, KEY, new TextEncoder().encode(JSON.stringify(obj)));
+  return {v:1, iv: zuB64(iv), daten: zuB64(ct)};
+}
+async function offeneLaden() {
+  if (!DATEN.auftrag) return;
+  try {
+    const liste = await gh("GET", "auftraege") || [];
+    for (const e of liste.filter(e => e.name.endsWith(".json"))) {
+      const f = await gh("GET", e.path);
+      const p = JSON.parse(atob(f.content.replace(/\n/g, "")));
+      const a = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(p.iv)}, KEY, b64(p.daten))));
+      OFFEN[a.id] = {...a, path: e.path, sha: e.sha};
+    }
+    zeigen();
+  } catch (e) { meldung("Vorgemerkte Aufträge konnten nicht geladen werden."); }
+}
+async function auftragAnlegen(id, aktion, kategorie) {
+  const auftrag = {id, aktion, kategorie: kategorie || "", am: new Date().toISOString()};
+  const pfad = `auftraege/${Date.now()}-${id}.json`;
+  const inhalt = btoa(JSON.stringify(await verschluesseln(auftrag)));
+  const r = await gh("PUT", pfad, {message: `${aktion} ${id}`, content: inhalt});
+  OFFEN[id] = {...auftrag, path: pfad, sha: r.content.sha};
+  zeigen();
+  meldung(aktion === "loeschen" ? "Zum Löschen vorgemerkt – wird zur nächsten vollen/halben Stunde ausgeführt."
+                                : `Verschieben nach „${kategorie}“ vorgemerkt.`);
+}
+async function auftragZuruecknehmen(id) {
+  const o = OFFEN[id]; if (!o) return;
+  await gh("DELETE", o.path, {message: `zurueck ${id}`, sha: o.sha});
+  delete OFFEN[id];
+  zeigen();
+  meldung("Auftrag zurückgenommen.");
+}
+let meldungTimer;
+function meldung(text) {
+  let m = document.querySelector(".meldung");
+  if (!m) { m = document.createElement("div"); m.className = "meldung"; document.body.append(m); }
+  m.textContent = text; m.hidden = false;
+  clearTimeout(meldungTimer); meldungTimer = setTimeout(() => m.hidden = true, 4000);
+}
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-aktion]"); if (!b) return;
+  const id = b.closest(".dok").dataset.id, dok = DATEN.dokumente.find(x => x.id === id);
+  try {
+    if (b.dataset.aktion === "loeschen") {
+      if (confirm(`„${dok.titel || dok.alt}“ löschen?\n\nDie Datei kommt in den Papierkorb und verschwindet aus der Liste.`))
+        await auftragAnlegen(id, "loeschen");
+    } else if (b.dataset.aktion === "zurueck") await auftragZuruecknehmen(id);
+  } catch (err) { meldung("Fehler: " + err.message); }
+});
+document.addEventListener("change", async e => {
+  const s = e.target.closest("select[data-aktion=verschieben]"); if (!s || !s.value) return;
+  const id = s.closest(".dok").dataset.id;
+  try { await auftragAnlegen(id, "verschieben", s.value); } catch (err) { meldung("Fehler: " + err.message); s.value = ""; }
+});
 
 document.getElementById("login").addEventListener("submit", async e => {
   e.preventDefault();
@@ -137,6 +215,18 @@ function start() {
   try { const s = localStorage.getItem("unterlagen-sort"); if (s) document.getElementById("sort").value = s; } catch (e) {}
   ["suche","jahr","sort"].forEach(id => document.getElementById(id).addEventListener("input", zeigen));
   zeigen();
+  offeneLaden();
+}
+
+function aktionen(x) {
+  if (!DATEN.auftrag) return "";
+  const o = OFFEN[x.id];
+  if (o) return `<span class="aktionen"><span class="vorgemerkt">vorgemerkt: ${o.aktion === "loeschen" ? "Löschen" : "→ " + esc(o.kategorie)}</span>
+    <button class="knopf" data-aktion="zurueck">Rückgängig</button></span>`;
+  const ziele = DATEN.kategorien.filter(k => k !== x.kat);
+  return `<span class="aktionen">
+    <select data-aktion="verschieben" aria-label="Verschieben nach"><option value="">Verschieben …</option>${ziele.map(k => `<option>${esc(k)}</option>`).join("")}</select>
+    <button class="knopf rot" data-aktion="loeschen">Löschen</button></span>`;
 }
 
 function zeigen() {
@@ -154,7 +244,7 @@ function zeigen() {
   const eingang = s => s ? new Date(s).toLocaleString("de-DE", {day:"2-digit", month:"2-digit", year:"numeric", hour:"2-digit", minute:"2-digit"}) : "";
   const frisch = s => s && (Date.now() - new Date(s)) < 7 * 864e5;
   document.getElementById("liste").innerHTML = d.length ? d.map(x => `
-    <article class="dok">
+    <article class="dok${OFFEN[x.id] ? " markiert" : ""}" data-id="${esc(x.id)}">
       <div class="kopf">
         <div>
           <div class="titel"><a href="${esc(x.link)}" target="_blank" rel="noopener noreferrer">${esc(x.titel || x.alt)}</a></div>
@@ -165,7 +255,7 @@ function zeigen() {
       <p class="text">${esc(x.text)}</p>
       <div class="fuss">${frisch(x.ein) ? `<span class="neu">neu</span>` : ""}<span class="kat">${esc(x.kat)}</span>
         ${(x.hinweise||[]).map(h => `<span class="hin">${esc(h)}</span>`).join("")}
-        <span title="Ursprünglicher Dateiname">${esc(x.alt)}</span></div>
+        <span title="Ursprünglicher Dateiname">${esc(x.alt)}</span>${aktionen(x)}</div>
     </article>`).join("") : `<div class="leer">Keine Dokumente gefunden.</div>`;
 }
 </script>
