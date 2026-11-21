@@ -114,8 +114,20 @@ const zuB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
 
 async function entschluesseln(paket, pw) {
   const basis = await crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveKey"]);
-  KEY = await crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(paket.salz), iterations:paket.runden, hash:"SHA-256"},
+  const ableiten = salz => crypto.subtle.deriveKey({name:"PBKDF2", salt:b64(salz), iterations:paket.runden, hash:"SHA-256"},
     basis, {name:"AES-GCM", length:256}, false, ["decrypt", "encrypt"]);
+  if (paket.v >= 2) {
+    // mehrere Passwoerter: jedes "Zugang" enthaelt den eigentlichen Datenschluessel, mit dem jeweiligen Passwort verschluesselt
+    for (const z of paket.zugaenge) {
+      try {
+        const kek = await ableiten(z.salz);
+        const roh = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(z.iv)}, kek, b64(z.schluessel));
+        KEY = await crypto.subtle.importKey("raw", roh, {name:"AES-GCM"}, false, ["decrypt", "encrypt"]);
+        break;
+      } catch (e) { /* naechster Zugang */ }
+    }
+    if (!KEY) throw new Error("Passwort falsch");
+  } else KEY = await ableiten(paket.salz);
   const klar = await crypto.subtle.decrypt({name:"AES-GCM", iv:b64(paket.iv)}, KEY, b64(paket.daten));
   return JSON.parse(new TextDecoder().decode(klar));
 }
@@ -194,6 +206,7 @@ document.getElementById("login").addEventListener("submit", async e => {
   f.textContent = ""; btn.disabled = true; btn.textContent = "Entschlüssele …";
   try {
     const paket = EINGEBETTET || await (await fetch("daten.enc.json", {cache:"no-store"})).json();
+    KEY = null;
     DATEN = await entschluesseln(paket, document.getElementById("pw").value);
     document.getElementById("pw").value = "";
     start();
