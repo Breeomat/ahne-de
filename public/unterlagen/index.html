@@ -167,7 +167,7 @@ async function auftragAnlegen(id, aktion, kategorie) {
   const r = await gh("PUT", pfad, {message: `${aktion} ${id}`, content: inhalt});
   OFFEN[id] = {...auftrag, path: pfad, sha: r.content.sha};
   zeigen();
-  meldung(aktion === "loeschen" ? "Zum Löschen vorgemerkt – wird zur nächsten vollen/halben Stunde ausgeführt."
+  meldung(aktion === "loeschen" ? "Zum Löschen vorgemerkt – wird innerhalb von 15 Minuten ausgeführt."
                                 : `Verschieben nach „${kategorie}“ vorgemerkt.`);
 }
 async function auftragZuruecknehmen(id) {
