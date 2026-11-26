@@ -87,6 +87,11 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   sät/erntet/pflügt werktags 8–18 Uhr bei trockenem Wetter vor Wohn- und Arbeitszimmerfenster (nicht im Winter),
   Schulbus Mo–Fr gegen 7 und 13 Uhr, Bäckerwagen samstags 8–10 Uhr (Glocke bei Ton an), Lichter in den Dorfhäusern
   gehen nach Sonnenuntergang nach und nach an und spät wieder aus (`dorfFelder`, `dorfFahrzeuge`, `hausLicht`).
+  Nachts (`nachtUpdate`, alle 35–65 s): Igel läuft über die Wiese, Minka jagt eine Motte, Herr Hausmann holt sich
+  verschlafen ein Glas Milch und geht zurück ins Bett, bei Vollmond (echte Mondphase) schaut er einmal aus dem
+  Schlafzimmerfenster. Der Mond am Himmel zeigt die echte Phase. Nachts plaudert er nicht.
+  Foto (Knopf): Blitz, „Bitte lächeln!“, speichert das Bild mit Leiste (Name, Adresse, Datum) als PNG auf dem Gerät des
+  Besuchers – nichts wird hochgeladen.
   Besucher kommen und gehen nur über den Weg links neben dem Haus (nicht vor dem Keller entlang).
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
   Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).

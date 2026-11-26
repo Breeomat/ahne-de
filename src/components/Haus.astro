@@ -27,7 +27,7 @@ const texte = de
       titel: 'Haus-Männchen',
       beschreibung: 'Herr Hausmann und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
       hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
-      alarm: 'Feuerwehr-Alarm', raffer: 'Zeitraffer (1 Tag in 2 Min.)', rafferAus: 'Zeitraffer beenden',
+      foto: 'Foto machen', alarm: 'Feuerwehr-Alarm', raffer: 'Zeitraffer (1 Tag in 2 Min.)', rafferAus: 'Zeitraffer beenden',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
       keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
       kalenderTitel: 'Jahreszeit und Feste', gMitmachen: 'Mitmachen', gKatze: 'Katze Minka', gExtras: 'Extras',
@@ -46,7 +46,7 @@ const texte = de
       titel: 'House figure',
       beschreibung: 'Mr Hausmann and his cat Minka in their house in Stockhausen. Watch, click on objects or join in.',
       hinweis: 'Click an object and Mr Hausmann will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
-      alarm: 'Fire brigade alarm', raffer: 'Time-lapse (1 day in 2 min)', rafferAus: 'Stop time-lapse',
+      foto: 'Take a photo', alarm: 'Fire brigade alarm', raffer: 'Time-lapse (1 day in 2 min)', rafferAus: 'Stop time-lapse',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
       keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
       kalenderTitel: 'Season and holidays', gMitmachen: 'Join in', gKatze: 'Minka the cat', gExtras: 'Extras',
@@ -109,6 +109,7 @@ const texte = de
         <div class="haus__aktionen">
           <button type="button" data-aktion="alarm">{texte.alarm}</button>
           <button type="button" data-aktion="raffer" data-an={texte.raffer} data-aus={texte.rafferAus} aria-pressed="false">{texte.raffer}</button>
+ <button type="button" data-aktion="foto">{texte.foto}</button>
           <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
         </div>
       </div>
@@ -426,7 +427,7 @@ const texte = de
       { id: 'kregal', n: tr('Kellerregal', 'Shelf'), f: 0, x: 268, w: 18, h: 19 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
-    const DAUER = { pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -436,6 +437,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
+      milch: (n) => { n.hunger = Math.min(100, n.hunger + 15); }, vollmond: (n) => { n.fun = Math.min(100, n.fun + 10); },
       besuch: (n) => { n.fun = Math.min(100, n.fun + 20); }, pruefen: (n) => { n.fun = Math.min(100, n.fun + 8); }, akkupruefen: (n) => { n.fun = Math.min(100, n.fun + 5); }, kaffee: (n) => { n.fun = Math.min(100, n.fun + 35); n.hunger = Math.min(100, n.hunger + 20); },
     };
     const TUN = DE ? {
@@ -443,13 +445,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -501,6 +503,11 @@ const texte = de
     }
     function katzeUpdate(dt) {
       const k = katze;
+      if (k.jagd) { // nachts: Minka jagt eine Motte (springt hoch, dreht sich)
+        if (welt.t > k.jagd.bis) { k.hoch = k.jagd.basis; k.jagd = null; return; }
+        k.hoch = k.jagd.basis + Math.abs(Math.sin(welt.t * 5)) * 4; k.dir = Math.sin(welt.t * 2.5) > 0 ? 1 : -1; k.tun = 'sitzen'; k.zeit = 3;
+        return;
+      }
       k.hunger = Math.max(0, k.hunger - dt * (k.tun === 'schlafen' ? 0.05 : 0.15));
       k.laeuft = false;
       // Wollknäuel rollt aus
@@ -698,7 +705,8 @@ const texte = de
       log(`${NAME} ${TUN[z.tun]}`);
       if (z.tun === 'schlafen' && welt.licht && schlafenszeit()) { welt.licht = false; log(tr('Herr Hausmann macht das Licht aus.', 'Mr Hausmann turns off the light.')); }
       if (z.tun === 'feuer') welt.feuer = true;
-      if (z.tun === 'naschen') welt.kuehlAuf = 3;
+      if (z.tun === 'naschen' || z.tun === 'milch') welt.kuehlAuf = 3;
+      if (z.tun === 'vollmond') { man.dir = 1; sag(tr('Was für ein schöner Vollmond …', 'What a lovely full moon …'), 5); }
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
       if (z.tun === 'pruefen') sag(wpSatz(z.o.id === 'wp1' ? 'Master' : 'Slave', z.o.id === 'wp1' ? 1 : 2), 6);
@@ -718,6 +726,7 @@ const texte = de
       WIRKUNG[t] && WIRKUNG[t](man.n);
       man.tut = null; man.taetigkeit = null;
       if (t === 'kochen') { welt.teller = true; geheZu(O.tisch, 'essen'); return; }
+      if ((t === 'milch' || t === 'vollmond') && schlafenszeit()) { geheZu(O.bett); return; } // zurück ins Bett
       if (t === 'essen') welt.teller = false;
       if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(tr('Ausgeschlafen!', 'Well rested!')); }
       if (t === 'brief' && welt.brief) {
@@ -737,6 +746,7 @@ const texte = de
       besuchUpdate(dt);
       pvUpdate(dt);
       dorfUpdate();
+      nachtUpdate(dt);
       if (ton.an()) {
         if (man.laeuft && Math.floor(man.schritt) !== man.tonSchritt) { man.tonSchritt = Math.floor(man.schritt); ton.schritt(); }
         if (welt.feuer && Math.random() < dt * 5) ton.knistern();
@@ -916,6 +926,7 @@ const texte = de
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
       if (t === 'lesen' || t === 'zeitung' || t === 'lesebrief') R(hx, hy - 3, 4, 5, t === 'lesen' ? C.blau : C.weiss);
       if (t === 'naschen') R(hx, hy - 1, 3, 3, C.orange);
+      if (t === 'milch') { R(hx, hy - 2.5, 2, 3, '#F4F4F4'); R(hx, hy - 2.5, 2, 0.5, '#C8D8E8'); }
       if (t === 'basteln' && Math.floor(welt.t * 6) % 2) P(hx + 2 * dir, hy - 2, C.gelb);
     }
 
@@ -1183,7 +1194,7 @@ const texte = de
       const tz = tageszeit();
       if (tz === 'nacht' && !['bedeckt', 'regen', 'niesel', 'gewitter', 'nebel', 'schnee'].includes(WETTER.art)) {
         for (let i = 0; i < 60; i++) { const sx = (i * 73) % 320, sy = (i * 37) % 150; if (Math.floor(welt.t * 2 + i) % 7) P(sx, sy, C.weiss); }
-        R(286, 14, 6, 6, '#E8E8C8'); R(285, 15, 1, 4, '#E8E8C8'); R(292, 15, 1, 4, '#E8E8C8');
+        mondAmHimmel(289, 17, 3.5);
       }
       if (tz === 'tag' && ['klar', 'wolkig'].includes(WETTER.art)) { R(18, 12, 8, 8, C.gelb); R(17, 13, 10, 6, C.gelb); R(19, 11, 6, 10, C.gelb); }
       if (['wolkig', 'bedeckt'].includes(WETTER.art) || NASS || SCHNEE) {
@@ -1848,6 +1859,7 @@ const texte = de
       zeichneKatze();
       zeichneBesuch();
       energieFluss();
+      nachtZeichnen();
       zeichneBrief();
       zeichneMann();
       zeichneHerzen();
@@ -1861,6 +1873,7 @@ const texte = de
         if (welt.feuer && nacht) { b.fillStyle = 'rgba(255,140,40,0.18)'; b.fillRect(240, 160, 50, 48); }
       }
       if (welt.blitz > 0) { b.fillStyle = 'rgba(255,255,255,0.18)'; b.fillRect(0, 0, W, H); }
+      if (welt.fotoBlitz > 0) { b.fillStyle = `rgba(255,255,255,${Math.min(0.85, welt.fotoBlitz * 2)})`; b.fillRect(0, 0, W, H); }
       if (welt.feuerwehr && welt.t - welt.feuerwehr.t0 > 0 && welt.t - welt.feuerwehr.t0 < 28 && Math.floor(welt.t * 6) % 2) { b.fillStyle = 'rgba(60,100,255,0.08)'; b.fillRect(0, 0, W, H); } // Blaulicht-Schein
     }
 
@@ -1989,6 +2002,8 @@ const texte = de
       } else if (a === 'ton') {
         const an = ton.umschalten(); k.textContent = an ? k.dataset.aus : k.dataset.an; k.setAttribute('aria-pressed', String(an)); k.classList.toggle('an', an);
         log(an ? tr('Ton an.', 'Sound on.') : tr('Ton aus.', 'Sound off.'));
+      } else if (a === 'foto') {
+        fotoMachen();
       } else if (a === 'alarm') {
         alarmStarten();
       } else if (a === 'raffer') {
@@ -2016,7 +2031,7 @@ const texte = de
     function plaudern() {
       if (welt.t < naechstesPlaudern) return;
       naechstesPlaudern = welt.t + 25 + Math.random() * 20;
-      if (man.alarm || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'kaffee'].includes(besuch.phase))) return;
+      if (man.alarm || schlafenszeit() || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'kaffee'].includes(besuch.phase))) return;
       const t = neu(plauderSatz); if (t) sag(t);
     }
 
@@ -2083,6 +2098,7 @@ const texte = de
         miau: () => { piep(620, 0.45, 'sawtooth', 0.05, 0, 900); piep(900, 0.25, 'sawtooth', 0.04, 0.2, 520); },
         fauch: () => rauschen(0.5, 0.15, 3000, 0, 'highpass'),
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
+        klick: () => { rauschen(0.05, 0.3, 4000, 0, 'highpass'); rauschen(0.08, 0.2, 2000, 0.08, 'highpass'); },
         baeckerglocke: () => { for (let i = 0; i < 6; i++) piep(i % 2 ? 1320 : 1760, 0.18, 'triangle', 0.08, i * 0.2); },
         piepser: () => { for (let i = 0; i < 6; i++) piep(2100, 0.12, 'square', 0.08, i * 0.22); },
         martinshorn: () => { for (let i = 0; i < 4; i++) { piep(440, 0.62, 'triangle', 0.09, i * 1.3); piep(587, 0.62, 'triangle', 0.09, i * 1.3 + 0.65); } },
@@ -2294,12 +2310,89 @@ const texte = de
       RAFFER.letzte = h;
     }
 
+    // ---------------------------------------------------------------- Nachts: Igel, Motte, Glas Milch, Vollmond
+    welt.naechsteNacht = 20 + Math.random() * 20; welt.igel = null; welt.motte = null; welt.vollmondGesehen = false;
+    let mondCache = null, mondZeit = -1;
+    function mondJetzt() { if (!mondCache || spielzeit - mondZeit > 60) { mondCache = mondDaten(Date.now()); mondZeit = spielzeit; } return mondCache; }
+    function mondAmHimmel(cx, cy, rr) { // Mond mit echter Phase (Pixel für Pixel in halben Pixeln)
+      const m = mondJetzt();
+      for (let y = -rr; y <= rr; y += 0.5) for (let x = -rr; x <= rr; x += 0.5) {
+        const nx = x / rr, ny = y / rr; if (nx * nx + ny * ny > 1) continue;
+        const grenze = Math.cos(m.elong * GRAD) * Math.sqrt(1 - ny * ny), hell = m.zunehmend ? nx > grenze : -nx > grenze;
+        Q(cx + x, cy + y, hell ? '#F0ECCC' : '#1E1E34');
+      }
+    }
+    function nachtUpdate(dt) {
+      const nacht = schlafenszeit() || tageszeit() === 'nacht';
+      if (welt.igel) { welt.igel.x += welt.igel.dir * 6 * dt; if (welt.igel.x < -10 || welt.igel.x > 330) welt.igel = null; }
+      if (welt.motte && welt.t > welt.motte.bis) welt.motte = null;
+      if (!nacht || man.alarm || besuch || welt.t < welt.naechsteNacht) return;
+      welt.naechsteNacht = welt.t + 35 + Math.random() * 30;
+      const schlaeft = man.taetigkeit === 'schlafen', m = mondJetzt(), vollmond = m.elong > 160;
+      const moeglich = ['igel', 'motte'];
+      if (schlaeft && schlafenszeit()) moeglich.push('milch');
+      if (schlaeft && schlafenszeit() && vollmond && !welt.vollmondGesehen) moeglich.push('vollmond', 'vollmond');
+      const was = zufall(moeglich);
+      if (was === 'igel') {
+        const links = Math.random() < 0.5;
+        welt.igel = { x: links ? -8 : 328, dir: links ? 1 : -1 };
+        log(tr('Im Garten raschelt ein Igel.', 'A hedgehog rustles through the garden.'));
+      } else if (was === 'motte') {
+        welt.motte = { bis: welt.t + 9 };
+        if (!katze.klettern && !katze.sprung) { katze.jagd = { bis: welt.t + 8, basis: katze.hoch }; katze.ziel = null; }
+        log(tr(`${KNAME} jagt eine Motte.`, `${KNAME} chases a moth.`));
+      } else if (was === 'milch') {
+        man.tut = null; man.taetigkeit = null; geheZu(O.kuehl, 'milch');
+      } else if (was === 'vollmond') {
+        welt.vollmondGesehen = true; man.tut = null; man.taetigkeit = null;
+        man.ziel = { f: 2, x: 105, o: null, tun: 'vollmond' };
+      }
+    }
+    function nachtZeichnen() {
+      if (welt.igel) { // kleiner Igel mit Stacheln, läuft über die Wiese neben dem Haus
+        const ix = welt.igel.x, iy = 214, d = welt.igel.dir, schritt = Math.floor(welt.t * 6) % 2;
+        R(ix - 3, iy - 3, 6, 2.5, '#6A4A2A'); for (let i = -3; i < 3; i += 1) Q(ix + i, iy - 3.5 - (i % 2 ? 0.5 : 0), '#4A3018');
+        R(ix + 2.5 * d, iy - 2, 1.5, 1.5, '#C8A070'); Q(ix + 3.5 * d, iy - 1.5, C.schwarz); Q(ix + 2.5 * d, iy - 2, C.schwarz);
+        Q(ix - 2 + schritt * 0.5, iy - 0.5, '#4A3018'); Q(ix + 1 - schritt * 0.5, iy - 0.5, '#4A3018');
+      }
+      if (welt.motte) { // Motte flattert um Minka herum
+        const kx = katze.x + Math.sin(welt.t * 3.1) * 7, ky = katze.y - katze.hoch - 9 + Math.sin(welt.t * 4.7) * 3, f = Math.floor(welt.t * 12) % 2;
+        Q(kx, ky, '#D8D0C0'); Q(kx - 0.5, ky - (f ? 0.5 : 0), '#B8B0A0'); Q(kx + 0.5, ky - (f ? 0.5 : 0), '#B8B0A0');
+      }
+    }
+
+    // ---------------------------------------------------------------- Foto machen (Bild wird nur auf dem eigenen Gerät gespeichert)
+    function fotoMachen() {
+      if (man.taetigkeit !== 'schlafen' && !man.alarm) sag(tr('Bitte lächeln!', 'Say cheese!'), 2);
+      setTimeout(() => {
+        const bild = document.createElement('canvas'), leiste = 56;
+        bild.width = cv.width; bild.height = cv.height + leiste;
+        const c2 = bild.getContext('2d');
+        c2.drawImage(cv, 0, 0);
+        c2.fillStyle = '#352879'; c2.fillRect(0, cv.height, bild.width, leiste);
+        c2.fillStyle = '#E8E8FF'; c2.font = '600 26px system-ui, sans-serif'; c2.textBaseline = 'middle';
+        const datum = new Date().toLocaleDateString(DE ? 'de-DE' : 'en-GB');
+        c2.fillText(`${tr('Herr Hausmann', 'Mr Hausmann')} · www.ahne.de/haus · ${datum} ${uhrText()}`, 20, cv.height + leiste / 2);
+        bild.toBlob((blob) => {
+          if (!blob) return;
+          const a = document.createElement('a'), jetzt = new Date();
+          a.href = URL.createObjectURL(blob);
+          a.download = `herr-hausmann-${jetzt.toISOString().slice(0, 10)}-${String(jetzt.getHours()).padStart(2, '0')}${String(jetzt.getMinutes()).padStart(2, '0')}.png`;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        }, 'image/png');
+        welt.fotoBlitz = 0.4; ton.an() && ton.klick && ton.klick();
+        log(tr('Klick! Das Foto ist auf deinem Gerät gespeichert.', 'Click! The photo has been saved on your device.'));
+      }, 600);
+    }
+
     // ---------------------------------------------------------------- Schleife
     let last = performance.now();
     function frame(now) {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       spielzeit += dt;
+      if (welt.fotoBlitz > 0) welt.fotoBlitz -= dt;
       rafferTick();
       // im Zeitraffer laufen Herr Hausmann, Minka und Besuch fünfmal so schnell (Sprechblasen bleiben lesbar)
       if (!reduziert) { update(dt * (RAFFER.an ? 5 : 1)); plaudern(); }
