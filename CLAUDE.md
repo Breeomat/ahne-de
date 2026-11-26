@@ -71,6 +71,12 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Besuch (tagsüber alle paar Minuten, `besuchUpdate`): Postbote, Nachbar mit Hund (14–17:30 Uhr oft zum Kaffee am
   Esstisch, Hund liegt unter dem Tisch, Minka flüchtet ins Obergeschoss), Schornsteinfeger (danach auf dem Dach), bei
   Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Keller (Geschoss 0, Treppe vom Erdgeschoss): zwei Wärmepumpen, Warmwasserspeicher, Stromspeicher, Wechselrichter,
+  Waschmaschine, Regal. Die Wärmepumpen zeigen den echten Zustand von gestern zur selben Uhrzeit: die Seite lädt
+  `/waermepumpe/` und liest dort die eingebetteten Messwerte (`var DD=…,ENDE=`); Ventilator dreht bei Verdichter an,
+  Lampe nach Betriebsart. Herr Hausmann schaut nach (Sprechblase mit Vorlauf/Außentemperatur von gestern).
+  PV-Anlage auf der rechten Dachschräge (bei Schnee weiß) und Stromspeicher: SIMULIERT aus Sonnenstand und Wetter
+  (`PV`, 9,9 kWp, 10 kWh, Akku im Spiel 30× schneller), Anzeige oben „PV … kW · Akku … %“, Energiefluss am Kabel.
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
   Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).
   Extras: Computer → auf dem Bildschirm läuft eine eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen;

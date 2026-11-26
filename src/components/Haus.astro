@@ -14,6 +14,7 @@ import Basis from '../layouts/Basis.astro';
 import type { Sprache } from '../lib/sprache';
 import wetter from '../data/wetter.json';
 import termineDaten from '../data/termine.json';
+import { url } from '../lib/site';
 
 interface Props {
   sprache: Sprache;
@@ -27,6 +28,7 @@ const texte = de
       beschreibung: 'Herr Hausmann und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
       hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
+      keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
       kalenderTitel: 'Jahreszeit und Feste:',
       feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
       besuchTitel: 'Besuch einladen:', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
@@ -44,6 +46,7 @@ const texte = de
       beschreibung: 'Mr Hausmann and his cat Minka in their house in Stockhausen. Watch, click on objects or join in.',
       hinweis: 'Click an object and Mr Hausmann will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
+      keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
       kalenderTitel: 'Season and holidays:',
       feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
       besuchTitel: 'Invite a visitor:', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
@@ -64,6 +67,7 @@ const texte = de
     <div class="haus__hud">
       <span id="haus-uhr"></span>
       <span id="haus-wetter"></span>
+      <span id="haus-energie"></span>
       <span>{texte.hunger} <i class="haus__bar"><b id="haus-b-hunger"></b></i></span>
       <span>{texte.energie} <i class="haus__bar"><b id="haus-b-energy"></b></i></span>
       <span>{texte.spass} <i class="haus__bar"><b id="haus-b-fun"></b></i></span>
@@ -128,7 +132,7 @@ const texte = de
       <canvas id="haus-sterne-canvas" width="480" height="480"></canvas>
       <p id="haus-sterne-text"></p>
     </section>
-    <p class="haus__hinweis"><small>{texte.hinweis}</small></p>
+    <p class="haus__hinweis"><small>{texte.hinweis} {texte.keller} <a href={url('waermepumpe/')}>{texte.kellerLink}</a></small></p>
     <div id="haus-tagebuch" class="haus__tagebuch" aria-live="polite"></div>
   </section>
   <script define:vars={{ sprache, wetter }}>
@@ -263,9 +267,84 @@ const texte = de
       }[JAHRESZEIT];
     }
 
+    // ---------------------------------------------------------------- Wärmepumpen: echte Daten vom Vortag (Seite /waermepumpe/)
+    // Die Seite enthält die Messwerte als JSON („var DD=…,ENDE=“). Gezeigt wird der Zustand gestern zur selben Uhrzeit.
+    const WPDATEN = { ende: null, pumpen: null, fehler: false };
+    const wpJetzt = { Master: null, Slave: null };
+    fetch('/waermepumpe/').then((a) => a.text()).then((t) => {
+      const i = t.indexOf('var DD='), j = t.indexOf(',ENDE=DD.ende', i);
+      if (i < 0 || j < 0) throw new Error('keine Daten');
+      const dd = JSON.parse(t.slice(i + 7, j)), api = dd.api[Object.keys(dd.api)[0]];
+      WPDATEN.ende = dd.ende; WPDATEN.pumpen = api.pumpen;
+      wpAktualisieren();
+    }).catch(() => { WPDATEN.fehler = true; });
+    function wpPunkt(name) {
+      if (!WPDATEN.pumpen || !WPDATEN.pumpen[name]) return null;
+      const d = new Date(), sek = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds(), t = WPDATEN.ende - 86400 + sek;
+      const v = WPDATEN.pumpen[name].verlauf;
+      let lo = 0, hi = v.length - 1, best = -1;
+      while (lo <= hi) { const m = (lo + hi) >> 1; if (v[m].t <= t) { best = m; lo = m + 1; } else hi = m - 1; }
+      return best >= 0 && t - v[best].t <= 1800 ? v[best] : null;
+    }
+    function wpAktualisieren() { wpJetzt.Master = wpPunkt('Master'); wpJetzt.Slave = wpPunkt('Slave'); }
+    setInterval(wpAktualisieren, 15000);
+    function wpArt(p) {
+      const m = String(p.modus || '').toLowerCase();
+      if (/abtau|defrost/.test(m)) return 'Abtauen';
+      if (/warm|hot|dhw/.test(m)) return 'Warmwasser';
+      if (/heiz|heat/.test(m)) return 'Heizen';
+      return p.vd ? 'läuft' : 'aus';
+    }
+    const ARTNAME = { Heizen: tr('Heizen', 'heating'), Warmwasser: tr('Warmwasser', 'hot water'), Abtauen: tr('Abtauen', 'defrosting'), 'läuft': tr('in Betrieb', 'running'), aus: tr('aus', 'off') };
+    const zahl = (v) => (v == null ? '–' : v.toLocaleString(DE ? 'de-DE' : 'en-GB', { maximumFractionDigits: 1 }));
+    function wpSatz(name, nr) {
+      if (WPDATEN.fehler) return tr('Die Daten der Wärmepumpen konnte ich gerade nicht laden.', "I couldn't load the heat pump data just now.");
+      if (!WPDATEN.pumpen) return tr('Moment, die Daten laden noch …', 'Hold on, the data is still loading …');
+      const p = wpJetzt[name];
+      if (!p) return tr(`Für Pumpe ${nr} gibt es zu dieser Uhrzeit von gestern keine Messwerte.`, `There are no readings for pump ${nr} from this time yesterday.`);
+      const art = wpArt(p);
+      if (!p.vd) return tr(`Pumpe ${nr} war gestern um diese Zeit aus. Vorlauf ${zahl(p.vl)} °C.`, `Pump ${nr} was off at this time yesterday. Flow ${zahl(p.vl)} °C.`);
+      return tr(`Pumpe ${nr} lief gestern um diese Zeit: ${ARTNAME[art]}, Vorlauf ${zahl(p.vl)} °C, draußen ${zahl(p.aussen)} °C.`, `Pump ${nr} was running at this time yesterday: ${ARTNAME[art]}, flow ${zahl(p.vl)} °C, outside ${zahl(p.aussen)} °C.`);
+    }
+
+    // ---------------------------------------------------------------- PV-Anlage und Stromspeicher (simuliert aus Sonnenstand und Wetter)
+    const PV = { kwp: 9.9, kwh: 10, kw: 0, verbrauch: 0.4, netto: 0, soc: 50 };
+    (() => { const h = stunde(); PV.soc = h < 6 ? 50 - 20 * h / 6 : h < 9 ? 30 : h < 17 ? 30 + 60 * (h - 9) / 8 : 90 - 40 * (h - 17) / 7; })();
+    function sonnenhoehe() {
+      const d = new Date(), j = (Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) - Date.UTC(d.getFullYear(), 0, 0)) / 864e5;
+      const dekl = 23.44 * Math.sin((2 * Math.PI * (284 + j)) / 365) * Math.PI / 180, br = 50.56 * Math.PI / 180;
+      const mittag = 12 - 9.44 / 15 - d.getTimezoneOffset() / 60, ha = (stunde() - mittag) * 15 * Math.PI / 180;
+      return Math.asin(Math.sin(br) * Math.sin(dekl) + Math.cos(br) * Math.cos(dekl) * Math.cos(ha));
+    }
+    const WOLKEN = { klar: 1, wolkig: 0.7, bedeckt: 0.3, nebel: 0.25, niesel: 0.2, regen: 0.15, gewitter: 0.1, schnee: 0.05 };
+    function pvUpdate(dt) {
+      const el = sonnenhoehe();
+      PV.kw = Math.max(0, Math.sin(el)) * PV.kwp * 0.85 * (WOLKEN[WETTER.art] ?? 0.6);
+      const geraete = { fernsehen: 0.15, kochen: 2, arbeiten: 0.2, musik: 0.1, duschen: 0.1 }[man.taetigkeit] || 0;
+      PV.verbrauch = 0.35 + geraete + (wpJetzt.Master && wpJetzt.Master.vd ? 1.6 : 0) + (wpJetzt.Slave && wpJetzt.Slave.vd ? 1.6 : 0);
+      PV.netto = PV.kw - PV.verbrauch;
+      // im Spiel 30-mal schneller als in echt, damit man den Akku laden und entladen sieht
+      PV.soc = Math.max(5, Math.min(100, PV.soc + PV.netto / PV.kwh * 100 * dt * 30 / 3600));
+    }
+    function akkuSatz() {
+      const soc = Math.round(PV.soc);
+      if (PV.kw < 0.05) return tr(`Der Akku ist zu ${soc} % voll. Die PV ruht gerade.`, `The battery is ${soc} % full. The solar panels are resting.`);
+      return tr(`Akku ${soc} %, die PV liefert gerade ${zahl(PV.kw)} kW.`, `Battery ${soc} %, the panels are making ${zahl(PV.kw)} kW right now.`);
+    }
+    // Energiefluss: Punkte laufen vom Dach am Kabel in den Keller
+    function energieFluss() {
+      if (PV.kw < 0.05) return;
+      const weg = [[293, 84], [293, 224.5], [232, 224.5]], laenge = 140 + 61;
+      for (let i = 0; i < 8; i++) {
+        let d = ((welt.t * (8 + PV.kw * 3) + i * laenge / 8) % laenge);
+        const [x, y] = d < 140 ? [weg[0][0], weg[0][1] + d] : [293 - (d - 140), 224.5];
+        R(x - 0.25, y - 0.25, 1, 1, '#FFE060');
+      }
+    }
+
     // ---------------------------------------------------------------- Haus: Geschosse, Räume, Fenster
-    const FOOT = { 1: 208, 2: 148, 3: 88 };
-    const TOP = { 1: 152, 2: 92, 3: 24 };
+    const FOOT = { 0: 239, 1: 208, 2: 148, 3: 88 };
+    const TOP = { 0: 218, 1: 152, 2: 92, 3: 24 };
     const ROOF = (x) => 26 + Math.abs(x - 160) * 0.492; // Innenkante der Dachschräge
     const ROOMS = [
       { id: 'dach', n: tr('Dachboden', 'Attic'), f: 3, x1: 34, x2: 286, wand: '#7A6044', boden: 'holz' },
@@ -277,6 +356,7 @@ const texte = de
       { id: 'kueche', n: tr('Küche', 'Kitchen'), f: 1, x1: 62, x2: 148, wand: '#A89A50', boden: 'fliese' },
       { id: 'treppe1', n: '', f: 1, x1: 148, x2: 172, wand: '#6A5440', boden: 'holz' },
       { id: 'wohn', n: tr('Wohnzimmer', 'Living room'), f: 1, x1: 172, x2: 290, wand: '#6E3E58', boden: 'holz' },
+      { id: 'keller', n: tr('Keller', 'Cellar'), f: 0, x1: 30, x2: 290, wand: '#7A7A7E', boden: 'beton' },
     ];
     const WAENDE = [{ f: 2, x: 148 }, { f: 2, x: 172 }, { f: 2, x: 222 }, { f: 1, x: 62 }, { f: 1, x: 148 }, { f: 1, x: 172 }];
     const FENSTER = [
@@ -285,7 +365,7 @@ const texte = de
     ];
     const RUNDFENSTER = { x: 160, y: 46, r: 7 };
     // Treppen: unten → oben (x0,y0 → x1,y1)
-    const TREPPEN = { 1: { x0: 151, x1: 169, von: 1, nach: 2 }, 2: { x0: 169, x1: 151, von: 2, nach: 3 } };
+    const TREPPEN = { 0: { x0: 169, x1: 151, von: 0, nach: 1 }, 1: { x0: 151, x1: 169, von: 1, nach: 2 }, 2: { x0: 169, x1: 151, von: 2, nach: 3 } };
 
     // ---------------------------------------------------------------- Gegenstände
     // act: Tätigkeit beim Benutzen, sx: Standplatz des Männchens, pose: steh|sitz|lieg
@@ -311,9 +391,16 @@ const texte = de
       { id: 'sofa', n: tr('Sofa', 'Sofa'), f: 1, x: 206, w: 32, h: 12, act: 'ausruhen', sx: 222, pose: 'sitz', links: true },
       { id: 'lampe', n: tr('Stehlampe', 'Floor lamp'), f: 1, x: 242, w: 7, h: 30 },
       { id: 'kamin', n: tr('Kamin', 'Fireplace'), f: 1, x: 256, w: 28, h: 22, act: 'feuer', sx: 252 },
+      { id: 'wp1', n: tr('Wärmepumpe 1', 'Heat pump 1'), f: 0, x: 34, w: 15, h: 18, act: 'pruefen', sx: 42 },
+      { id: 'wp2', n: tr('Wärmepumpe 2', 'Heat pump 2'), f: 0, x: 53, w: 15, h: 18, act: 'pruefen', sx: 61 },
+      { id: 'wwspeicher', n: tr('Warmwasserspeicher', 'Hot water tank'), f: 0, x: 74, w: 11, h: 19 },
+      { id: 'akku', n: tr('Stromspeicher', 'Battery'), f: 0, x: 196, w: 20, h: 16, act: 'akkupruefen', sx: 206 },
+      { id: 'wr', n: tr('Wechselrichter', 'Inverter'), f: 0, x: 222, w: 11, h: 19 },
+      { id: 'waschm', n: tr('Waschmaschine', 'Washing machine'), f: 0, x: 248, w: 14, h: 14 },
+      { id: 'kregal', n: tr('Kellerregal', 'Shelf'), f: 0, x: 268, w: 18, h: 19 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
-    const DAUER = { besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -323,20 +410,20 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
-      besuch: (n) => { n.fun = Math.min(100, n.fun + 20); }, kaffee: (n) => { n.fun = Math.min(100, n.fun + 35); n.hunger = Math.min(100, n.hunger + 20); },
+      besuch: (n) => { n.fun = Math.min(100, n.fun + 20); }, pruefen: (n) => { n.fun = Math.min(100, n.fun + 8); }, akkupruefen: (n) => { n.fun = Math.min(100, n.fun + 5); }, kaffee: (n) => { n.fun = Math.min(100, n.fun + 35); n.hunger = Math.min(100, n.hunger + 20); },
     };
     const TUN = DE ? {
       schlafen: 'legt sich schlafen.', musik: 'legt eine Platte auf.', basteln: 'bastelt an einer kleinen Drohne.', sterne: 'schaut durchs Fernrohr.',
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -547,7 +634,7 @@ const texte = de
       }
       if (welt.teller) return O.tisch;
       if (!welt.feuer && WETTER.temp !== null && WETTER.temp < 6 && Math.random() < 0.2) return O.kamin;
-      if (Math.random() < 0.35) return zufall([O.schreibtisch, O.werkbank, O.regal, O.tisch, O.stereo]);
+      if (Math.random() < 0.35) return zufall([O.schreibtisch, O.werkbank, O.regal, O.tisch, O.stereo, O.wp1, O.wp2, O.akku]);
       return null;
     }
     function geheZu(o, tun = o.act) {
@@ -586,6 +673,8 @@ const texte = de
       if (z.tun === 'naschen') welt.kuehlAuf = 3;
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
+      if (z.tun === 'pruefen') sag(wpSatz(z.o.id === 'wp1' ? 'Master' : 'Slave', z.o.id === 'wp1' ? 1 : 2), 6);
+      if (z.tun === 'akkupruefen') sag(akkuSatz(), 5);
       if (z.tun === 'zeitung') { const t = neu(() => zufall(DE ? ['Mal sehen, was es Neues gibt.', 'Die Zeitung lese ich am liebsten in Ruhe.', 'Interessant, interessant …'] : ["Let's see what's new.", 'I like reading the paper in peace.', 'Interesting, interesting …'])); if (t) sag(t); }
       if (z.tun === 'fuettern') { welt.napf = 10; sag(tr(`Hier, ${KNAME}, dein Futter!`, `Here you go, ${KNAME}!`)); }
       if (z.tun === 'streicheln') {
@@ -618,6 +707,7 @@ const texte = de
       welt.t += dt;
       katzeUpdate(dt);
       besuchUpdate(dt);
+      pvUpdate(dt);
       if (ton.an()) {
         if (man.laeuft && Math.floor(man.schritt) !== man.tonSchritt) { man.tonSchritt = Math.floor(man.schritt); ton.schritt(); }
         if (welt.feuer && Math.random() < dt * 5) ton.knistern();
@@ -826,8 +916,8 @@ const texte = de
     function besuchStarten(art) {
       const h = stunde(), kaffee = art === 'kaffee' || (art === 'nachbar' && h >= 14 && h < 17.5 && Math.random() < 0.6);
       if (art === 'kaffee') art = 'nachbar';
-      besuch = { art, x: 335, y: 230, dir: -1, schritt: 0, laeuft: false, wege: [[12, 230], [17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, schritt2: 0, kaffee, hund: art === 'nachbar' ? { x: 350, y: 230, dir: -1 } : null, drin: false };
-      if (art === 'schippen') { besuch.art = 'nachbar'; besuch.schippen = true; besuch.wege = [[-20, 230]]; besuch.phase = 'schippt'; besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: welt.t + 4 }; log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.')); }
+      besuch = { art, x: 335, y: 214, dir: -1, schritt: 0, laeuft: false, wege: [[17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, schritt2: 0, kaffee, hund: art === 'nachbar' ? { x: 350, y: 214, dir: -1 } : null, drin: false };
+      if (art === 'schippen') { besuch.art = 'nachbar'; besuch.schippen = true; besuch.wege = [[-20, 214]]; besuch.phase = 'schippt'; besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: welt.t + 4 }; log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.')); }
       else log(tr(`${GAST[besuch.art].name} kommt.`, `${GAST[besuch.art].name} is coming.`));
     }
     function besuchLaufe(dt, v = 24) {
@@ -885,7 +975,7 @@ const texte = de
           return;
         case 'wartet':
           bs.warte = (bs.warte || 0) + dt;
-          if (bs.warte > 30 && man.taetigkeit !== 'besuch') { bs.blase = { text: tr('Hm, niemand da? Dann komme ich ein andermal.', "Hm, nobody home? I'll come back another time."), bis: welt.t + 4 }; bs.phase = 'geht'; bs.wege = [[12, 230], [-20, 230]]; return; }
+          if (bs.warte > 30 && man.taetigkeit !== 'besuch') { bs.blase = { text: tr('Hm, niemand da? Dann komme ich ein andermal.', "Hm, nobody home? I'll come back another time."), bis: welt.t + 4 }; bs.phase = 'geht'; bs.wege = [[-20, 214]]; return; }
           if (!man.tut && (!man.ziel || man.ziel.tun !== 'besuch') && man.taetigkeit !== 'schlafen') man.ziel = { f: 1, x: 36, o: null, tun: 'besuch' };
           if (man.taetigkeit === 'besuch') { bs.phase = 'tuer'; bs.gespraech = gespraechTuer(bs.art, bs.kaffee); bs.zeit = 0.6; welt.tuerAuf = 999; }
           return;
@@ -896,7 +986,7 @@ const texte = de
             man.tut = null; man.taetigkeit = null; man.ziel = { f: 1, x: O.tisch.sx, o: O.tisch, tun: 'kaffee' };
             log(tr('Der Nachbar kommt auf einen Kaffee herein.', 'The neighbour comes in for a coffee.'));
             if (bs.hund && katze.f === 1 && !katze.sprung) { kSag(tr('Fauch!', 'Hiss!')); katze.tun = null; katze.ziel = null; katzeRunter(); katze.ziel = { f: 2, x: 66, h: 9, tun: 'schlafen' }; }
-          } else { bs.phase = 'geht'; bs.wege = [[12, 230], [-20, 230]]; welt.tuerAuf = 0.6; man.zeit = 0; if (bs.art === 'feger') bs.wege = [[-20, 214]]; }
+          } else { bs.phase = 'geht'; bs.wege = [[-20, 214]]; welt.tuerAuf = 0.6; man.zeit = 0; if (bs.art === 'feger') bs.wege = [[-20, 214]]; }
           return;
         case 'rein':
           if (besuchLaufe(dt, 22)) { bs.phase = 'kaffee'; bs.dir = -1; welt.tuerAuf = 0.3; bs.gespraech = gespraechKaffee(); bs.zeit = 2.5; }
@@ -907,7 +997,7 @@ const texte = de
             return;
           }
           if (!sprich()) return;
-          bs.phase = 'raus'; bs.wege = [[34, 208], [24, 208], [17, 214], [12, 230], [-20, 230]]; man.zeit = 0;
+          bs.phase = 'raus'; bs.wege = [[34, 208], [24, 208], [17, 214], [-20, 214]]; man.zeit = 0;
           welt.tuerAuf = 4;
           return;
         case 'raus':
@@ -953,7 +1043,7 @@ const texte = de
         const s = Math.floor(welt.t * 3) % 2;
         R(x - 6 * bs.dir, fy - 9, 0.5, 9, HOLZ[0]); R(x - 8 * bs.dir - 1, fy - 1, 4, 1, METALL[0]);
         if (s) for (let i = 0; i < 4; i++) Q(x - 8 * bs.dir + i * 1.2 * -bs.dir, fy - 3 - i, C.weiss);
-        for (let xx = x + 6; xx < 330; xx += 3) Q(xx, 231, '#C8D0DA');
+        for (let xx = x + 6; xx < 330; xx += 3) Q(xx, 215, '#C8D0DA');
       }
     }
 
@@ -1034,6 +1124,7 @@ const texte = de
     function boden(r) {
       const y = FOOT[r.f] - 2, x1 = r.x1, x2 = r.x2;
       if (r.boden === 'fliese') for (let x = x1; x < x2; x += 3) { R(x, y, 3, 2, ((x - x1) / 3) % 2 ? '#D8D8D0' : '#8A8A90'); R(x, y, 3, 0.5, 'rgba(255,255,255,0.35)'); }
+      else if (r.boden === 'beton') { R(x1, y, x2 - x1, 2, '#5A5A5E'); for (let x = x1 + 2; x < x2; x += 9) Q(x, y + 1, '#4A4A4E'); }
       else if (r.boden === 'teppich') { R(x1, y, x2 - x1, 2, C.braun); R(x1 + 6, y - 0.5, x2 - x1 - 12, 2.5, '#6A3A8A'); for (let x = x1 + 7; x < x2 - 7; x += 2) Q(x, y + 0.5, '#9A6ABA'); }
       else { R(x1, y, x2 - x1, 2, C.braun); R(x1, y, x2 - x1, 0.5, '#8A5A34'); for (let x = x1 + 3; x < x2; x += 7) R(x, y + 0.5, 0.5, 1.5, C.dunkelbraun); }
       if (r.f !== 3) R(x1, y - 1.5, x2 - x1, 1.5, 'rgba(0,0,0,0.25)'); // Sockelleiste
@@ -1042,7 +1133,10 @@ const texte = de
       const top = r.f === 3 ? 24 : TOP[r.f], foot = FOOT[r.f];
       if (r.f === 3) poly([[34, 88], [160, 26], [286, 88]], r.wand);
       else R(r.x1, top, r.x2 - r.x1, foot - top, r.wand);
-      if (r.id === 'bad' || r.id === 'kueche') {
+      if (r.f === 0) {
+        // Kellerwand aus Betonsteinen
+        for (let y = top; y < foot - 2; y += 4) { R(r.x1, y, r.x2 - r.x1, 0.5, 'rgba(0,0,0,0.25)'); for (let x = r.x1 + ((y - top) / 4 % 2) * 4; x < r.x2; x += 8) R(x, y + 0.5, 0.5, 3.5, 'rgba(0,0,0,0.25)'); }
+      } else if (r.id === 'bad' || r.id === 'kueche') {
         // Fliesenspiegel unten, darüber helle Wand
         const fy = r.id === 'bad' ? top + 24 : top + 26;
         for (let y = fy; y < foot - 2; y += 3) for (let x = r.x1; x < r.x2; x += 3) { R(x, y, 3, 0.5, 'rgba(255,255,255,0.22)'); R(x, y, 0.5, 3, 'rgba(255,255,255,0.22)'); }
@@ -1084,6 +1178,21 @@ const texte = de
       poly([[x - 4, top + len + 3], [x - 2, top + len], [x + 2, top + len], [x + 4, top + len + 3]], '#D8C890');
       R(x - 4, top + len + 3, 8, 0.5, '#A89860');
     }
+    // PV-Module auf der rechten Dachschräge, im Schnitt von der Seite gesehen (schmale Platten mit Halterung)
+    function pvAnlage() {
+      const winkel = Math.atan(0.527);
+      for (let x = 168; x < 298; x += 11.2) {
+        if (x + 10 > 219 && x < 243) continue; // Schornstein
+        const y = 12 + (x - 160) * 0.527;
+        b.save(); b.translate(x, y); b.rotate(winkel);
+        b.fillStyle = '#7A7A82'; b.fillRect(2, -1.3, 0.6, 1.3); b.fillRect(8, -1.3, 0.6, 1.3); // Halterung
+        b.fillStyle = '#B8B8C0'; b.fillRect(0, -3.4, 10.6, 2.2);
+        b.fillStyle = SCHNEE ? '#F4F6FA' : '#1E2E5A'; b.fillRect(0.3, -3.1, 10, 1.6);
+        if (!SCHNEE) { b.fillStyle = '#4A6AC8'; b.fillRect(0.3, -3.1, 10, 0.4); b.fillStyle = 'rgba(255,255,255,0.35)'; b.fillRect(1, -3.1, 2.5, 0.4); }
+        else { b.fillStyle = '#FFFFFF'; b.fillRect(0, -4.2, 10.6, 1); }
+        b.restore();
+      }
+    }
     function statisch() {
       // Mauer: Ziegel mit Fugen und Licht/Schatten
       R(24, 88, 272, 128, C.ziegel);
@@ -1117,7 +1226,12 @@ const texte = de
         R(30, y1 - 1, 260, 1, C.dunkelbraun);
         for (let x = 34; x < 290; x += 12) if (x < 146 || x > 174) R(x, y0 + 1, 2, y1 - y0 - 2, '#7A4A2A');
       });
-      K(30, 208, 260, 6, C.dunkelgrau, C.grau, '#2A2A2E'); R(24, 214, 272, 2, '#3A3A3E'); // Fundament
+      // Kellerdecke (mit Treppenöffnung) und Kelleraußenwände aus Beton
+      K(30, 208, 118, 10, C.dunkelgrau, C.grau, '#2A2A2E'); K(172, 208, 118, 10, C.dunkelgrau, C.grau, '#2A2A2E');
+      K(24, 208, 6, 32, '#8A8A8E', '#A8A8AC', '#5A5A5E'); K(290, 208, 6, 32, '#8A8A8E', '#A8A8AC', '#5A5A5E');
+      // Kabel der PV-Anlage an der Außenwand hinunter in den Keller
+      R(292.5, 84, 1, 140, '#2A2A2E'); R(286, 224, 7.5, 1, '#2A2A2E'); R(232, 224, 54, 1, '#2A2A2E');
+      pvAnlage();
       // Innenwände mit Türöffnung und Türrahmen
       WAENDE.forEach((w) => {
         K(w.x - 1.5, TOP[w.f], 3, FOOT[w.f] - TOP[w.f] - 26, C.dunkelbraun, '#6A4428', '#2E1A0C');
@@ -1150,7 +1264,10 @@ const texte = de
       // Teppich im Wohnzimmer
       R(200, 206, 44, 1.5, '#A05A3A'); for (let x = 201; x < 243; x += 2) Q(x, 206.5, '#E8C070');
       // Hängelampen
-      haengelampe(90, 92, 6); haengelampe(250, 92, 6); haengelampe(100, 152, 4); haengelampe(232, 152, 4); haengelampe(46, 152, 5);
+      haengelampe(90, 92, 6); haengelampe(250, 92, 6); haengelampe(100, 152, 4); haengelampe(232, 152, 4); haengelampe(46, 152, 5); haengelampe(110, 218, 1); haengelampe(236, 218, 1);
+      // Rohre im Keller von den Wärmepumpen zur Decke
+      [[38, '#C84A3A'], [44, '#3A6AC8'], [57, '#C84A3A'], [63, '#3A6AC8'], [78, '#C84A3A'], [81, '#3A6AC8']].forEach(([x, c]) => R(x, 218, 1, 3, c));
+      R(38, 218, 44, 1, '#C84A3A'); R(44, 219.5, 38, 1, '#3A6AC8');
       R(159.75, 30, 0.5, 18, C.dunkelgrau); R(158.5, 48, 2.5, 3, '#E8E0B0'); // Glühbirne Dachboden
       // Spinnennetz in der Dachecke
       b.strokeStyle = 'rgba(230,230,230,0.5)'; b.lineWidth = 0.5;
@@ -1176,7 +1293,7 @@ const texte = de
     }
     function lampenLicht() {
       if (!welt.licht || tageszeit() === 'tag') return;
-      [[90, 101], [250, 101], [100, 159], [232, 159], [46, 160], [160, 51]].forEach(([x, y]) => {
+      [[90, 101], [250, 101], [100, 159], [232, 159], [46, 160], [160, 51], [110, 225], [236, 225]].forEach(([x, y]) => {
         const grad = b.createRadialGradient(x, y, 1, x, y, 26);
         grad.addColorStop(0, 'rgba(255,230,150,0.32)'); grad.addColorStop(1, 'rgba(255,230,150,0)');
         b.fillStyle = grad; b.fillRect(x - 26, y - 6, 52, 40);
@@ -1217,9 +1334,12 @@ const texte = de
     }
     function garten() {
       const nachts = tageszeit() === 'nacht';
-      R(0, 214, 320, 26, SCHNEE ? '#E8ECF0' : nachts ? '#142414' : '#4E8A3A');
+      R(0, 214, 320, 4, SCHNEE ? '#E8ECF0' : nachts ? '#142414' : '#4E8A3A');
+      R(0, 218, 320, 22, nachts ? '#2A1C10' : '#6A4A2A');
+      for (let y = 219; y < 240; y += 2.5) for (let x = (y * 7) % 11; x < 320; x += 13) R(x, y, 1.5, 1, nachts ? '#1E140A' : '#55381E');
+      for (let i = 0; i < 18; i++) K((i * 37) % 320, 222 + (i * 11) % 16, 2.5, 1.5, '#8A8A8A', '#A8A8A8', '#5A5A5A');
       for (let x = 0; x < 320; x += 1.5) { const hh = 1 + ((x * 13) % 4) * 0.5; R(x, 214 - hh + 1, 0.5, hh, SCHNEE ? '#FFFFFF' : nachts ? '#1C301C' : ((x * 7) % 3 ? '#6EAA4A' : '#3E7A2E')); }
-      for (let y = 218; y < 240; y += 3) for (let x = (y * 5) % 7; x < 320; x += 9) Q(x, y, SCHNEE ? '#C8D0DA' : nachts ? '#0E1C0E' : '#3E7A2E');
+
       // Weg aus Platten
       for (let x = 0; x < 20; x += 4) K(x, 216, 3.5, 2.5, C.hellgrau, C.weiss, C.grau);
       // Blumen (nicht bei Schnee)
@@ -1461,6 +1581,58 @@ const texte = de
           if (leuchtet) { b.fillStyle = 'rgba(255,240,150,0.13)'; b.beginPath(); b.moveTo(x, y + 6); b.lineTo(x - 14, fuss); b.lineTo(x + 21, fuss); b.lineTo(x + 7, y + 6); b.fill(); }
           break;
         }
+        case 'wp1': case 'wp2': {
+          const z = wpJetzt[o.id === 'wp1' ? 'Master' : 'Slave'], laeuft = !!(z && z.vd), art = z ? wpArt(z) : null;
+          K(x, y, w, h, '#E8E8E4', '#FFFFFF', '#A8A8A4'); R(x, y + h - 2, w, 2, '#9A9A96');
+          K(x + 2, y + 2, w - 4, 3, '#2A3A2A', '#3A4A3A', '#1A2A1A'); // Anzeige
+          if (laeuft) for (let i = 0; i < 4; i++) Q(x + 3 + i * 2.3, y + 3 + (Math.floor(welt.t * 4 + i) % 2) * 0.5, '#7AF07A');
+          // runder Ventilator vorne, dreht sich, wenn die Pumpe lief
+          const mx = x + w / 2, my = y + 10.5;
+          b.fillStyle = '#4A4A50'; b.beginPath(); b.arc(mx, my, 4.5, 0, Math.PI * 2); b.fill();
+          b.fillStyle = '#C8C8D0'; const dreh = laeuft ? welt.t * 9 : 0.3;
+          for (let k = 0; k < 3; k++) { const wk = dreh + k * 2.094; b.beginPath(); b.ellipse(mx + Math.cos(wk) * 2, my + Math.sin(wk) * 2, 2.2, 1, wk, 0, Math.PI * 2); b.fill(); }
+          b.fillStyle = '#E8E8E4'; b.beginPath(); b.arc(mx, my, 0.8, 0, Math.PI * 2); b.fill();
+          R(x + w - 3, y + 15.5, 1.5, 1, laeuft ? { Heizen: C.orange, Warmwasser: '#4AA8FF', Abtauen: '#C8F0FF' }[art] || C.gruen : '#5A5A5A');
+          R(x + 1.5, y + 15.5, 3, 1, '#8A8A86'); Q(x + 2, y + 15.5, C.schwarz);
+          break;
+        }
+        case 'wwspeicher': {
+          K(x, y + 1, w, h - 1, '#E8E8F0', '#FFFFFF', '#A8A8B8'); b.fillStyle = '#E8E8F0'; b.beginPath(); b.ellipse(x + w / 2, y + 1, w / 2, 1.5, 0, Math.PI, 0); b.fill();
+          const ww = wpJetzt.Slave && wpJetzt.Slave.ww, anteil = ww ? Math.max(0.1, Math.min(1, (ww - 20) / 45)) : 0.5;
+          R(x + w - 2.5, y + 4, 1, 12, '#5A5A6A'); R(x + w - 2.5, y + 16 - 12 * anteil, 1, 12 * anteil, '#E84A3A');
+          R(x + 2, y + 6, 4, 2, '#A8A8B8');
+          break;
+        }
+        case 'akku': {
+          const laden = PV.netto > 0.05, entladen = PV.netto < -0.05;
+          for (let m = 0; m < 3; m++) {
+            const mxx = x + m * 7;
+            K(mxx, y, 6, h, '#E8E8EC', '#FFFFFF', '#A8A8AC'); R(mxx + 1.5, y + 2, 3, h - 6, '#3A3A40');
+            const fuell = Math.max(0, Math.min(1, (PV.soc - m * 33.3) / 33.3));
+            R(mxx + 1.5, y + 2 + (h - 6) * (1 - fuell), 3, (h - 6) * fuell, PV.soc < 20 ? '#E8603A' : '#5AD86A');
+            Q(mxx + 2.75, y + h - 2.5, laden ? (Math.floor(welt.t * 2) % 2 ? '#5AD86A' : '#2A5A2A') : entladen ? C.orange : '#5A5A5A');
+          }
+          break;
+        }
+        case 'wr': {
+          const wy = FOOT[o.f] - 19;
+          K(x, wy, w, 12, '#D8D8DC', '#F0F0F4', '#9A9AA0'); K(x + 1.5, wy + 2, w - 3, 4, '#1A2A3A', '#2A3A4A', '#0A1A2A');
+          const balken = Math.round(Math.min(1, PV.kw / PV.kwp) * 7);
+          for (let i = 0; i < balken; i++) R(x + 2 + i, wy + 5.5 - i * 0.4, 0.5, 0.5 + i * 0.4, C.gelb);
+          Q(x + w - 2, wy + 9, PV.kw > 0.05 ? C.gruen : '#5A5A5A');
+          R(x + 3, wy + 12, 1, 7, '#2A2A2E'); R(x + 7, wy + 12, 1, 7, '#2A2A2E');
+          break;
+        }
+        case 'waschm':
+          K(x, y, w, h, '#F0F0F0', '#FFFFFF', '#A8A8A8'); R(x, y + 2.5, w, 0.5, '#B8B8B8'); Q(x + 2, y + 1, C.gruen); R(x + w - 5, y + 1, 3, 0.5, C.grau);
+          b.fillStyle = '#5A6A7A'; b.beginPath(); b.arc(x + w / 2, y + 8.5, 4, 0, Math.PI * 2); b.fill();
+          b.fillStyle = '#9AC8E8'; b.beginPath(); b.arc(x + w / 2, y + 8.5, 3, 0, Math.PI * 2); b.fill();
+          break;
+        case 'kregal':
+          for (let j = 0; j < 3; j++) R(x, y + 5 + j * 6.5, w, 1, HOLZ[0]);
+          R(x, y, 1, h, HOLZ[2]); R(x + w - 1, y, 1, h, HOLZ[2]);
+          [[2, 0, '#C84A3A'], [5, 0, '#E8C040'], [9, 0, '#7ACA6A'], [13, 0, '#C84A3A'], [2, 1, '#8A5A30'], [7, 1, '#8A5A30'], [11, 1, '#E8E0D0'], [3, 2, '#5A7AC8'], [9, 2, '#8A8A8A']].forEach(([dx, j, c]) => { R(x + dx, y + 1.5 + j * 6.5, 2.5, 3.5, c); Q(x + dx + 0.5, y + 2 + j * 6.5, 'rgba(255,255,255,0.5)'); });
+          break;
         case 'kamin':
           R(x, y, w, h, '#8A8A8A');
           for (let j = 0; j < h; j += 2.5) { R(x, y + j, w, 0.5, '#6A6A6A'); for (let i = ((j / 2.5) % 2) * 2.5; i < w; i += 5) { R(x + i, y + j + 0.5, 0.5, 2, '#6A6A6A'); R(x + i + 0.5, y + j + 0.5, 4, 0.5, '#A8A8A8'); } }
@@ -1500,7 +1672,7 @@ const texte = de
         const vx = tisch.x + 10;
         b.strokeStyle = '#6A4A2A'; b.lineWidth = 0.5; [[-4, -10], [0, -12], [4, -9], [-2, -8]].forEach(([dx, dy]) => { b.beginPath(); b.moveTo(vx + 0.75, ty - 3); b.lineTo(vx + dx, ty - 3 + dy); b.stroke(); });
         [[-3, -9], [1, -11], [3.5, -7], [-1.5, -6]].forEach(([dx, dy], i) => R(vx + dx, ty - 3 + dy, 1, 1.5, [C.rot, C.gelb, C.cyan, C.lila][i]));
-        [[40, 220], [88, 226], [150, 218], [212, 228], [258, 221], [12, 230]].forEach(([x, y], i) => { R(x, y, 2, 2.5, [C.rot, C.gelb, C.cyan, C.lila, '#FF8AC8', C.orange][i]); Q(x + 0.5, y + 1, C.weiss); });
+        [[40, 212], [88, 212.5], [150, 212], [212, 212.5], [258, 212], [8, 212.5]].forEach(([x, y], i) => { R(x, y, 2, 2.5, [C.rot, C.gelb, C.cyan, C.lila, '#FF8AC8', C.orange][i]); Q(x + 0.5, y + 1, C.weiss); });
       }
       // Weihnachtsbaum im Wohnzimmer (statt der Stehlampe) mit Geschenken
       if (FEST.weihnachten) {
@@ -1541,6 +1713,7 @@ const texte = de
       festDeko();
       zeichneKatze();
       zeichneBesuch();
+      energieFluss();
       zeichneBrief();
       zeichneMann();
       zeichneHerzen();
@@ -1597,7 +1770,7 @@ const texte = de
       g.font = `bold ${lp}px ui-monospace, Menlo, Consolas, monospace`;
       ROOMS.forEach((r) => {
         if (!r.n) return;
-        const x = (r.f === 3 ? 196 : r.x1 + 3) * S, y = (r.f === 3 ? 60 : TOP[r.f] + 2) * S;
+        const x = (r.f === 3 ? 196 : r.id === 'keller' ? 96 : r.x1 + 3) * S, y = (r.f === 3 ? 60 : TOP[r.f] + 2) * S;
         g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillText(r.n.toUpperCase(), x + 1, y + 1);
         g.fillStyle = 'rgba(240,240,220,0.85)'; g.fillText(r.n.toUpperCase(), x, y);
       });
@@ -1627,6 +1800,7 @@ const texte = de
     function hud() {
       document.getElementById('haus-uhr').textContent = uhrText();
       hudWetter.textContent = `${WETTERNAME[WETTER.art]}${WETTER.temp !== null ? `, ${WETTER.temp} °C` : ''}`;
+      document.getElementById('haus-energie').textContent = `PV ${zahl(PV.kw)} kW · ${tr('Akku', 'Battery')} ${Math.round(PV.soc)} %`;
       for (const [k, id] of [['hunger', 'haus-b-hunger'], ['energy', 'haus-b-energy'], ['fun', 'haus-b-fun'], ['hygiene', 'haus-b-hygiene']]) {
         document.getElementById(id).style.width = Math.round(man.n[k]) + '%';
       }
