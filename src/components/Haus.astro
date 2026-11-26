@@ -57,7 +57,7 @@ const texte = de
       <span>{texte.spass} <i class="haus__bar"><b id="haus-b-fun"></b></i></span>
       <span>{texte.hygiene} <i class="haus__bar"><b id="haus-b-hygiene"></b></i></span>
     </div>
-    <canvas id="haus-canvas" width="960" height="720" aria-label={texte.beschreibung} role="img"></canvas>
+    <canvas id="haus-canvas" width="1280" height="960" aria-label={texte.beschreibung} role="img"></canvas>
     <div class="haus__aktionen">
       <button type="button" data-aktion="essen">{texte.essen}</button>
       <button type="button" data-aktion="licht">{texte.licht}</button>
@@ -96,10 +96,12 @@ const texte = de
     const tr = (d, e) => (DE ? d : e);
     const cv = document.getElementById('haus-canvas');
     const g = cv.getContext('2d');
-    const W = 320, H = 240, S = 3;
+    // Spielkoordinaten 320×240, gezeichnet wird doppelt so fein (640×480, halbe Pixel), angezeigt 4×
+    const W = 320, H = 240, F = 2, S = 4;
     const buf = document.createElement('canvas');
-    buf.width = W; buf.height = H;
-    const b = buf.getContext('2d');
+    buf.width = W * F; buf.height = H * F;
+    let b = buf.getContext('2d');
+    b.setTransform(F, 0, 0, F, 0, 0);
     const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
     const params = new URLSearchParams(location.search);
 
@@ -112,8 +114,12 @@ const texte = de
     };
 
     // ---------------------------------------------------------------- Zeichen-Helfer (ganze Pixel)
-    const R = (x, y, w, h, c) => { b.fillStyle = c; b.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h)); };
+    const halb = (v) => Math.round(v * F) / F;
+    const R = (x, y, w, h, c) => { b.fillStyle = c; b.fillRect(halb(x), halb(y), Math.max(1 / F, halb(w)), Math.max(1 / F, halb(h))); };
     const P = (x, y, c) => R(x, y, 1, 1, c);
+    const Q = (x, y, c) => R(x, y, 0.5, 0.5, c); // halber Pixel
+    // Kasten mit Licht oben/links und Schatten unten/rechts (wirkt plastisch)
+    const K = (x, y, w, h, c, hell, dunkel) => { R(x, y, w, h, c); R(x, y, w, 0.5, hell); R(x, y, 0.5, h, hell); R(x, y + h - 0.5, w, 0.5, dunkel); R(x + w - 0.5, y, 0.5, h, dunkel); };
     const poly = (pts, c) => { b.fillStyle = c; b.beginPath(); pts.forEach(([x, y], i) => (i ? b.lineTo(x, y) : b.moveTo(x, y))); b.closePath(); b.fill(); };
 
     // ---------------------------------------------------------------- Uhrzeit, Sonnenstand, Wetter
@@ -448,23 +454,55 @@ const texte = de
     }
 
     // ---------------------------------------------------------------- Figur (Sprites, Blick nach rechts)
-    const FARBE = { h: C.haar, s: C.haut, e: C.schwarz, m: '#A04030', t: C.hemd, p: C.hose, o: C.schuh, w: C.weiss };
-    const KOPF = ['...hhhh...', '..hhhhhh..', '..hhsssss.', '..hsssess.', '..sssssss.', '...sssms..', '....ss....'];
-    const KOPF_HINTEN = ['...hhhh...', '..hhhhhh..', '..hhhhhh..', '..hhhhhh..', '..hhhhhh..', '...hhhh...', '....ss....'];
-    const RUMPF = ['..tttttt..', '.tttttttt.', '.tttttttt.', '.tttttttt.', '.s.tttt.s.'];
-    const RUMPF_HOCH = ['s.tttttt.s', 'stttttttts', '.tttttttt.', '.tttttttt.', '...tttt...'];
-    const BEINE = ['...pppp...', '...pppp...', '...pp.pp..', '...pp.pp..', '...pp.pp..', '...pp.pp..', '..ooo.ooo.'];
-    const BEINE_SCHRITT = ['...pppp...', '..pppppp..', '..pp..pp..', '.pp....pp.', '.pp....pp.', '.pp.....pp', 'ooo....ooo'];
-    const BEINE_SITZ = ['...pppppp.', '...ppppppp', '.......pp.', '.......pp.', '.......ooo'];
+    // Figur in doppelter Auflösung (20 × 38 halbe Pixel), Zeichen → Farbe
+    const FARBE = {
+      h: C.haar, H: '#8A5A2C', s: C.haut, d: '#C08A62', w: C.weiss, e: C.schwarz, m: '#B04A3A',
+      t: C.hemd, T: '#E87058', c: '#8E3426', b: '#3A2A1A', p: C.hose, P: '#4A5A9A', q: '#1E2648', o: C.schuh, O: '#120A06',
+    };
+    const KOPF = [
+      '.......hhhhhh.......', '.....hhhhhhhhhh.....', '....hhHHhhhhhhhh....', '....hHhhhhhhhhhhh...',
+      '....hhhhhhssssshh...', '....hhhhssssssssh...', '....hhhsssssswess...', '....hhssssssswess...',
+      '.....dssssssssssss..', '.....ddsssssssss....', '......ssssssmmss....', '.......sssssss......', '........dsss........',
+    ];
+    const KOPF_HINTEN = [
+      '.......hhhhhh.......', '.....hhhhhhhhhh.....', '....hhHHhhhhhhhh....', '....hHhhhhhhhhhhh...',
+      '....hhhhhhhhhhhhh...', '....hhhhhhhhhhhhh...', '....hhhhhhhhhhhhh...', '....hhhhhhhhhhhhh...',
+      '.....hhhhhhhhhhh....', '.....shhhhhhhhhs....', '......ssssssssss....', '.......sssssss......', '........dsss........',
+    ];
+    const RUMPF = [
+      '......tttttttt......', '....ttttwwwttttt....', '...tTTtttttttttct...', '...tTttttttttttct...',
+      '...tTtttttttttttc...', '...tttttttttttttc...', '...ttttttttttttcc...', '...sstttttttttcss...', '...ss.bbbbbbbb.ss...',
+    ];
+    const RUMPF_HOCH = [
+      '..ss..tttttttt..ss..', '..sst.ttwwwttt.tss..', '...tTttttttttttct...', '...tTttttttttttct...',
+      '....Ttttttttttttc...', '....tttttttttttc....', '....ttttttttttcc....', '.....tttttttttc.....', '......bbbbbbbb......',
+    ];
+    const BEINE = [
+      '......pppppppp......', '......ppppPppq......', '......pppq.pppq.....', '......pppq.pppq.....',
+      '......pppq.pppq.....', '......pppq.pppq.....', '......pppq.pppq.....', '......pppq.pppq.....',
+      '......pppq.pppq.....', '......pppq.pppq.....', '......pppq.pppq.....', '......pppq.pppq.....',
+      '......pppq.pppq.....', '......pppq.pppq.....', '.....ooooo.ooooo....', '.....OOOOO.OOOOO....',
+    ];
+    const BEINE_SCHRITT = [
+      '......pppppppp......', '.....ppppppppppp....', '.....pppp...pppq....', '....pppq.....pppq...',
+      '....pppq.....pppq...', '...pppq.......pppq..', '...pppq.......pppq..', '...pppq.......pppq..',
+      '..pppq.........pppq.', '..pppq.........pppq.', '..pppq.........pppq.', '..pppq.........pppq.',
+      '..pppq.........pppq.', '..pppq.........pppq.', '.ooooo.........ooooo', '.OOOOO.........OOOOO',
+    ];
+    const BEINE_SITZ = [
+      '......pppppppppppp..', '......ppppppppppppq.', '......qqqqqqqqqpppq.', '...............pppq.',
+      '...............pppq.', '...............pppq.', '...............pppq.', '...............pppq.',
+      '..............oooooo', '..............OOOOOO',
+    ];
     function sprite(zeilen, cx, fuss, dir) {
-      const h = zeilen.length, x0 = Math.round(cx) - 5, y0 = Math.round(fuss) - h;
-      zeilen.forEach((z, j) => { for (let i = 0; i < 10; i++) { const c = z[dir < 0 ? 9 - i : i]; if (c !== '.') P(x0 + i, y0 + j, FARBE[c]); } });
+      const x0 = halb(cx) - 5, y0 = halb(fuss) - zeilen.length / 2;
+      zeilen.forEach((z, j) => { for (let i = 0; i < 20; i++) { const c = z[dir < 0 ? 19 - i : i]; if (c !== '.') Q(x0 + i / 2, y0 + j / 2, FARBE[c]); } });
     }
     function zeichneMann() {
       const t = man.taetigkeit, fy = man.y, x = man.x;
       if (t === 'schlafen') return; // im Bett gezeichnet
       if (t === 'duschen') { // nur Kopf über dem Vorhang
-        sprite(KOPF, x, fy - 14, man.dir);
+        sprite(KOPF, x, fy - 13, man.dir);
         return;
       }
       if (man.klettern) { sprite([...KOPF_HINTEN, ...RUMPF, ...(Math.floor(man.schritt) % 2 ? BEINE_SCHRITT : BEINE)], x, fy, man.dir); return; }
@@ -543,205 +581,432 @@ const texte = de
     // ---------------------------------------------------------------- Haus zeichnen
     function boden(r) {
       const y = FOOT[r.f] - 2, x1 = r.x1, x2 = r.x2;
-      if (r.boden === 'fliese') for (let x = x1; x < x2; x += 4) R(x, y, 4, 2, ((x - x1) / 4) % 2 ? '#D8D8D0' : '#8A8A90');
-      else if (r.boden === 'teppich') R(x1 + 4, y, x2 - x1 - 8, 2, C.lila);
-      else { R(x1, y, x2 - x1, 2, C.braun); for (let x = x1 + 3; x < x2; x += 11) P(x, y, C.dunkelbraun); }
+      if (r.boden === 'fliese') for (let x = x1; x < x2; x += 3) { R(x, y, 3, 2, ((x - x1) / 3) % 2 ? '#D8D8D0' : '#8A8A90'); R(x, y, 3, 0.5, 'rgba(255,255,255,0.35)'); }
+      else if (r.boden === 'teppich') { R(x1, y, x2 - x1, 2, C.braun); R(x1 + 6, y - 0.5, x2 - x1 - 12, 2.5, '#6A3A8A'); for (let x = x1 + 7; x < x2 - 7; x += 2) Q(x, y + 0.5, '#9A6ABA'); }
+      else { R(x1, y, x2 - x1, 2, C.braun); R(x1, y, x2 - x1, 0.5, '#8A5A34'); for (let x = x1 + 3; x < x2; x += 7) R(x, y + 0.5, 0.5, 1.5, C.dunkelbraun); }
+      if (r.f !== 3) R(x1, y - 1.5, x2 - x1, 1.5, 'rgba(0,0,0,0.25)'); // Sockelleiste
     }
     function tapete(r) {
       const top = r.f === 3 ? 24 : TOP[r.f], foot = FOOT[r.f];
       if (r.f === 3) poly([[34, 88], [160, 26], [286, 88]], r.wand);
       else R(r.x1, top, r.x2 - r.x1, foot - top, r.wand);
-      // dezentes Muster
-      if (r.id === 'bad' || r.id === 'kueche') { for (let y = top + 18; y < foot; y += 5) for (let x = r.x1; x < r.x2; x += 5) P(x, y, 'rgba(255,255,255,0.18)'); }
-      else if (r.f !== 3) { for (let y = top + 3; y < foot - 4; y += 6) for (let x = r.x1 + ((y / 6) % 2) * 3; x < r.x2; x += 6) P(x, y, 'rgba(0,0,0,0.18)'); }
-      else { for (let x = 50; x < 280; x += 9) R(x, ROOF(x) + 1, 1, 88 - ROOF(x) - 1, 'rgba(0,0,0,0.2)'); }
+      if (r.id === 'bad' || r.id === 'kueche') {
+        // Fliesenspiegel unten, darüber helle Wand
+        const fy = r.id === 'bad' ? top + 24 : top + 26;
+        for (let y = fy; y < foot - 2; y += 3) for (let x = r.x1; x < r.x2; x += 3) { R(x, y, 3, 0.5, 'rgba(255,255,255,0.22)'); R(x, y, 0.5, 3, 'rgba(255,255,255,0.22)'); }
+        R(r.x1, fy - 0.5, r.x2 - r.x1, 1, 'rgba(0,0,0,0.2)');
+      } else if (r.f !== 3) {
+        // Tapete mit feinem Rautenmuster und Lichtverlauf zur Decke
+        for (let y = top + 2; y < foot - 4; y += 4) for (let x = r.x1 + ((y / 4) % 2) * 2; x < r.x2; x += 4) Q(x, y, 'rgba(0,0,0,0.22)');
+        for (let y = top + 4; y < foot - 4; y += 4) for (let x = r.x1 + 1 + ((y / 4) % 2) * 2; x < r.x2; x += 4) Q(x, y, 'rgba(255,255,255,0.08)');
+        R(r.x1, top, r.x2 - r.x1, 3, 'rgba(0,0,0,0.18)');
+      } else {
+        for (let x = 40; x < 282; x += 6) { R(x, ROOF(x) + 0.5, 0.5, 88 - ROOF(x) - 0.5, 'rgba(0,0,0,0.25)'); R(x + 0.5, ROOF(x) + 0.5, 0.5, 88 - ROOF(x) - 0.5, 'rgba(255,255,255,0.06)'); }
+        for (let x = 46; x < 282; x += 23) Q(x + 2, 60 + (x % 7), 'rgba(0,0,0,0.5)'); // Astlöcher
+        // Dachbalken
+        b.strokeStyle = '#4A3420'; b.lineWidth = 2; b.beginPath(); b.moveTo(100, 57); b.lineTo(220, 57); b.stroke();
+        b.lineWidth = 1.5; b.beginPath(); b.moveTo(160, 28); b.lineTo(160, 57); b.stroke();
+      }
       boden(r);
     }
+    // Statische Teile (Mauer, Dach, Räume, Einrichtung an den Wänden) einmal vorzeichnen
+    function vorzeichnen(fn) {
+      const c = document.createElement('canvas'); c.width = W * F; c.height = H * F;
+      const alt = b; b = c.getContext('2d'); b.setTransform(F, 0, 0, F, 0, 0); fn(); b = alt;
+      return c;
+    }
+    function bild2(x, y, w, h, motiv) {
+      K(x - 1, y - 1, w + 2, h + 2, '#8A6A3A', '#C8A060', '#4A3418');
+      R(x, y, w, h, motiv === 'see' ? '#8AB8E0' : motiv === 'blumen' ? '#E8E0C8' : '#C8D8E8');
+      if (motiv === 'see') { R(x, y + h * 0.55, w, h * 0.45, '#3A6AA8'); poly([[x, y + h * 0.6], [x + w * 0.35, y + h * 0.2], [x + w * 0.7, y + h * 0.6]], '#4E7A44'); Q(x + w - 2, y + 1.5, C.gelb); }
+      else if (motiv === 'blumen') { R(x + w / 2 - 1, y + h * 0.55, 2, h * 0.4, '#8A6A9A'); for (let i = 0; i < 3; i++) { R(x + w / 2 - 0.25 + (i - 1) * 2, y + h * 0.25, 0.5, h * 0.35, C.dunkelgruen); R(x + w / 2 - 1 + (i - 1) * 2, y + h * 0.15, 2, 2, [C.rot, C.gelb, C.lila][i]); } }
+      else { R(x, y + h * 0.6, w, h * 0.4, '#5A8A4A'); R(x + 2, y + h * 0.35, 3, h * 0.3, '#E8E0D0'); poly([[x + 1.5, y + h * 0.35], [x + 3.5, y + h * 0.15], [x + 5.5, y + h * 0.35]], C.rot); }
+    }
+    function pflanze(x, fuss, gross) {
+      K(x - 2, fuss - 4, 4, 4, '#B0603A', '#D08050', '#7A3A20');
+      const blaetter = [[-3, -7], [-2, -10], [0, -12], [2, -9], [3, -6], [-1, -8], [1, -6]];
+      blaetter.slice(0, gross ? 7 : 5).forEach(([dx, dy], i) => { R(x + dx - 1, fuss - 4 + dy * (gross ? 1.2 : 0.8), 2, 3, i % 2 ? C.gruen : C.dunkelgruen); Q(x + dx - 0.5, fuss - 4 + dy * (gross ? 1.2 : 0.8), '#7ACA6A'); });
+    }
+    function haengelampe(x, top, len) {
+      R(x - 0.25, top, 0.5, len, C.dunkelgrau);
+      poly([[x - 4, top + len + 3], [x - 2, top + len], [x + 2, top + len], [x + 4, top + len + 3]], '#D8C890');
+      R(x - 4, top + len + 3, 8, 0.5, '#A89860');
+    }
+    function statisch() {
+      // Mauer: Ziegel mit Fugen und Licht/Schatten
+      R(24, 88, 272, 128, C.ziegel);
+      b.save(); b.beginPath(); b.rect(24, 88, 272, 128); b.clip();
+      for (let y = 88; y < 216; y += 2.5) {
+        R(24, y, 272, 0.5, C.fuge);
+        const vers = (Math.round(y / 2.5) % 2) * 2.5;
+        for (let x = 24 + vers; x < 296; x += 5) { R(x, y + 0.5, 0.5, 2, C.fuge); R(x + 0.5, y + 0.5, 4, 0.5, '#A85A3C'); if ((x * 7 + y * 3) % 11 < 2) R(x + 0.5, y + 1, 4.5, 1.5, '#7E4028'); }
+      }
+      b.restore();
+      // Dach: Ziegelreihen
+      poly([[12, 90], [160, 12], [308, 90]], C.dunkelrot);
+      for (let y = 15; y < 90; y += 3) {
+        const breite = (y - 12) / 0.527;
+        R(160 - breite, y, breite * 2, 0.5, '#4A1A14');
+        for (let x = 160 - breite + ((y / 3) % 2) * 2; x < 160 + breite; x += 4) { R(x, y + 0.5, 0.5, 2.5, '#5A2018'); R(x + 0.5, y + 0.5, 3, 0.5, '#8E3A2A'); }
+      }
+      R(10, 89, 300, 1.5, '#3A1410'); // Traufe
+      if (SCHNEE) { b.strokeStyle = '#F4F4F8'; b.lineWidth = 3; b.beginPath(); b.moveTo(12, 88.5); b.lineTo(160, 10.5); b.lineTo(308, 88.5); b.stroke(); for (let x = 20; x < 300; x += 7) R(x, 89.5, 0.5, 1 + (x % 3), '#F4F4F8'); }
+      // Schornstein
+      K(226, 26, 12, 30, C.ziegel, '#A85A3C', '#6A3422');
+      for (let y = 28; y < 56; y += 2.5) R(226, y, 12, 0.5, C.fuge);
+      K(224, 23, 16, 3, C.dunkelgrau, C.grau, '#2A2A2E');
+      if (SCHNEE) R(224, 22, 16, 1.5, '#F4F4F8');
+      // Räume
+      ROOMS.forEach(tapete);
+      // Decken mit Balkenköpfen (Öffnungen für die Treppen)
+      [[88, 92], [148, 152]].forEach(([y0, y1]) => {
+        R(30, y0, 118, y1 - y0, C.braun); R(172, y0, 118, y1 - y0, C.braun);
+        R(30, y0, 118, 0.5, '#8A5A34'); R(172, y0, 118, 0.5, '#8A5A34');
+        R(30, y1 - 1, 260, 1, C.dunkelbraun);
+        for (let x = 34; x < 290; x += 12) if (x < 146 || x > 174) R(x, y0 + 1, 2, y1 - y0 - 2, '#7A4A2A');
+      });
+      K(30, 208, 260, 6, C.dunkelgrau, C.grau, '#2A2A2E'); R(24, 214, 272, 2, '#3A3A3E'); // Fundament
+      // Innenwände mit Türöffnung und Türrahmen
+      WAENDE.forEach((w) => {
+        K(w.x - 1.5, TOP[w.f], 3, FOOT[w.f] - TOP[w.f] - 26, C.dunkelbraun, '#6A4428', '#2E1A0C');
+        K(w.x - 3, FOOT[w.f] - 27, 6, 1.5, '#7A5030', '#A07040', '#4A2C16');
+        R(w.x - 3, FOOT[w.f] - 26, 0.5, 24, '#7A5030'); R(w.x + 2.5, FOOT[w.f] - 26, 0.5, 24, '#7A5030');
+      });
+      R(28, 92, 2, 116, C.dunkelbraun); R(290, 92, 2, 116, C.dunkelbraun);
+      // Treppen mit Stufen und Geländer
+      for (const t of Object.values(TREPPEN)) {
+        const y0 = FOOT[t.von], y1 = FOOT[t.nach], n = 12, d = (t.x1 - t.x0) / n;
+        for (let i = 0; i < n; i++) {
+          const x = t.x0 + d * i, y = y0 - (y0 - y1) * ((i + 1) / n);
+          const xl = Math.min(x, x + d) - 3;
+          K(xl, y, 8, 1.5, '#B04A34', '#D06A4A', '#6E2A1E'); R(xl, y + 1.5, 8, (y0 - y1) / n - 1.5, 'rgba(0,0,0,0.15)');
+        }
+        b.strokeStyle = '#4A2C16'; b.lineWidth = 1; b.beginPath(); b.moveTo(t.x0, y0 - 12); b.lineTo(t.x1, y1 - 12); b.stroke();
+        for (let i = 1; i < n; i += 2) { const x = t.x0 + d * i, y = y0 - (y0 - y1) * (i / n); R(x, y - 12 + (y0 - y1) / n * 0, 0.5, 11, '#5A3A20'); }
+      }
+      // Einrichtung an den Wänden
+      bild2(40, 104, 14, 10, 'see');             // Schlafzimmer
+      bild2(180, 160, 14, 10, 'landschaft');     // Wohnzimmer über dem Fernseher
+      bild2(256, 122, 8, 8, 'blumen');           // Arbeitszimmer
+      K(34, 160, 8, 14, '#C8D8E0', '#F0F8FF', '#8A9AA8'); R(35, 161, 6, 12, '#A8C0D0'); Q(36, 162, C.weiss); Q(36.5, 162.5, C.weiss); // Flurspiegel
+      K(110, 156, 32, 9, '#C8B890', '#E8D8B0', '#8A7A58'); R(125.75, 157, 0.5, 7, '#8A7A58'); Q(123, 160, C.dunkelgrau); Q(128, 160, C.dunkelgrau); // Hängeschrank Küche
+      R(194, 114, 10, 1, C.grau); R(195, 115, 4, 7, '#E8A0A0'); R(199.5, 115, 3.5, 6, '#A0C8E8'); // Handtücher
+      for (let i = 0; i < 3; i++) R(68 + i * 5, 156, 0.5, 3 + i, C.dunkelgrau); // Haken über dem Kühlschrank
+      R(67, 159, 3, 2, C.grau); R(72, 160, 3, 2, '#C8A060'); // Pfannen
+      // Pflanzen
+      pflanze(201, 208, false); pflanze(222, 148, false); pflanze(56, 208, true); pflanze(284, 148, false);
+      // Teppich im Wohnzimmer
+      R(200, 206, 44, 1.5, '#A05A3A'); for (let x = 201; x < 243; x += 2) Q(x, 206.5, '#E8C070');
+      // Hängelampen
+      haengelampe(90, 92, 6); haengelampe(250, 92, 6); haengelampe(100, 152, 4); haengelampe(232, 152, 4); haengelampe(46, 152, 5);
+      R(159.75, 30, 0.5, 18, C.dunkelgrau); R(158.5, 48, 2.5, 3, '#E8E0B0'); // Glühbirne Dachboden
+      // Spinnennetz in der Dachecke
+      b.strokeStyle = 'rgba(230,230,230,0.5)'; b.lineWidth = 0.5;
+      for (let i = 0; i < 4; i++) { b.beginPath(); b.moveTo(250, 88); b.lineTo(250 + 14 * Math.cos(-0.5 - i * 0.35), 88 + 14 * Math.sin(-0.5 - i * 0.35)); b.stroke(); }
+      for (let rr = 4; rr < 14; rr += 4) { b.beginPath(); b.arc(250, 88, rr, -1.6, -0.5); b.stroke(); }
+      // Lichtschalter
+      [[66, 186], [176, 186], [226, 126], [44, 126]].forEach(([x, y]) => { K(x, y, 2, 3, C.weiss, C.weiss, C.grau); Q(x + 0.75, y + 1, C.grau); });
+    }
+    const STATISCH = vorzeichnen(statisch);
+
     function fenster(f) {
-      R(f.x - 1, f.y - 1, f.w + 2, f.h + 2, C.weiss);
+      K(f.x - 1.5, f.y - 1.5, f.w + 3, f.h + 3, C.weiss, '#FFFFFF', '#A8A8A8');
       draussen(f.x, f.y, f.w, f.h, Math.round(f.y + f.h * 0.55 - 150));
-      R(f.x + Math.floor(f.w / 2), f.y, 1, f.h, C.weiss); R(f.x, f.y + Math.floor(f.h / 2), f.w, 1, C.weiss);
-      R(f.x - 2, f.y + f.h + 1, f.w + 4, 2, C.hellgrau); // Fensterbank
-      if (SCHNEE) R(f.x - 2, f.y + f.h - 1, f.w + 4, 2, '#F0F0F0');
+      // Glasreflex
+      for (let i = 0; i < 4; i++) Q(f.x + 1 + i * 0.5, f.y + 3 - i * 0.5, 'rgba(255,255,255,0.45)');
+      R(f.x + f.w / 2 - 0.5, f.y, 1, f.h, C.weiss); R(f.x, f.y + f.h / 2 - 0.5, f.w, 1, C.weiss);
+      K(f.x - 3, f.y + f.h + 1, f.w + 6, 2, C.hellgrau, C.weiss, C.grau); // Fensterbank
+      if (SCHNEE) R(f.x - 0.5, f.y + f.h - 1.5, f.w + 1, 1.5, '#F4F4F8');
+      // Vorhänge mit Falten und Stange
+      R(f.x - 5, f.y - 3.5, f.w + 10, 1, C.dunkelbraun);
+      const vh = { 96: '#C85A6A', 246: '#5A8A5A', 86: '#E8C060', 210: '#8A5AA8' }[f.x] || C.rot;
+      [f.x - 5, f.x + f.w + 1].forEach((vx) => { R(vx, f.y - 2.5, 4, f.h + 4, vh); for (let i = 0.5; i < 4; i += 1.5) R(vx + i, f.y - 2.5, 0.5, f.h + 4, 'rgba(0,0,0,0.22)'); R(vx, f.y - 2.5, 4, 0.5, 'rgba(255,255,255,0.3)'); });
+    }
+    function lampenLicht() {
+      if (!welt.licht || tageszeit() === 'tag') return;
+      [[90, 101], [250, 101], [100, 159], [232, 159], [46, 160], [160, 51]].forEach(([x, y]) => {
+        const grad = b.createRadialGradient(x, y, 1, x, y, 26);
+        grad.addColorStop(0, 'rgba(255,230,150,0.32)'); grad.addColorStop(1, 'rgba(255,230,150,0)');
+        b.fillStyle = grad; b.fillRect(x - 26, y - 6, 52, 40);
+        R(x - 3, y - 6 + 2.5, 6, 0.5, '#FFF4C0');
+      });
+    }
+    function kuechenuhr() {
+      const x = 80, y = 163, d = new Date();
+      b.fillStyle = C.weiss; b.beginPath(); b.arc(x, y, 4, 0, Math.PI * 2); b.fill();
+      b.strokeStyle = C.dunkelgrau; b.lineWidth = 0.5; b.stroke();
+      const hw = ((d.getHours() % 12) + d.getMinutes() / 60) / 12 * Math.PI * 2, mw = d.getMinutes() / 60 * Math.PI * 2;
+      b.strokeStyle = C.schwarz; b.lineWidth = 0.7; b.beginPath(); b.moveTo(x, y); b.lineTo(x + Math.sin(hw) * 2.2, y - Math.cos(hw) * 2.2); b.stroke();
+      b.lineWidth = 0.5; b.beginPath(); b.moveTo(x, y); b.lineTo(x + Math.sin(mw) * 3.2, y - Math.cos(mw) * 3.2); b.stroke();
     }
     function zeichneHaus() {
       const dunkel = tageszeit() === 'nacht';
-      // Mauer und Dach
-      R(24, 88, 272, 128, C.ziegel);
-      for (let y = 90; y < 216; y += 4) for (let x = 24 + ((y / 4) % 2) * 4; x < 296; x += 8) R(x, y, 1, 3, C.fuge);
-      for (let y = 90; y < 216; y += 4) R(24, y, 272, 1, C.fuge);
-      poly([[12, 90], [160, 12], [308, 90]], C.dunkelrot);
-      for (let y = 18; y < 90; y += 5) { const halb = (y - 12) / 0.527; R(160 - halb, y, halb * 2, 1, '#55201A'); }
-      if (SCHNEE) { b.strokeStyle = '#F0F0F0'; b.lineWidth = 2; b.beginPath(); b.moveTo(12, 89); b.lineTo(160, 11); b.lineTo(308, 89); b.stroke(); }
-      R(226, 26, 12, 30, C.ziegel); R(224, 24, 16, 3, C.dunkelgrau); // Schornstein
-      if (welt.feuer) for (let i = 0; i < 4; i++) { const t = (welt.t * 0.6 + i * 0.25) % 1; R(231 + Math.sin(t * 6 + i) * 3 - t * 8, 20 - t * 18, 3 + t * 3, 3, `rgba(200,200,210,${0.6 - t * 0.5})`); }
-      // Räume
-      ROOMS.forEach(tapete);
+      b.drawImage(STATISCH, 0, 0, W, H);
+      if (welt.feuer) for (let i = 0; i < 5; i++) { const t = (welt.t * 0.6 + i * 0.2) % 1; R(231 + Math.sin(t * 6 + i) * 3 - t * 8, 20 - t * 18, 3 + t * 4, 2.5 + t * 2, `rgba(200,200,210,${0.6 - t * 0.55})`); }
       FENSTER.forEach(fenster);
       // Rundfenster im Giebel
       b.save(); b.beginPath(); b.arc(RUNDFENSTER.x, RUNDFENSTER.y, RUNDFENSTER.r, 0, Math.PI * 2); b.clip(); draussen(152, 38, 16, 16); b.restore();
-      b.strokeStyle = C.weiss; b.lineWidth = 1; b.beginPath(); b.arc(RUNDFENSTER.x, RUNDFENSTER.y, RUNDFENSTER.r, 0, Math.PI * 2); b.stroke();
-      R(159, 39, 1, 14, C.weiss); R(153, 46, 14, 1, C.weiss);
-      // Decken (mit Öffnungen für die Treppen)
-      [[88, 92], [148, 152]].forEach(([y0, y1], i) => {
-        R(30, y0, 118, y1 - y0, C.braun); R(172, y0, 118, y1 - y0, C.braun);
-        if (i === 0) { R(34, y0, 114, 1, C.dunkelbraun); R(172, y0, 114, 1, C.dunkelbraun); }
-        R(30, y1 - 1, 260, 1, C.dunkelbraun);
-      });
-      R(30, 208, 260, 6, C.dunkelgrau); R(24, 214, 272, 2, C.dunkelgrau); // Fundament
-      // Innenwände mit Türöffnung
-      WAENDE.forEach((w) => { R(w.x - 1, TOP[w.f], 3, FOOT[w.f] - TOP[w.f] - 26, C.dunkelbraun); R(w.x - 2, FOOT[w.f] - 27, 5, 2, C.dunkelbraun); });
-      // Außenwände innen
-      R(28, 92, 2, 116, C.dunkelbraun); R(290, 92, 2, 116, C.dunkelbraun);
-      // Treppen
-      for (const t of Object.values(TREPPEN)) {
-        const y0 = FOOT[t.von], y1 = FOOT[t.nach], n = 10;
-        for (let i = 0; i < n; i++) {
-          const x = t.x0 + (t.x1 - t.x0) * (i / n), y = y0 - (y0 - y1) * ((i + 1) / n);
-          R(Math.min(x, x + (t.x1 - t.x0) / n) - 3, y, 8, 2, C.rot); R(Math.min(x, x + (t.x1 - t.x0) / n) - 3, y + 2, 8, 1, C.dunkelrot);
-        }
-        b.strokeStyle = C.dunkelbraun; b.beginPath(); b.moveTo(t.x0, y0 - 12); b.lineTo(t.x1, y1 - 12); b.stroke();
-      }
-      // Haustür (linke Außenwand) mit Briefschlitz
+      b.strokeStyle = C.weiss; b.lineWidth = 1.5; b.beginPath(); b.arc(RUNDFENSTER.x, RUNDFENSTER.y, RUNDFENSTER.r, 0, Math.PI * 2); b.stroke();
+      R(159.75, 39, 0.5, 14, C.weiss); R(153, 45.75, 14, 0.5, C.weiss);
+      kuechenuhr();
+      // Haustür (linke Außenwand) mit Briefschlitz, Klinke und Fensterchen
       const auf = welt.tuerAuf > 0;
-      R(23, 182, 7, 26, auf ? C.schwarz : C.braun);
-      if (auf) { draussen(24, 183, 5, 25); R(30, 182, 6, 26, C.braun); }
-      else { R(24, 194, 5, 1, C.dunkelgrau); P(28, 196, C.gelb); }
-      R(20, 180, 12, 2, C.dunkelgrau);
-      // Dunkelheit
+      if (auf) { R(23, 182, 7, 26, C.schwarz); draussen(24, 183, 5, 25); K(30, 182, 6, 26, '#7A4A2A', '#A06A3A', '#4A2C16'); }
+      else {
+        K(23, 182, 7, 26, '#7A4A2A', '#A06A3A', '#4A2C16'); R(24, 184, 5, 6, '#A8C8E0'); R(26.25, 184, 0.5, 6, '#7A4A2A');
+        R(24, 196, 5, 1, C.dunkelgrau); R(24, 197, 5, 0.5, '#2A2A2E'); K(27.5, 199, 1.5, 1, C.gelb, '#FFF0A0', '#A89020');
+      }
+      K(20, 180, 12, 2, C.dunkelgrau, C.grau, '#2A2A2E');
+      R(14, 206, 6, 2, C.hellgrau); // Stufe
       return dunkel;
     }
     function aussenseiten() {
       draussen(0, 0, 320, 240);
     }
     function garten() {
-      R(0, 214, 320, 26, SCHNEE ? '#E8ECF0' : tageszeit() === 'nacht' ? '#142414' : '#4E8A3A');
-      for (let x = 0; x < 320; x += 3) if ((x * 7) % 5 < 2) P(x, 214, SCHNEE ? '#FFFFFF' : tageszeit() === 'nacht' ? '#1C301C' : '#6EAA4A');
-      R(0, 216, 22, 3, C.hellgrau); // Weg zur Tür
-      // Briefkasten und Baum
-      R(8, 196, 2, 18, C.dunkelgrau); R(4, 190, 10, 7, C.gelb); R(5, 192, 8, 1, C.dunkelgrau);
-      R(304, 170, 4, 44, C.braun);
-      const laub = SCHNEE ? '#E8ECF0' : tageszeit() === 'nacht' ? '#0E2A0E' : '#2E6E2A';
-      R(296, 150, 20, 24, laub); R(300, 144, 12, 6, laub); R(293, 158, 26, 10, laub);
-      // Schild
-      R(314, 200, 2, 14, C.grau); R(306, 194, 14, 7, C.gelb); R(307, 196, 12, 3, '#5A5A20');
+      const nachts = tageszeit() === 'nacht';
+      R(0, 214, 320, 26, SCHNEE ? '#E8ECF0' : nachts ? '#142414' : '#4E8A3A');
+      for (let x = 0; x < 320; x += 1.5) { const hh = 1 + ((x * 13) % 4) * 0.5; R(x, 214 - hh + 1, 0.5, hh, SCHNEE ? '#FFFFFF' : nachts ? '#1C301C' : ((x * 7) % 3 ? '#6EAA4A' : '#3E7A2E')); }
+      for (let y = 218; y < 240; y += 3) for (let x = (y * 5) % 7; x < 320; x += 9) Q(x, y, SCHNEE ? '#C8D0DA' : nachts ? '#0E1C0E' : '#3E7A2E');
+      // Weg aus Platten
+      for (let x = 0; x < 20; x += 4) K(x, 216, 3.5, 2.5, C.hellgrau, C.weiss, C.grau);
+      // Blumen (nicht bei Schnee)
+      if (!SCHNEE) for (let x = 36; x < 290; x += 11) { R(x, 211, 0.5, 3, C.dunkelgruen); Q(x - 0.5, 210.5, nachts ? '#5A4A5A' : [C.rot, C.gelb, C.weiss, C.lila][(x / 11) % 4 | 0]); Q(x + 0.5, 210.5, nachts ? '#5A4A5A' : [C.rot, C.gelb, C.weiss, C.lila][(x / 11) % 4 | 0]); }
+      // Zaun rechts
+      for (let x = 296; x < 320; x += 4) { K(x, 204, 2, 10, '#E8E0D0', '#FFFFFF', '#A8A090'); R(x + 0.5, 203, 1, 1, '#E8E0D0'); }
+      R(296, 207, 24, 1, '#C8C0B0'); R(296, 211, 24, 1, '#C8C0B0');
+      // Briefkasten
+      R(8.5, 196, 1.5, 18, C.dunkelgrau); K(4, 190, 10, 7, C.gelb, '#FFF08A', '#A89020'); R(5, 192, 8, 0.5, C.dunkelgrau); Q(12, 194, C.schwarz);
+      // Baum mit Laub in Schichten
+      K(303, 168, 5, 46, C.braun, '#8A5A34', C.dunkelbraun); for (let y = 172; y < 212; y += 3) Q(304 + (y % 2), y, C.dunkelbraun);
+      const l1 = SCHNEE ? '#E8ECF0' : nachts ? '#0E2A0E' : '#2E6E2A', l2 = SCHNEE ? '#FFFFFF' : nachts ? '#163416' : '#3E8A36', l3 = SCHNEE ? '#C8D0DA' : nachts ? '#0A1E0A' : '#245A22';
+      [[296, 150, 22, 24], [300, 143, 14, 8], [292, 157, 28, 11]].forEach(([x, y, w, h]) => R(x, y, w, h, l1));
+      for (let i = 0; i < 40; i++) { const x = 293 + ((i * 37) % 26), y = 145 + ((i * 23) % 28); R(x, y, 1.5, 1, i % 3 ? l2 : l3); }
+      // Ortsschild-ähnliches Schild ohne Text
+      R(314, 200, 1.5, 14, C.grau); K(306, 194, 14, 7, C.gelb, '#FFF08A', '#A89020'); R(307, 196, 12, 3, '#5A5A20');
     }
 
     // ---------------------------------------------------------------- Gegenstände zeichnen
+    // Holz- und Metalltöne für die Möbel (Grundton, Licht, Schatten)
+    const HOLZ = ['#8E6038', '#B07A48', '#5A3A1E'], HOLZ2 = ['#6B4226', '#8A5A34', '#3E2412'], WEISSL = ['#E8E8E0', '#FFFFFF', '#A8A8A0'];
+    const METALL = ['#8C8C90', '#C0C0C4', '#4C4C50'];
+    const KK = (x, y, w, h, t) => K(x, y, w, h, t[0], t[1], t[2]);
     function zeichneObjekt(o) {
-      const x = o.x, y = FOOT[o.f] - o.h, w = o.w, h = o.h, an = man.taetigkeit;
+      const x = o.x, y = FOOT[o.f] - o.h, w = o.w, h = o.h, an = man.taetigkeit, fuss = FOOT[o.f];
       switch (o.id) {
-        case 'stereo':
-          R(x, y + 6, w, 6, C.braun); R(x + 1, y + 4, w - 2, 2, C.dunkelgrau); R(x + 3, y + 3, 8, 1, C.schwarz);
-          R(x + 4, y + 3, 6, 1, an === 'musik' && Math.floor(welt.t * 8) % 2 ? C.dunkelgrau : C.schwarz);
-          R(x + 13, y + 7, 3, 3, C.gelb);
-          if (an === 'musik') for (let i = 0; i < 3; i++) { const t = (welt.t * 0.5 + i / 3) % 1; const nx = x + 8 + Math.sin(t * 8 + i) * 4, ny = y - t * 22; R(nx, ny, 1, 3, C.weiss); R(nx - 2, ny + 2, 2, 2, C.weiss); }
+        case 'stereo': {
+          KK(x, y + 6, w, 6, HOLZ); R(x + 1, y + 8, w - 2, 0.5, HOLZ[2]);
+          KK(x + 1, y + 3.5, w - 6, 2.5, METALL);
+          b.fillStyle = C.schwarz; b.beginPath(); b.arc(x + 6, y + 4.5, 3.5, Math.PI, 0); b.fill(); // Platte
+          if (an === 'musik') { const wkl = welt.t * 6; Q(x + 6 + Math.cos(wkl) * 2, y + 3.5, '#5A5A60'); }
+          Q(x + 6, y + 3.5, C.rot);
+          R(x + 9, y + 2, 4, 0.5, METALL[1]); // Tonarm
+          for (let i = 0; i < 3; i++) Q(x + 14 + i * 1.2, y + 8, i === 1 && an === 'musik' ? C.gruen : C.gelb);
+          K(x + w - 4, y + 2, 4, 4, '#3A3A3E', '#5A5A5E', '#1A1A1E'); b.fillStyle = '#5A5A60'; b.beginPath(); b.arc(x + w - 2, y + 4, 1.2, 0, Math.PI * 2); b.fill();
+          if (an === 'musik') for (let i = 0; i < 3; i++) { const t = (welt.t * 0.5 + i / 3) % 1; const nx = x + 8 + Math.sin(t * 8 + i) * 4, ny = y - t * 22; R(nx, ny, 0.5, 3, C.weiss); R(nx - 1.5, ny + 2, 2, 1.5, C.weiss); R(nx, ny, 1.5, 0.5, C.weiss); }
           break;
-        case 'werkbank':
-          R(x, y + 4, w, 3, C.braun); R(x + 1, y + 7, 2, 7, C.dunkelbraun); R(x + w - 3, y + 7, 2, 7, C.dunkelbraun); R(x + 3, y + 10, w - 6, 1, C.dunkelbraun);
-          // kleine Drohne auf der Werkbank, schwebt beim Basteln kurz
-          { const dy = an === 'basteln' ? Math.round(Math.sin(welt.t * 3) * 2) - 2 : 0;
-            R(x + 10, y + 1 + dy, 10, 2, C.dunkelgrau); R(x + 8, y + dy, 4, 1, C.hellgrau); R(x + 18, y + dy, 4, 1, C.hellgrau); P(x + 15, y + 2 + dy, '#E04040'); }
-          R(x + 24, y + 1, 4, 3, C.grau);
+        }
+        case 'werkbank': {
+          KK(x, y + 4, w, 2.5, HOLZ); R(x + 1, y + 6.5, 2, 7.5, HOLZ[2]); R(x + w - 3, y + 6.5, 2, 7.5, HOLZ[2]); R(x + 2, y + 10, w - 4, 1, HOLZ[2]);
+          // Werkzeug an der Wand
+          R(x + 2, y - 10, w - 4, 6, '#9A7A4A'); for (let i = 0; i < 6; i++) Q(x + 3 + i * 4, y - 9, '#6A4A2A');
+          R(x + 4, y - 8, 0.5, 3, METALL[1]); R(x + 3.5, y - 8.5, 1.5, 1, METALL[2]); // Schraubenzieher
+          R(x + 9, y - 8, 0.5, 3.5, HOLZ[0]); R(x + 8, y - 8.5, 2.5, 1, METALL[0]); // Hammer
+          R(x + 15, y - 8, 3, 2, '#C83A2A'); R(x + 20, y - 8, 0.5, 3, METALL[1]); R(x + 22, y - 8, 0.5, 3, METALL[1]);
+          // kleine Drohne, schwebt beim Basteln kurz
+          const dy = an === 'basteln' ? Math.round(Math.sin(welt.t * 3) * 4) / 2 - 2 : 0;
+          K(x + 11, y + 1 + dy, 8, 2, C.dunkelgrau, C.grau, '#2A2A2E'); R(x + 8, y + 0.5 + dy, 3.5, 0.5, METALL[1]); R(x + 18.5, y + 0.5 + dy, 3.5, 0.5, METALL[1]);
+          if (an === 'basteln') { R(x + 7, y + dy, 5, 0.5, 'rgba(220,220,220,0.6)'); R(x + 18, y + dy, 5, 0.5, 'rgba(220,220,220,0.6)'); }
+          Q(x + 15, y + 2.5 + dy, Math.floor(welt.t * 3) % 2 ? '#E04040' : '#40E040');
+          K(x + 24, y + 1, 4, 3, METALL[0], METALL[1], METALL[2]); // Lötkolbenständer
           break;
-        case 'teleskop':
-          R(x + 5, y + 8, 1, 10, C.dunkelgrau); R(x + 2, y + 17, 7, 1, C.dunkelgrau); R(x + 1, y + 13, 1, 5, C.dunkelgrau); R(x + 9, y + 13, 1, 5, C.dunkelgrau);
-          b.strokeStyle = C.hellgrau; b.lineWidth = 3; b.beginPath(); b.moveTo(x + 9, y + 8); b.lineTo(x - 2, y); b.stroke();
+        }
+        case 'teleskop': {
+          R(x + 5, y + 8, 0.5, 10, C.dunkelgrau); R(x + 1, y + 17.5, 9, 0.5, C.dunkelgrau);
+          b.strokeStyle = C.dunkelgrau; b.lineWidth = 0.5; b.beginPath(); b.moveTo(x + 5, y + 9); b.lineTo(x + 1, y + 18); b.moveTo(x + 5, y + 9); b.lineTo(x + 9, y + 18); b.stroke();
+          b.strokeStyle = '#D0D0D8'; b.lineWidth = 3; b.beginPath(); b.moveTo(x + 9, y + 8); b.lineTo(x - 2, y + 0.5); b.stroke();
+          b.strokeStyle = '#7A7A88'; b.lineWidth = 1; b.beginPath(); b.moveTo(x + 9, y + 9); b.lineTo(x - 2, y + 1.5); b.stroke();
+          R(x - 3, y - 0.5, 2, 3, '#3A3A48'); R(x + 9, y + 7, 1.5, 2, '#3A3A48');
           break;
+        }
         case 'schaukel': {
-          const s = an === 'ausruhen' && man.tut === o ? Math.round(Math.sin(welt.t * 3)) : 0;
-          R(x + 2 + s, y, 3, 12, C.braun); R(x + 2 + s, y + 9, 12, 3, C.braun); R(x + 12 + s, y + 6, 2, 6, C.braun);
-          b.strokeStyle = C.dunkelbraun; b.lineWidth = 1; b.beginPath(); b.moveTo(x, y + 15); b.quadraticCurveTo(x + 8, y + 18, x + 16, y + 14); b.stroke();
+          const sw = an === 'ausruhen' && man.tut === o ? Math.sin(welt.t * 3) : 0, sx = halb(sw);
+          KK(x + 2 + sx, y, 2.5, 12, HOLZ); KK(x + 2 + sx, y + 9, 12, 2.5, HOLZ); KK(x + 12 + sx, y + 6, 2, 6, HOLZ);
+          R(x + 4.5 + sx, y + 7, 8, 2, '#C84A5A'); for (let i = 0; i < 4; i++) Q(x + 5 + i * 2 + sx, y + 7.5, '#E87A8A');
+          for (let i = 0; i < 4; i++) R(x + 2.5 + sx, y + 1.5 + i * 2.5, 2, 0.5, HOLZ[2]);
+          b.strokeStyle = HOLZ[2]; b.lineWidth = 1; b.beginPath(); b.moveTo(x - 1 + sx, y + 14 - sw); b.quadraticCurveTo(x + 8 + sx, y + 17.5, x + 17 + sx, y + 14 + sw); b.stroke();
           break;
         }
         case 'kisten':
-          R(x, y + 2, 9, 8, '#9A7040'); R(x + 1, y + 5, 7, 1, C.braun); R(x + 8, y, 8, 10, '#B08850'); R(x + 9, y + 4, 6, 1, C.braun);
+          KK(x, y + 2, 9, 8, ['#9A7040', '#C09060', '#6A4A28']); R(x + 0.5, y + 5.5, 8, 0.5, '#6A4A28'); R(x + 3.5, y + 4.5, 2, 1.5, '#D8C8A0');
+          KK(x + 8, y, 8, 10, ['#B08850', '#D0A870', '#7A5A30']); R(x + 8.5, y + 4, 7, 0.5, '#7A5A30'); R(x + 10, y + 6, 4, 2, '#E8E0C8'); Q(x + 11, y + 6.5, C.rot);
+          K(x + 2, y - 3, 12, 3, '#5A6A8A', '#7A8AAA', '#3A4A6A'); R(x + 7, y - 4, 2, 1, '#3A4A6A'); // alter Koffer
           break;
         case 'bett': {
-          R(x, y + 6, w, 5, C.braun); R(x, y, 3, 14, C.braun); R(x + w - 3, y + 4, 3, 10, C.braun);
-          R(x + 3, y + 4, w - 6, 3, C.weiss);
-          R(x + 4, y + 2, 9, 3, C.weiss);
           const schlaeft = an === 'schlafen';
-          if (schlaeft) { R(x + 5, y - 1, 6, 4, C.haut); R(x + 5, y - 1, 6, 2, C.haar); P(x + 9, y + 1, C.schwarz); }
-          R(x + (schlaeft ? 11 : 15), y + 2 + (schlaeft ? 0 : 1), w - (schlaeft ? 14 : 18), schlaeft ? 5 : 4, C.blau);
-          for (let i = x + 16; i < x + w - 3; i += 4) P(i, y + 4, C.hellblau);
+          KK(x, y, 3, 14, HOLZ); KK(x + w - 3, y + 4, 3, 10, HOLZ); R(x + 0.5, y + 1, 2, 0.5, HOLZ[1]);
+          KK(x + 2, y + 8, w - 4, 3, HOLZ); R(x + 3, y + 11, 1.5, 3, HOLZ[2]); R(x + w - 4.5, y + 11, 1.5, 3, HOLZ[2]);
+          R(x + 3, y + 5, w - 6, 3, '#E8E8F0'); R(x + 3, y + 7.5, w - 6, 0.5, '#B8B8C8'); // Matratze
+          K(x + 3.5, y + 2.5, 9, 3, C.weiss, '#FFFFFF', '#C0C0D0'); Q(x + 6, y + 3.5, '#D8D8E8'); Q(x + 9, y + 4, '#D8D8E8'); // Kissen
+          if (schlaeft) {
+            R(x + 5, y - 0.5, 6, 4, C.haut); R(x + 5, y - 1, 6, 2, C.haar); R(x + 4.5, y - 0.5, 1, 3, C.haar); Q(x + 9.5, y + 1.5, C.schwarz); Q(x + 9, y + 1.5, C.schwarz); Q(x + 10.5, y + 2.5, '#C08A62');
+          }
+          const dx = schlaeft ? 10.5 : 14.5, atmen = schlaeft ? halb(Math.sin(welt.t * 1.5) * 0.5) : 0;
+          K(x + dx, y + 2 - atmen + (schlaeft ? 0 : 1), w - dx - 3, (schlaeft ? 6 : 5) + atmen, C.blau, '#6A7AE8', '#2A3488');
+          for (let i = x + dx + 1; i < x + w - 4; i += 3) for (let jj = 0; jj < 2; jj++) Q(i + jj * 1.5, y + 3.5 + jj * 2 + (schlaeft ? 0 : 1), C.hellblau);
+          R(x + dx, y + 7, w - dx - 3, 0.5, '#2A3488');
           if (schlaeft) for (let i = 0; i < 3; i++) { const t = (welt.t * 0.4 + i / 3) % 1; zText.push({ t: 'z', x: x + 12 + t * 10, y: y - 4 - t * 16, a: 1 - t, gross: 8 + t * 6 }); }
           break;
         }
-        case 'nachttisch':
-          R(x, y + 3, w, 6, C.braun); R(x + 1, y + 5, w - 2, 1, C.dunkelbraun); R(x + 3, y - 3, 3, 6, C.gelb); R(x + 4, y, 1, 3, C.dunkelgrau);
-          break;
-        case 'schrank':
-          R(x, y, w, h, '#7A5030'); R(x + 1, y + 1, w / 2 - 1, h - 3, '#8E6038'); R(x + w / 2 + 1, y + 1, w / 2 - 2, h - 3, '#8E6038');
-          P(x + w / 2 - 2, y + h / 2, C.gelb); P(x + w / 2 + 2, y + h / 2, C.gelb);
-          break;
-        case 'wanne':
-          R(x, y + 4, w, 10, C.weiss); R(x + 2, y + 5, w - 4, 3, C.cyan); R(x + 2, y + 13, 2, 1, C.grau); R(x + w - 4, y + 13, 2, 1, C.grau);
-          R(x + w - 5, y - 24, 1, 28, C.grau); R(x + w - 9, y - 24, 5, 2, C.grau);
-          if (an === 'duschen') {
-            R(x + 2, y - 22, w - 8, 26, 'rgba(240,240,255,0.55)'); for (let i = x + 3; i < x + w - 6; i += 3) R(i, y - 22, 1, 26, 'rgba(180,200,230,0.6)');
-            for (let i = 0; i < 8; i++) P(x + w - 12 + (i % 4) * 2, y - 20 + ((welt.t * 40 + i * 5) % 22), C.cyan);
-          }
-          break;
-        case 'waschbecken':
-          R(x, y + 8, w, 3, C.weiss); R(x + 3, y + 11, 4, 7, C.weiss); R(x + 1, y - 2, w - 2, 8, '#B8D8E0'); R(x + 2, y - 1, w - 4, 6, '#D8F0F8');
-          R(x + 6, y + 6, 1, 2, C.grau);
-          break;
-        case 'schreibtisch':
-          R(x, y + 4, w, 2, C.braun); R(x + 1, y + 6, 2, 8, C.dunkelbraun); R(x + w - 3, y + 6, 2, 8, C.dunkelbraun);
-          R(x + 8, y - 8, 14, 11, C.hellgrau); R(x + 9, y - 7, 12, 8, an === 'arbeiten' ? '#2A3A8A' : C.schwarz);
-          if (an === 'arbeiten') for (let i = 0; i < 4; i++) R(x + 10, y - 6 + i * 2, 3 + ((i * 5 + Math.floor(welt.t * 3)) % 8), 1, C.cyan);
-          R(x + 14, y + 3, 3, 1, C.grau); R(x + 2, y + 3, 5, 1, C.dunkelgrau);
-          R(x - 8, y + 6, 6, 2, C.dunkelgrau); R(x - 6, y + 8, 2, 6, C.dunkelgrau); R(x - 9, y, 2, 8, C.dunkelgrau); // Stuhl
-          break;
-        case 'regal':
-          R(x, y, w, h, C.braun); for (let j = 0; j < 4; j++) { R(x + 1, y + 1 + j * 10, w - 2, 8, C.dunkelbraun); for (let i = 0; i < 4; i++) R(x + 2 + i * 3 + (j % 2), y + 3 + j * 10, 2, 6, [C.rot, C.blau, C.gelb, C.gruen, C.lila][(i + j) % 5]); }
-          break;
-        case 'garderobe':
-          R(x + 3, y, 2, h, C.dunkelbraun); R(x, y + 2, 8, 1, C.dunkelbraun); R(x - 1, y + 3, 4, 9, '#3A5A8A'); R(x + 5, y + 3, 3, 6, C.rot); R(x + 1, y + h - 1, 6, 1, C.dunkelbraun);
-          break;
-        case 'kuehl':
-          R(x, y, w, h, C.weiss); R(x, y + 11, w, 1, C.grau); R(x + w - 3, y + 3, 1, 5, C.grau); R(x + w - 3, y + 14, 1, 7, C.grau);
-          if (welt.kuehlAuf > 0) { R(x + w, y + 12, 6, 18, C.hellgrau); R(x + 1, y + 13, w - 2, 16, '#F8F8D8'); R(x + 3, y + 17, 4, 3, C.orange); R(x + 8, y + 22, 3, 5, C.gruen); }
-          // Brief am Kühlschrank (nach einem Brief)
-          if (welt.briefAmKuehl) R(x + 3, y + 3, 5, 4, C.gelb);
-          break;
-        case 'herd':
-          R(x, y + 2, w, 14, C.weiss); R(x + 2, y + 6, w - 4, 7, C.dunkelgrau); R(x + 3, y + 7, w - 6, 5, an === 'kochen' ? '#C85A2A' : C.schwarz);
-          R(x + 2, y + 3, 2, 1, C.schwarz); R(x + 6, y + 3, 2, 1, C.schwarz);
-          if (an === 'kochen') { R(x + 3, y - 1, 9, 3, C.dunkelgrau); R(x + 12, y, 4, 1, C.dunkelgrau); for (let i = 0; i < 3; i++) { const t = (welt.t * 0.8 + i / 3) % 1; P(x + 5 + i * 2 + Math.sin(t * 9) * 1.5, y - 2 - t * 12, `rgba(255,255,255,${1 - t})`); } }
-          break;
-        case 'spuele':
-          R(x, y + 2, w, 14, '#8E6038'); R(x, y + 2, w, 2, C.hellgrau); R(x + 3, y - 3, 1, 5, C.grau); R(x + 3, y - 3, 3, 1, C.grau); R(x + 2, y + 7, 8, 1, C.dunkelbraun);
-          break;
-        case 'tisch':
-          R(x - 6, y + 4, 5, 2, C.braun); R(x - 6, y + 6, 1, 5, C.braun); R(x - 2, y - 3, 1, 14, C.braun); R(x - 6, y + 6, 1, 5, C.braun); // Stuhl
-          R(x, y + 1, w, 2, C.braun); R(x + 2, y + 3, 2, 8, C.dunkelbraun); R(x + w - 4, y + 3, 2, 8, C.dunkelbraun);
-          R(x + w - 8, y - 1, 6, 2, C.weiss); // Zeitung
-          if (welt.teller) { R(x + 4, y, 8, 1, C.weiss); R(x + 5, y - 2, 6, 2, an === 'essen' && man.zeit < 2 ? C.weiss : C.orange); }
-          break;
-        case 'tv': {
-          R(x, y + 11, w, 6, C.braun); R(x + 2, y + 13, w - 4, 1, C.dunkelbraun);
-          R(x + 1, y, w - 2, 11, C.dunkelgrau); R(x + 3, y + 2, w - 6, 7, C.schwarz);
-          if (an === 'fernsehen') { const f = [C.blau, C.gruen, C.cyan, C.rot, C.gelb]; for (let i = 0; i < 3; i++) R(x + 3, y + 2 + i * 2 + (i === 2 ? 1 : 0), w - 6, i === 2 ? 2 : 2, f[(Math.floor(welt.t * 1.5) + i) % 5]); R(x + 6, y + 4, 3, 3, C.weiss); }
-          R(x + 6, y - 3, 1, 3, C.grau); R(x + 11, y - 4, 1, 4, C.grau);
+        case 'nachttisch': {
+          KK(x, y + 3, w, 6, HOLZ); R(x + 1, y + 5.5, w - 2, 0.5, HOLZ[2]); Q(x + w / 2, y + 7, C.gelb);
+          const an2 = welt.licht && tageszeit() !== 'tag';
+          R(x + 4, y - 0.5, 0.5, 3.5, C.dunkelgrau); poly([[x + 1.5, y], [x + 2.5, y - 4], [x + 6, y - 4], [x + 7, y]], an2 ? '#FFF0A0' : '#C8B870');
+          if (an2) { const gr = b.createRadialGradient(x + 4, y - 2, 0.5, x + 4, y - 2, 10); gr.addColorStop(0, 'rgba(255,230,140,0.35)'); gr.addColorStop(1, 'rgba(255,230,140,0)'); b.fillStyle = gr; b.fillRect(x - 6, y - 12, 20, 20); }
+          R(x + 6, y + 2, 2, 1, '#C83A2A'); // Wecker
           break;
         }
-        case 'sofa':
-          R(x, y + 2, 4, 10, '#7A3A6A'); R(x + w - 4, y + 2, 4, 10, '#7A3A6A'); R(x + 3, y + 5, w - 6, 5, '#9A4A88'); R(x + w - 9, y - 4, 6, 9, '#7A3A6A');
-          R(x + 2, y + 10, 2, 2, C.dunkelbraun); R(x + w - 4, y + 10, 2, 2, C.dunkelbraun); R(x + 6, y + 4, 6, 2, C.gelb);
+        case 'schrank':
+          KK(x, y, w, h, ['#7A5030', '#9A6A40', '#4A2C16']);
+          KK(x + 1, y + 1.5, w / 2 - 1.5, h - 3.5, ['#8E6038', '#A87448', '#6A4426']); KK(x + w / 2 + 0.5, y + 1.5, w / 2 - 1.5, h - 3.5, ['#8E6038', '#A87448', '#6A4426']);
+          for (const dx2 of [3, w / 2 + 2.5]) { R(x + dx2, y + 4, w / 2 - 6, 0.5, '#6A4426'); R(x + dx2, y + h - 7, w / 2 - 6, 0.5, '#6A4426'); }
+          R(x + w / 2 - 2, y + h / 2, 0.5, 2, C.gelb); R(x + w / 2 + 1.5, y + h / 2, 0.5, 2, C.gelb);
+          R(x - 1, y - 1, w + 2, 1.5, '#5A3A1E'); R(x + 1, y + h, 1.5, 0.5, C.schwarz); R(x + w - 2.5, y + h, 1.5, 0.5, C.schwarz);
+          K(x + 3, y - 5, 8, 4, '#A88A5A', '#C8A870', '#7A6038'); // Karton auf dem Schrank
           break;
+        case 'wanne': {
+          K(x, y + 4, w, 10, C.weiss, '#FFFFFF', '#A8A8B0'); R(x + 1, y + 4.5, w - 2, 1, '#C8D8E0'); R(x + 1.5, y + 5.5, w - 3, 2.5, C.cyan);
+          for (let i = 0; i < 4; i++) Q(x + 4 + i * 5, y + 6, '#C8F0F4');
+          R(x + 2, y + 13.5, 2, 0.5, C.grau); R(x + w - 4, y + 13.5, 2, 0.5, C.grau);
+          R(x + w - 5, y - 24, 1, 28, METALL[1]); R(x + w - 4.5, y - 24, 0.5, 28, METALL[2]); K(x + w - 10, y - 24.5, 6, 2, METALL[0], METALL[1], METALL[2]);
+          for (let i = 0; i < 3; i++) Q(x + w - 9 + i * 1.5, y - 22, METALL[2]);
+          R(x + 2, y + 2, 3, 2, '#E8C040'); Q(x + 4.5, y + 2, '#E8C040'); Q(x + 3, y + 2.5, C.schwarz); // Quietscheente
+          if (an === 'duschen') {
+            R(x + 1, y - 22, w - 7, 26, 'rgba(240,240,255,0.55)'); for (let i = x + 2; i < x + w - 6; i += 2.5) R(i, y - 22, 0.5, 26, 'rgba(160,190,230,0.6)');
+            R(x, y - 23, w - 4, 0.5, METALL[0]);
+            for (let i = 0; i < 12; i++) Q(x + w - 12 + (i % 6) * 1.2, y - 21 + ((welt.t * 40 + i * 5) % 24), C.cyan);
+          }
+          break;
+        }
+        case 'waschbecken':
+          K(x - 1, y + 7, w + 2, 3, C.weiss, '#FFFFFF', '#A8A8B0'); R(x + 3, y + 10, 4, 8, '#E0E0E8'); R(x + 6.5, y + 10, 0.5, 8, '#A8A8B0');
+          K(x, y - 4, w, 9, '#B8D8E0', '#E8F8FF', '#8AA8B0'); R(x + 1, y - 3, w - 2, 7, '#D8F0F8');
+          for (let i = 0; i < 3; i++) Q(x + 2 + i * 0.5, y - 1.5 - i * 0.5, '#FFFFFF');
+          R(x + 4.5, y + 5.5, 1, 1.5, METALL[1]); R(x + 4, y + 5, 2, 0.5, METALL[1]);
+          R(x + w - 2, y + 5.5, 1.5, 1.5, '#7ACA6A'); // Seife
+          break;
+        case 'schreibtisch': {
+          KK(x, y + 4, w, 2, HOLZ); KK(x + 1, y + 6, 2, 8, HOLZ2); KK(x + w - 9, y + 6, 8, 8, HOLZ2); R(x + w - 8, y + 9.5, 6, 0.5, HOLZ2[2]); Q(x + w - 5, y + 8, C.gelb); Q(x + w - 5, y + 11, C.gelb);
+          K(x + 8, y - 9, 14, 11, C.hellgrau, '#E8E8E8', '#7A7A7A'); R(x + 9, y - 8, 12, 8, an === 'arbeiten' ? '#1E2A7A' : '#14141C');
+          if (an === 'arbeiten') for (let i = 0; i < 7; i++) R(x + 10, y - 7.5 + i, 1 + ((i * 5 + Math.floor(welt.t * 3)) % 9), 0.5, i % 3 ? C.cyan : C.gelb);
+          else Q(x + 10, y - 7, '#3A3A4A');
+          R(x + 14, y + 2, 2, 1, '#9A9A9A'); R(x + 12, y + 3, 6, 1, '#9A9A9A');
+          K(x + 2, y + 3, 6, 1, C.dunkelgrau, C.grau, '#2A2A2E'); // Tastatur
+          R(x + 23, y + 1, 3, 3, '#E8E8E8'); R(x + 23.5, y + 1, 2, 0.5, '#7A4A2A'); // Kaffeetasse
+          // Bürostuhl
+          K(x - 9, y + 5.5, 7, 2, '#3A3A48', '#5A5A68', '#1A1A28'); R(x - 6, y + 7.5, 1, 5, C.dunkelgrau); R(x - 9, y + 12.5, 7, 0.5, C.dunkelgrau); Q(x - 9, y + 13, C.schwarz); Q(x - 2.5, y + 13, C.schwarz);
+          K(x - 10, y - 2, 2, 9, '#3A3A48', '#5A5A68', '#1A1A28');
+          break;
+        }
+        case 'regal':
+          KK(x, y, w, h, HOLZ2);
+          for (let j = 0; j < 4; j++) {
+            R(x + 1, y + 1 + j * 10, w - 2, 8.5, HOLZ2[2]); R(x + 0.5, y + 9.5 + j * 10, w - 1, 1, HOLZ2[1]);
+            for (let i = 0; i < 5; i++) { const bh2 = 5 + ((i * 3 + j) % 3); const bx2 = x + 1.5 + i * 2.8; const fc = [C.rot, C.blau, C.gelb, C.gruen, C.lila, '#E8E0C8'][(i + j * 2) % 6]; R(bx2, y + 9.5 + j * 10 - bh2, 2.3, bh2, fc); R(bx2 + 0.5, y + 10.5 + j * 10 - bh2, 1.3, 0.5, 'rgba(255,255,255,0.5)'); }
+          }
+          break;
+        case 'garderobe':
+          R(x + 3.5, y, 1, h, HOLZ2[0]); R(x + 4, y, 0.5, h, HOLZ2[2]); R(x, y + 2, 8, 1, HOLZ2[0]); R(x + 1, y + h - 0.5, 6, 0.5, HOLZ2[2]);
+          R(x - 1, y + 3, 4, 10, '#3A5A8A'); R(x - 1, y + 3, 0.5, 10, '#5A7AAA'); R(x + 0.5, y + 3, 1, 3, '#2A4A7A'); // Jacke
+          R(x + 5, y + 3, 3, 7, C.rot); R(x + 5, y + 3, 0.5, 7, '#E86A5A'); // Schal
+          R(x - 2, y - 1, 5, 1.5, '#5A3A2A'); R(x - 1, y - 2, 3, 1, '#5A3A2A'); // Hut
+          K(x + 8, y + h - 5, 5, 5, '#5A6A8A', '#7A8AAA', '#3A4A6A'); R(x + 10, y + h - 9, 0.5, 4, C.schwarz); // Schirmständer
+          break;
+        case 'kuehl':
+          K(x, y, w, h, C.weiss, '#FFFFFF', '#A8A8B0'); R(x, y + 11, w, 0.5, '#8A8A90');
+          R(x + w - 3, y + 3, 1, 5, METALL[0]); R(x + w - 3, y + 14, 1, 7, METALL[0]);
+          if (welt.briefAmKuehl) { R(x + 3, y + 3, 5, 4, '#FFF8C0'); R(x + 3.5, y + 4, 4, 0.5, '#8A8A90'); R(x + 3.5, y + 5, 3, 0.5, '#8A8A90'); Q(x + 5, y + 3, C.rot); }
+          R(x + 2, y + 15, 2, 2, C.rot); R(x + 5, y + 18, 2, 2, C.gelb); // Magnete
+          if (welt.kuehlAuf > 0) {
+            K(x + w, y + 12, 6, 18, '#D8D8D8', '#F0F0F0', '#A0A0A0'); R(x + 1, y + 12.5, w - 2, 17, '#F8F8D8');
+            R(x + 1, y + 18, w - 2, 0.5, '#C8C8B0'); R(x + 1, y + 24, w - 2, 0.5, '#C8C8B0');
+            R(x + 2, y + 14.5, 3, 3.5, C.orange); R(x + 6, y + 15, 2, 3, '#E8E8E8'); R(x + 8, y + 20, 3, 4, C.gruen); R(x + 3, y + 21, 2.5, 3, '#E8C040'); R(x + 2, y + 26, 8, 2, '#C84A3A');
+          }
+          break;
+        case 'herd':
+          K(x, y + 2, w, 14, C.weiss, '#FFFFFF', '#A8A8B0'); R(x, y + 2, w, 1.5, '#D8D8D8');
+          for (let i = 0; i < 4; i++) { Q(x + 2 + i * 3.5, y + 2.5, C.schwarz); }
+          K(x + 2, y + 5.5, w - 4, 8, C.dunkelgrau, '#6A6A70', '#2A2A2E'); R(x + 3, y + 7, w - 6, 5, an === 'kochen' ? '#C85A2A' : '#14141C');
+          if (an === 'kochen') { R(x + 4, y + 11, w - 8, 0.5, '#FF8A3A'); R(x + 4, y + 8, w - 8, 0.5, '#FF8A3A'); }
+          R(x + 3, y + 5, w - 6, 0.5, METALL[1]);
+          if (an === 'kochen') {
+            K(x + 3, y - 1.5, 9, 3.5, METALL[0], METALL[1], METALL[2]); R(x + 12, y - 0.5, 4, 1, METALL[2]); R(x + 4, y - 2, 7, 0.5, METALL[1]);
+            for (let i = 0; i < 5; i++) { const t = (welt.t * 0.8 + i / 5) % 1; Q(x + 4 + i * 1.5 + Math.sin(t * 9) * 1.5, y - 3 - t * 12, `rgba(255,255,255,${1 - t})`); }
+          } else R(x + 4, y + 0.5, 6, 1.5, '#5A5A60'); // Pfanne
+          break;
+        case 'spuele':
+          KK(x, y + 2, w, 14, HOLZ); R(x, y + 2, w, 1.5, '#D8D8D0'); R(x + 1, y + 2.5, w - 2, 0.5, '#A8A8A0');
+          R(x + 3, y - 3, 0.5, 5, METALL[1]); R(x + 3, y - 3, 3, 0.5, METALL[1]); R(x + 5.5, y - 3, 0.5, 1.5, METALL[1]);
+          R(x + 1, y + 7.5, w - 2, 0.5, HOLZ[2]); Q(x + w / 2, y + 6, C.gelb); Q(x + w / 2, y + 10, C.gelb);
+          R(x + 8, y - 2, 2, 4, '#7ACA6A'); R(x + 8.5, y - 2.5, 1, 0.5, C.weiss); // Spülmittel
+          break;
+        case 'tisch': {
+          // Stuhl
+          KK(x - 7, y + 4, 6, 1.5, HOLZ); R(x - 7, y + 5.5, 1, 5.5, HOLZ[2]); R(x - 2, y + 5.5, 1, 5.5, HOLZ[2]); KK(x - 2.5, y - 4, 1.5, 9, HOLZ); R(x - 2.5, y - 1, 1.5, 0.5, HOLZ[2]);
+          KK(x, y + 1, w, 2, HOLZ); R(x + 2, y + 3, 2, 8, HOLZ[2]); R(x + w - 4, y + 3, 2, 8, HOLZ[2]); R(x + 1, y + 3, w - 2, 0.5, HOLZ[2]);
+          R(x + 1, y + 0.5, w - 2, 0.5, '#E8E0D0'); // Tischdecke
+          K(x + w - 8, y - 1, 6, 2, '#F0ECDC', '#FFFFFF', '#B8B4A0'); R(x + w - 7, y - 0.5, 4, 0.5, '#8A8A80'); // Zeitung
+          R(x + 10, y - 3, 1.5, 3, '#E8E0F0'); Q(x + 10.5, y - 3.5, '#E84A4A'); // Vase
+          if (welt.teller) {
+            R(x + 3, y + 0.5, 9, 0.5, '#B8B8C0'); R(x + 3.5, y, 8, 0.5, C.weiss);
+            const leer = an === 'essen' && man.zeit < 2;
+            if (!leer) { R(x + 5, y - 1.5, 5, 1.5, C.orange); Q(x + 6, y - 2, '#7ACA6A'); Q(x + 8, y - 2, '#C84A3A'); for (let i = 0; i < 2; i++) { const t = (welt.t * 0.7 + i / 2) % 1; Q(x + 6 + i * 2, y - 3 - t * 6, `rgba(255,255,255,${0.8 - t * 0.8})`); } }
+            R(x + 12.5, y - 1, 0.5, 2, METALL[1]); // Gabel
+          }
+          break;
+        }
+        case 'tv': {
+          KK(x, y + 11, w, 6, HOLZ2); R(x + 1, y + 13.5, w - 2, 0.5, HOLZ2[2]); Q(x + w / 2, y + 15, C.gelb);
+          K(x + 1, y, w - 2, 11, '#4A4A50', '#6A6A70', '#2A2A2E'); R(x + 2.5, y + 1.5, w - 7, 8, C.schwarz);
+          if (an === 'fernsehen') {
+            const f = [C.blau, C.gruen, C.cyan, C.rot, C.gelb], z = Math.floor(welt.t * 1.5);
+            R(x + 2.5, y + 1.5, w - 7, 8, f[z % 5]); R(x + 2.5, y + 6.5, w - 7, 3, f[(z + 2) % 5]);
+            R(x + 5 + (z % 3), y + 3, 2, 3.5, C.weiss); Q(x + 5.5 + (z % 3), y + 2.5, C.haut);
+            R(x + 2.5, y + 1.5 + ((welt.t * 20) % 8), w - 7, 0.5, 'rgba(255,255,255,0.25)');
+            const gr = b.createRadialGradient(x + w / 2, y + 5, 1, x + w / 2, y + 5, 22); gr.addColorStop(0, 'rgba(140,180,255,0.25)'); gr.addColorStop(1, 'rgba(140,180,255,0)'); b.fillStyle = gr; b.fillRect(x - 15, y - 15, w + 30, 40);
+          } else Q(x + 3.5, y + 2.5, '#3A3A48');
+          R(x + w - 4, y + 2, 2, 1, C.grau); R(x + w - 4, y + 4.5, 2, 1, C.grau); Q(x + w - 3, y + 8, an === 'fernsehen' ? C.gruen : C.rot);
+          R(x + 6, y - 3, 0.5, 3, METALL[1]); R(x + 11, y - 4, 0.5, 4, METALL[1]);
+          break;
+        }
+        case 'sofa': {
+          const s0 = ['#7A3A6A', '#9A5A8A', '#4A1A3A'], s1 = ['#9A4A88', '#BA6AA8', '#6A2A58'];
+          KK(x + w - 9, y - 4, 7, 10, s0); KK(x + 3, y + 4.5, w - 6, 5.5, s1);
+          R(x + 3 + (w - 6) / 2, y + 4.5, 0.5, 5.5, s1[2]);
+          KK(x, y + 1.5, 4, 10.5, s0); KK(x + w - 4, y + 1.5, 4, 10.5, s0);
+          R(x + 2, y + 12, 1.5, 0.5, HOLZ2[2]); R(x + w - 3.5, y + 12, 1.5, 0.5, HOLZ2[2]);
+          K(x + 5, y + 2.5, 6, 2.5, C.gelb, '#FFF08A', '#A89020'); // Kissen
+          R(x + 14, y + 2, 9, 3, '#4A8A9A'); for (let i = 0; i < 4; i++) Q(x + 15 + i * 2, y + 3, '#7ABACA'); // Decke
+          break;
+        }
         case 'lampe': {
           const leuchtet = welt.licht && tageszeit() !== 'tag';
-          R(x + 3, y + 6, 1, h - 7, C.dunkelgrau); R(x + 1, y + h - 1, 5, 1, C.dunkelgrau); poly([[x, y + 6], [x + 1, y], [x + 6, y], [x + 7, y + 6]], leuchtet ? C.gelb : '#B0A060');
-          if (leuchtet) { b.fillStyle = 'rgba(255,240,150,0.12)'; b.beginPath(); b.moveTo(x, y + 6); b.lineTo(x - 14, FOOT[o.f]); b.lineTo(x + 21, FOOT[o.f]); b.lineTo(x + 7, y + 6); b.fill(); }
+          R(x + 3, y + 6, 1, h - 7, C.dunkelgrau); R(x + 3.5, y + 6, 0.5, h - 7, '#2A2A2E'); K(x, y + h - 1.5, 7, 1.5, C.dunkelgrau, C.grau, '#2A2A2E');
+          poly([[x - 0.5, y + 6], [x + 1, y], [x + 6, y], [x + 7.5, y + 6]], leuchtet ? '#FFF0A0' : '#C8B870'); R(x - 0.5, y + 5.5, 8, 0.5, leuchtet ? '#E8C860' : '#A89850');
+          if (leuchtet) { b.fillStyle = 'rgba(255,240,150,0.13)'; b.beginPath(); b.moveTo(x, y + 6); b.lineTo(x - 14, fuss); b.lineTo(x + 21, fuss); b.lineTo(x + 7, y + 6); b.fill(); }
           break;
         }
         case 'kamin':
-          R(x, y, w, h, '#8A8A8A'); for (let j = 0; j < h; j += 3) for (let i = (j / 3) % 2 ? 0 : 3; i < w; i += 6) R(x + i, y + j, 1, 2, '#6A6A6A');
-          R(x - 2, y, w + 4, 3, '#6A6A6A'); R(x + 6, y + 8, w - 12, h - 8, C.schwarz);
-          if (welt.feuer) { for (let i = 0; i < 6; i++) { const fh = 3 + ((Math.floor(welt.t * 8) + i * 3) % 5); R(x + 8 + i * 2, FOOT[o.f] - 2 - fh, 2, fh, i % 2 ? C.orange : C.gelb); } R(x + 7, FOOT[o.f] - 2, w - 14, 2, C.dunkelbraun); }
-          else R(x + 8, FOOT[o.f] - 3, w - 16, 2, C.dunkelbraun);
+          R(x, y, w, h, '#8A8A8A');
+          for (let j = 0; j < h; j += 2.5) { R(x, y + j, w, 0.5, '#6A6A6A'); for (let i = ((j / 2.5) % 2) * 2.5; i < w; i += 5) { R(x + i, y + j + 0.5, 0.5, 2, '#6A6A6A'); R(x + i + 0.5, y + j + 0.5, 4, 0.5, '#A8A8A8'); } }
+          K(x - 2, y - 1, w + 4, 3, '#6A5A4A', '#8A7A6A', '#3A2A1A');
+          R(x + 6, y + 8, w - 12, h - 8, C.schwarz); R(x + 5, y + 7, w - 10, 1, '#5A5A5A');
+          R(x + 2, y - 4, 2, 3, '#E8E0F0'); R(x + w - 6, y - 5, 3, 4, '#C8A060'); R(x + 10, y - 3, 6, 2, '#8A6A3A'); // Kaminsims-Deko
+          if (welt.feuer) {
+            R(x + 7, fuss - 2, w - 14, 2, C.dunkelbraun); R(x + 8, fuss - 3, w - 16, 1, '#7A4A2A');
+            for (let i = 0; i < 12; i++) { const fh = 2 + ((Math.floor(welt.t * 10) + i * 3) % 6) * 0.8; R(x + 7.5 + i * 1.1, fuss - 2.5 - fh, 1, fh, i % 3 === 0 ? '#FFE070' : i % 2 ? C.orange : C.gelb); }
+            const gr = b.createRadialGradient(x + w / 2, fuss - 5, 1, x + w / 2, fuss - 5, 30); gr.addColorStop(0, 'rgba(255,150,50,0.25)'); gr.addColorStop(1, 'rgba(255,150,50,0)'); b.fillStyle = gr; b.fillRect(x - 20, fuss - 35, w + 40, 35);
+          } else { R(x + 8, fuss - 3, w - 16, 2, C.dunkelbraun); R(x + 9, fuss - 3, 3, 0.5, '#7A4A2A'); }
           break;
       }
     }
@@ -764,6 +1029,7 @@ const texte = de
       OBJ.forEach(zeichneObjekt);
       zeichneBrief();
       zeichneMann();
+      lampenLicht();
       // Licht aus (nachts): Räume dunkel, Fenster bleiben hell vom Mond
       const dunkel = nacht && !welt.licht ? 'rgba(4,4,24,0.72)' : nacht ? 'rgba(255,200,90,0.06)' : !welt.licht ? 'rgba(10,10,30,0.28)' : null;
       if (dunkel) {
@@ -779,24 +1045,24 @@ const texte = de
     function schrift() {
       g.textBaseline = 'top';
       // Schriftgröße an die angezeigte Breite anpassen (auf dem Handy wird die Leinwand stark verkleinert)
-      const k = Math.max(0.2, cv.clientWidth / 960), lp = Math.round(Math.max(13, 6.5 / k)), bp = Math.round(Math.max(17, 13 / k));
+      const k = Math.max(0.2, cv.clientWidth / cv.width), lp = Math.round(Math.max(17, 6.5 / k)), bp = Math.round(Math.max(22, 13 / k));
       g.font = `bold ${lp}px ui-monospace, Menlo, Consolas, monospace`;
       ROOMS.forEach((r) => {
         if (!r.n) return;
-        const x = (r.f === 3 ? 92 : r.x1 + 3) * S, y = (r.f === 3 ? 66 : TOP[r.f] + 2) * S;
+        const x = (r.f === 3 ? 196 : r.x1 + 3) * S, y = (r.f === 3 ? 60 : TOP[r.f] + 2) * S;
         g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillText(r.n.toUpperCase(), x + 1, y + 1);
         g.fillStyle = 'rgba(240,240,220,0.85)'; g.fillText(r.n.toUpperCase(), x, y);
       });
       zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, z.x * S, z.y * S); });
       if (blase && welt.t < blase.bis) {
         g.font = `600 ${bp}px system-ui, sans-serif`;
-        const zh = Math.round(bp * 1.25), maxW = Math.min(620, 260 * bp / 17), worte = blase.text.split(' '), zeilen = [];
+        const zh = Math.round(bp * 1.25), maxW = Math.min(820, 340 * bp / 22), worte = blase.text.split(' '), zeilen = [];
         let z = '';
         worte.forEach((w) => { const t = z ? z + ' ' + w : w; if (g.measureText(t).width > maxW && z) { zeilen.push(z); z = w; } else z = t; });
         zeilen.push(z);
         const bw = Math.max(...zeilen.map((l) => g.measureText(l).width)) + 20, bh = zeilen.length * zh + 14;
         const kx = man.x * S, ky = (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S;
-        let bx = Math.max(6, Math.min(960 - bw - 6, kx - bw / 2)), by = ky - bh - 14;
+        let bx = Math.max(6, Math.min(cv.width - bw - 6, kx - bw / 2)), by = ky - bh - 16;
         if (by < 6) by = 6;
         g.fillStyle = '#FFFFF4'; g.strokeStyle = '#101014'; g.lineWidth = 3;
         g.beginPath(); g.roundRect(bx, by, bw, bh, 10); g.fill(); g.stroke();
@@ -880,7 +1146,7 @@ const texte = de
       else welt.t += dt;
       bild();
       g.imageSmoothingEnabled = false;
-      g.drawImage(buf, 0, 0, W * S, H * S);
+      g.drawImage(buf, 0, 0, cv.width, cv.height);
       schrift();
       hud();
       requestAnimationFrame(frame);
@@ -890,7 +1156,8 @@ const texte = de
     requestAnimationFrame(frame);
   </script>
   <style>
-    .haus { max-width: 980px; margin: 0 auto; }
+    /* breiter als die Textspalte, damit die feine Pixel-Grafik zur Geltung kommt */
+    .haus { position: relative; left: 50%; transform: translateX(-50%); width: min(1300px, calc(100vw - 32px)); }
     .haus__intro { color: var(--gedaempft, #9aa); }
     .haus__hud { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: .9rem; margin: .5rem 0; align-items: center; }
     .haus__bar { display: inline-block; width: 64px; height: 8px; background: #333; overflow: hidden; vertical-align: middle; margin-left: 4px; }
