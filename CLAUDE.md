@@ -68,7 +68,16 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Katze „Minka“: läuft selbst durchs Haus (auch Treppen), schläft auf Sofa/Bett/Kisten, sitzt auf Fensterbänken,
   frisst am Napf im Flur (wartet miauend, wenn er leer ist – dann füttert sie das Männchen), wird vom Männchen gestreichelt.
   Knöpfe „Katze füttern“, „Wollknäuel werfen“; Klick auf die Katze streichelt sie (Herzchen).
-  Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`.
+  Besuch (tagsüber alle paar Minuten, `besuchUpdate`): Postbote, Nachbar mit Hund (14–17:30 Uhr oft zum Kaffee am
+  Esstisch, Hund liegt unter dem Tisch, Minka flüchtet ins Obergeschoss), Schornsteinfeger (danach auf dem Dach), bei
+  Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Extras: Computer → Retro-Spiel „Sternenfänger“ (30 s, nichts gespeichert); Fernrohr → echter Sternenhimmel über
+  Stockhausen zur aktuellen Uhrzeit (helle Sterne mit Koordinaten, Sternbilder, Mond mit Phase, vereinfachte Bahn);
+  Plattenspieler → Rock/Walzer/Disco, das Männchen tanzt passend. Ton (Knopf, standardmäßig aus): im Browser erzeugt
+  (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Klingel, Klopfen, Regen, Donner, Kaminknistern, Feuerwerk,
+  eigene kleine Melodien am Plattenspieler.
+  Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`,
+  `?besuch=post|nachbar|kaffee|feger|schippen` (Besuch nach 3 s).
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
   Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
   `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.
