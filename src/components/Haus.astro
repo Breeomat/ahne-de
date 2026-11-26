@@ -30,9 +30,9 @@ const texte = de
       alarm: 'Feuerwehr-Alarm', raffer: 'Zeitraffer (1 Tag in 2 Min.)', rafferAus: 'Zeitraffer beenden',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
       keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
-      kalenderTitel: 'Jahreszeit und Feste:',
+      kalenderTitel: 'Jahreszeit und Feste', gMitmachen: 'Mitmachen', gKatze: 'Katze Minka', gExtras: 'Extras',
       feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
-      besuchTitel: 'Besuch einladen:', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
+      besuchTitel: 'Besuch einladen', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
@@ -49,9 +49,9 @@ const texte = de
       alarm: 'Fire brigade alarm', raffer: 'Time-lapse (1 day in 2 min)', rafferAus: 'Stop time-lapse',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
       keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
-      kalenderTitel: 'Season and holidays:',
+      kalenderTitel: 'Season and holidays', gMitmachen: 'Join in', gKatze: 'Minka the cat', gExtras: 'Extras',
       feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
-      besuchTitel: 'Invite a visitor:', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
+      besuchTitel: 'Invite a visitor', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
@@ -76,29 +76,48 @@ const texte = de
       <span>{texte.hygiene} <i class="haus__bar"><b id="haus-b-hygiene"></b></i></span>
     </div>
     <canvas id="haus-canvas" width="1280" height="960" aria-label={texte.beschreibung} role="img"></canvas>
-    <div class="haus__aktionen">
-      <button type="button" data-aktion="essen">{texte.essen}</button>
-      <button type="button" data-aktion="licht">{texte.licht}</button>
-      <button type="button" data-aktion="klopfen">{texte.klopfen}</button>
-      <button type="button" data-aktion="brief">{texte.brief}</button>
-      <button type="button" data-aktion="futter">{texte.futter}</button>
-      <button type="button" data-aktion="knaeuel">{texte.knaeuel}</button>
-      <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
- <button type="button" data-aktion="alarm">{texte.alarm}</button>
-      <button type="button" data-aktion="raffer" data-an={texte.raffer} data-aus={texte.rafferAus} aria-pressed="false">{texte.raffer}</button>
-      <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
-    </div>
-    <div class="haus__aktionen haus__besuch">
-      <span>{texte.kalenderTitel}</span>
-      {texte.feste.map(([k, l]) => <button type="button" data-fest={k}>{l}</button>)}
-    </div>
-    <div class="haus__aktionen haus__besuch">
-      <span>{texte.besuchTitel}</span>
-      <button type="button" data-besuch="post">{texte.post}</button>
-      <button type="button" data-besuch="nachbar">{texte.nachbar}</button>
-      <button type="button" data-besuch="kaffee">{texte.kaffee}</button>
-      <button type="button" data-besuch="feger">{texte.feger}</button>
-      <button type="button" data-besuch="schippen" hidden>{texte.schippen}</button>
+    <div class="haus__steuerung">
+      <div class="haus__gruppe">
+        <p class="haus__gruppentitel">{texte.gMitmachen}</p>
+        <div class="haus__aktionen">
+          <button type="button" data-aktion="essen">{texte.essen}</button>
+          <button type="button" data-aktion="licht">{texte.licht}</button>
+          <button type="button" data-aktion="klopfen">{texte.klopfen}</button>
+          <button type="button" data-aktion="brief">{texte.brief}</button>
+          <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
+        </div>
+      </div>
+      <div class="haus__gruppe">
+        <p class="haus__gruppentitel">{texte.gKatze}</p>
+        <div class="haus__aktionen">
+          <button type="button" data-aktion="futter">{texte.futter}</button>
+          <button type="button" data-aktion="knaeuel">{texte.knaeuel}</button>
+        </div>
+      </div>
+      <div class="haus__gruppe">
+        <p class="haus__gruppentitel">{texte.besuchTitel}</p>
+        <div class="haus__aktionen">
+          <button type="button" data-besuch="post">{texte.post}</button>
+          <button type="button" data-besuch="nachbar">{texte.nachbar}</button>
+          <button type="button" data-besuch="kaffee">{texte.kaffee}</button>
+          <button type="button" data-besuch="feger">{texte.feger}</button>
+          <button type="button" data-besuch="schippen" hidden>{texte.schippen}</button>
+        </div>
+      </div>
+      <div class="haus__gruppe">
+        <p class="haus__gruppentitel">{texte.gExtras}</p>
+        <div class="haus__aktionen">
+          <button type="button" data-aktion="alarm">{texte.alarm}</button>
+          <button type="button" data-aktion="raffer" data-an={texte.raffer} data-aus={texte.rafferAus} aria-pressed="false">{texte.raffer}</button>
+          <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
+        </div>
+      </div>
+      <div class="haus__gruppe haus__gruppe--breit">
+        <p class="haus__gruppentitel">{texte.kalenderTitel}</p>
+        <div class="haus__aktionen">
+          {texte.feste.map(([k, l]) => <button type="button" data-fest={k}>{l}</button>)}
+        </div>
+      </div>
     </div>
     <form class="haus__brief" id="haus-brief" hidden>
       <label for="haus-brief-text">{texte.briefPlatz}</label>
@@ -2216,16 +2235,23 @@ const texte = de
   </script>
   <style>
     /* breiter als die Textspalte, damit die feine Pixel-Grafik zur Geltung kommt */
-    .haus { position: relative; left: 50%; transform: translateX(-50%); width: min(1300px, calc(100vw - 32px)); }
+    /* 100vw enthält die Scrollleiste, daher etwas mehr Rand, damit rechts nichts abgeschnitten wird */
+    .haus { position: relative; left: 50%; transform: translateX(-50%); width: min(1300px, calc(100vw - 48px)); }
     .haus__intro { color: var(--gedaempft, #9aa); }
     .haus__hud { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: .9rem; margin: .5rem 0; align-items: center; }
     .haus__bar { display: inline-block; width: 64px; height: 8px; background: #333; overflow: hidden; vertical-align: middle; margin-left: 4px; }
     .haus__bar b { display: block; height: 100%; background: #9AD284; transition: width .4s; }
     #haus-canvas { width: 100%; height: auto; background: #000; image-rendering: pixelated; border: 6px solid #6C5EB5; display: block; cursor: pointer; }
-    .haus__aktionen { display: flex; flex-wrap: wrap; gap: 8px; margin-top: .75rem; }
+    .haus__steuerung { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr)); gap: 10px; margin-top: .75rem; }
+    .haus__gruppe { background: rgb(53 40 121 / .35); border: 1px solid #4A3E95; padding: .5rem .6rem .6rem; min-width: 0; }
+    .haus__gruppe--breit { grid-column: 1 / -1; }
+    .haus__gruppentitel { margin: 0 0 .35rem; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; color: #A8A0E0; }
+    .haus__aktionen { display: flex; flex-wrap: wrap; gap: 6px; }
+    .haus__panel .haus__aktionen { margin-top: .25rem; }
     .haus__aktionen button, .haus__brief button {
-      font: inherit; font-size: .9rem; padding: .45rem .8rem; border: 2px solid #6C5EB5; background: #352879; color: #E8E8FF; cursor: pointer;
+      font: inherit; font-size: .82rem; line-height: 1.2; padding: .35rem .6rem; border: 2px solid #6C5EB5; background: #352879; color: #E8E8FF; cursor: pointer; white-space: nowrap;
     }
+    @media (max-width: 600px) { .haus__aktionen button, .haus__brief button { font-size: .78rem; padding: .3rem .5rem; } }
     .haus__aktionen button:hover, .haus__brief button:hover { background: #6C5EB5; }
     .haus__brief { margin-top: .75rem; display: grid; gap: .4rem; }
     .haus__brief div { display: flex; gap: 8px; }
@@ -2244,8 +2270,7 @@ const texte = de
     .haus__panel canvas { display: block; width: min(100%, 480px); height: auto; image-rendering: pixelated; touch-action: none; }
     .haus__panel p { color: #A8C8D8; margin: .5rem 0 0; }
     .haus__aktionen button.an { background: #6C5EB5; }
-    .haus__besuch span { align-self: center; color: var(--gedaempft, #9aa); font-size: .9rem; }
-    .haus__besuch button[hidden] { display: none; }
+    .haus__aktionen button[hidden] { display: none; }
     .haus__tagebuch { margin-top: .75rem; font-size: .9rem; line-height: 1.5; max-height: 220px; overflow: auto; background: #352879; color: #A8C8D8; font-family: ui-monospace, monospace; padding: .5rem .75rem; }
     .haus__tagebuch div { border-bottom: 1px solid #6C5EB5; padding: 2px 0; }
   </style>
