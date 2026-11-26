@@ -481,7 +481,7 @@ const texte = de
     ];
     const NAPF = { f: 1, x: 54 };
     const KSATZ = { miau: tr('Miau!', 'Meow!'), schnurr: tr('Schnurr …', 'Purr …'), hunger: tr('Miau! Miaaau!', 'Meow! Meeeow!') };
-    function kSag(text, sek = 3) { katze.blase = { text, bis: welt.t + sek }; if (/Fauch|Hiss/.test(text)) ton.fauch(); else if (/Mia|Meo/.test(text)) ton.miau(); }
+    function kSag(text, sek = 3) { katze.blase = { text, bis: spielzeit + sek }; if (/Fauch|Hiss/.test(text)) ton.fauch(); else if (/Mia|Meo/.test(text)) ton.miau(); }
     function herz(x, y) { herzen.push({ x, y, t0: welt.t }); }
     function katzeRunter() { if (katze.hoch > 0 && !katze.sprung) katze.sprung = { von: katze.hoch, nach: 0, p: 0 }; }
     function katzeWaehle() {
@@ -579,7 +579,7 @@ const texte = de
     }
     const NAME = tr('Herr Hausmann', 'Mr Hausmann');
     const gesagt = [];
-    function sag(text, sek = 5) { blase = { text, bis: welt.t + sek }; gesagt.push(text); if (gesagt.length > 6) gesagt.shift(); log(DE ? `„${text}“` : `“${text}”`); }
+    function sag(text, sek = 5) { blase = { text, bis: spielzeit + sek }; gesagt.push(text); if (gesagt.length > 6) gesagt.shift(); log(DE ? `„${text}“` : `“${text}”`); }
     // neuen Satz wählen, der nicht gerade erst gesagt wurde (sonst null)
     function neu(fn) { for (let i = 0; i < 6; i++) { const t = fn(); if (!gesagt.includes(t)) return t; } return null; }
 
@@ -956,7 +956,7 @@ const texte = de
       const h = stunde(), kaffee = art === 'kaffee' || (art === 'nachbar' && h >= 14 && h < 17.5 && Math.random() < 0.6);
       if (art === 'kaffee') art = 'nachbar';
       besuch = { art, x: -25, y: 214, dir: -1, schritt: 0, laeuft: false, wege: [[17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, schritt2: 0, kaffee, hund: art === 'nachbar' ? { x: -40, y: 214, dir: 1 } : null, drin: false };
-      if (art === 'schippen') { besuch.art = 'nachbar'; besuch.schippen = true; besuch.wege = [[21, 214], [-25, 214]]; besuch.phase = 'schippt'; besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: welt.t + 4 }; log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.')); }
+      if (art === 'schippen') { besuch.art = 'nachbar'; besuch.schippen = true; besuch.wege = [[21, 214], [-25, 214]]; besuch.phase = 'schippt'; besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: spielzeit + 4 }; log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.')); }
       else log(tr(`${GAST[besuch.art].name} kommt.`, `${GAST[besuch.art].name} is coming.`));
     }
     function besuchLaufe(dt, v = 24) {
@@ -970,7 +970,7 @@ const texte = de
     function besuchUpdate(dt) {
       if (!besuch) {
         const h = stunde(), test = params.get('besuch');
-        if (!man.alarm && welt.t > welt.naechsterBesuch && (test || (!schlafenszeit() && h >= 7.5 && h <= 20.5 && man.taetigkeit !== 'schlafen'))) {
+        if (!man.alarm && !RAFFER.an && welt.t > welt.naechsterBesuch && (test || (!schlafenszeit() && h >= 7.5 && h <= 20.5 && man.taetigkeit !== 'schlafen'))) {
           welt.naechsterBesuch = welt.t + 80 + Math.random() * 90;
           let art = test || (SCHNEE && Math.random() < 0.35 ? 'schippen' : zufall(h >= 9 && h <= 17 ? ['post', 'post', 'nachbar', 'nachbar', 'feger'] : ['nachbar', 'nachbar', 'feger']));
           if (test) params.delete('besuch');
@@ -991,7 +991,7 @@ const texte = de
         if (bs.zeit > 0) return false;
         const z = bs.gespraech.shift();
         if (!z) return true;
-        if (z[0] === 'g') { bs.blase = { text: z[1], bis: welt.t + 3.2 }; log(DE ? `${GAST[bs.art].name}: „${z[1]}“` : `${GAST[bs.art].name}: “${z[1]}”`); } else sag(z[1], 3.2);
+        if (z[0] === 'g') { bs.blase = { text: z[1], bis: spielzeit + 3.2 }; log(DE ? `${GAST[bs.art].name}: „${z[1]}“` : `${GAST[bs.art].name}: “${z[1]}”`); } else sag(z[1], 3.2);
         bs.zeit = 3.4;
         return false;
       };
@@ -1014,7 +1014,7 @@ const texte = de
           return;
         case 'wartet':
           bs.warte = (bs.warte || 0) + dt;
-          if (bs.warte > 30 && man.taetigkeit !== 'besuch') { bs.blase = { text: tr('Hm, niemand da? Dann komme ich ein andermal.', "Hm, nobody home? I'll come back another time."), bis: welt.t + 4 }; bs.phase = 'geht'; bs.wege = [[-25, 214]]; return; }
+          if (bs.warte > 30 && man.taetigkeit !== 'besuch') { bs.blase = { text: tr('Hm, niemand da? Dann komme ich ein andermal.', "Hm, nobody home? I'll come back another time."), bis: spielzeit + 4 }; bs.phase = 'geht'; bs.wege = [[-25, 214]]; return; }
           if (!man.tut && (!man.ziel || man.ziel.tun !== 'besuch') && man.taetigkeit !== 'schlafen') man.ziel = { f: 1, x: 36, o: null, tun: 'besuch' };
           if (man.taetigkeit === 'besuch') { bs.phase = 'tuer'; bs.gespraech = gespraechTuer(bs.art, bs.kaffee); bs.zeit = 0.6; welt.tuerAuf = 999; }
           return;
@@ -1827,9 +1827,9 @@ const texte = de
         g.fillStyle = 'rgba(240,240,220,0.85)'; g.fillText(r.n.toUpperCase(), x, y);
       });
       zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, z.x * S, z.y * S); });
-      if (blase && welt.t < blase.bis) sprechblase(blase.text, man.x * S, (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S, bp);
-      if (besuch && besuch.blase && welt.t < besuch.blase.bis) sprechblase(besuch.blase.text, besuch.x * S, (besuch.y - (besuch.phase === 'kaffee' ? 20 : 24)) * S, bp);
-      if (katze.blase && welt.t < katze.blase.bis) sprechblase(katze.blase.text, katze.x * S, (katze.y - katze.hoch - 10) * S, Math.round(bp * 0.85));
+      if (blase && spielzeit < blase.bis) sprechblase(blase.text, man.x * S, (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S, bp);
+      if (besuch && besuch.blase && spielzeit < besuch.blase.bis) sprechblase(besuch.blase.text, besuch.x * S, (besuch.y - (besuch.phase === 'kaffee' ? 20 : 24)) * S, bp);
+      if (katze.blase && spielzeit < katze.blase.bis) sprechblase(katze.blase.text, katze.x * S, (katze.y - katze.hoch - 10) * S, Math.round(bp * 0.85));
     }
     function sprechblase(text, kx, ky, bp) {
       g.font = `600 ${bp}px system-ui, sans-serif`;
@@ -1933,7 +1933,7 @@ const texte = de
     function plaudern() {
       if (welt.t < naechstesPlaudern) return;
       naechstesPlaudern = welt.t + 25 + Math.random() * 20;
-      if (man.alarm || man.taetigkeit === 'schlafen' || (blase && welt.t < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'kaffee'].includes(besuch.phase))) return;
+      if (man.alarm || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'kaffee'].includes(besuch.phase))) return;
       const t = neu(plauderSatz); if (t) sag(t);
     }
 
@@ -2149,8 +2149,8 @@ const texte = de
       setTimeout(() => { if (man.alarm) man.alarm.kleidung = true; }, 1500); // zieht unterwegs Jacke und Helm an
       man.ziel = { f: 1, x: 36, o: null, tun: 'alarmTuer' };
       sag(tr('Einsatz! Ich muss los!', "Call-out! I've got to go!"), 3);
-      if (besuch && !besuch.drin) { besuch.blase = { text: tr('Oh, ein Einsatz! Viel Erfolg!', 'Oh, a call-out! Good luck!'), bis: welt.t + 3 }; besuch.phase = 'geht'; besuch.wege = [[-25, 214]]; besuch.gespraech = null; }
-      if (besuch && besuch.drin) { besuch.phase = 'raus'; besuch.wege = [[34, 208], [24, 208], [17, 214], [-25, 214]]; besuch.blase = { text: tr('Ich gehe dann mal. Viel Erfolg!', "I'll be off then. Good luck!"), bis: welt.t + 3 }; welt.tuerAuf = 4; }
+      if (besuch && !besuch.drin) { besuch.blase = { text: tr('Oh, ein Einsatz! Viel Erfolg!', 'Oh, a call-out! Good luck!'), bis: spielzeit + 3 }; besuch.phase = 'geht'; besuch.wege = [[-25, 214]]; besuch.gespraech = null; }
+      if (besuch && besuch.drin) { besuch.phase = 'raus'; besuch.wege = [[34, 208], [24, 208], [17, 214], [-25, 214]]; besuch.blase = { text: tr('Ich gehe dann mal. Viel Erfolg!', "I'll be off then. Good luck!"), bis: spielzeit + 3 }; welt.tuerAuf = 4; }
     }
     // gibt true zurück, solange der Alarm die Bewegung übernimmt (draußen, weg, zurück)
     function alarmUpdate(dt) {
@@ -2217,7 +2217,8 @@ const texte = de
       last = now;
       spielzeit += dt;
       rafferTick();
-      if (!reduziert) { update(dt); plaudern(); }
+      // im Zeitraffer laufen Herr Hausmann, Minka und Besuch fünfmal so schnell (Sprechblasen bleiben lesbar)
+      if (!reduziert) { update(dt * (RAFFER.an ? 5 : 1)); plaudern(); }
       if (!sternePanel.hidden && now - sterneZuletzt > 30000) { sterneZuletzt = now; sterneZeichnen(); }
       else welt.t += dt;
       bild();

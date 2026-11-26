@@ -80,7 +80,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Feuerwehr-Alarm (Knopf): Piepser, Herr Hausmann läuft doppelt so schnell zur Haustür, zieht Jacke und Helm an, ist
   ca. eine halbe Minute weg; das Feuerwehrauto mit Blaulicht fährt auf der Dorfstraße in der Landschaft vorbei (in den
   Fenstern und neben dem Haus zu sehen), Martinshorn bei Ton an; danach kommt er müde zurück. Kein Besuch währenddessen.
-  Zeitraffer (Knopf): 24 Stunden in 120 s ab 6 Uhr (`RAFFER`, `stunde()`), Himmel, Wärmepumpen (Vortag), PV und Akku
+  Zeitraffer (Knopf): 24 Stunden in 120 s ab 6 Uhr (`RAFFER`, `stunde()`), Figuren und Besuch 5× so schnell (Sprechblasen
+  in Echtzeit, `spielzeit`), nur die festen Besuche; Himmel, Wärmepumpen (Vortag), PV und Akku
   laufen mit; Post um 10 Uhr, Kaffeebesuch um 15 Uhr; endet von selbst.
   Besucher kommen und gehen nur über den Weg links neben dem Haus (nicht vor dem Keller entlang).
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
