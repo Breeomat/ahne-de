@@ -5,7 +5,7 @@
 // Mitmachen: Gegenstände anklicken, Essen hinstellen, Licht, Anklopfen, Brief schreiben (Antwort aus festen Sätzen,
 // nichts wird gesendet oder gespeichert).
 // Stockhausen: Uhrzeit und Sonnenstand des Besuchers, echtes Wetter (src/data/wetter.json wie beim Drohnenflug),
-// Blick aus den Fenstern aufs Dorf, Dorfzeitung mit den Terminen von stockhausen-online (src/data/termine.json,
+// Blick aus den Fenstern aufs Dorf, Dorfzeitung (nur unter dem Bild, das Männchen nennt keine Termine) mit den Terminen von stockhausen-online (src/data/termine.json,
 // scripts/termine.mjs im Workflow). Test: ?wetter=klar|wolkig|bedeckt|nebel|niesel|regen|schnee|gewitter,
 // ?zeit=nacht|morgen|tag|abend.
 // Grafik: Puffer 320×240 in ganzen Pixeln, ohne Glättung 3× vergrößert; Schrift (Raumnamen, Sprechblasen) wird
@@ -95,7 +95,7 @@ const texte = de
     <p class="haus__hinweis"><small>{texte.hinweis}</small></p>
     <div id="haus-tagebuch" class="haus__tagebuch" aria-live="polite"></div>
   </section>
-  <script define:vars={{ sprache, wetter, termine }}>
+  <script define:vars={{ sprache, wetter }}>
     const DE = sprache === 'de';
     const tr = (d, e) => (DE ? d : e);
     const cv = document.getElementById('haus-canvas');
@@ -428,13 +428,18 @@ const texte = de
     // neuen Satz wählen, der nicht gerade erst gesagt wurde (sonst null)
     function neu(fn) { for (let i = 0; i < 6; i++) { const t = fn(); if (!gesagt.includes(t)) return t; } return null; }
 
-    // ---------------------------------------------------------------- Termine (Dorfzeitung)
-    const fmtTag = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString(DE ? 'de-DE' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-    function terminSatz() {
-      if (!termine.length) return tr('In der Zeitung steht nichts Neues aus dem Dorf.', 'Nothing new from the village in the paper.');
-      const t = termine[Math.floor(Math.random() * Math.min(3, termine.length))];
-      return tr(`Am ${fmtTag(t.tag)}: ${t.titel}${t.ort ? ' – ' + t.ort : ''}.`, `On ${fmtTag(t.tag)}: ${t.titel}.`);
+    // Sprüche zur Temperatur (ohne Termine)
+    function tempSatz() {
+      const t = WETTER.temp;
+      if (t === null) return null;
+      if (t <= -5) return tr(`Brr, ${t} Grad! Da bleibe ich lieber drinnen.`, `Brr, ${t} degrees! I'd rather stay in.`);
+      if (t <= 0) return tr(`${t} Grad – es friert draußen.`, `${t} degrees – it's freezing outside.`);
+      if (t <= 8) return tr(`Nur ${t} Grad. Zeit für einen warmen Pulli.`, `Only ${t} degrees. Time for a warm jumper.`);
+      if (t <= 18) return tr(`${t} Grad, ganz angenehm.`, `${t} degrees, quite pleasant.`);
+      if (t <= 26) return tr(`${t} Grad – herrlich warm!`, `${t} degrees – lovely and warm!`);
+      return tr(`Puh, ${t} Grad! Zum Glück ist es im Haus kühler.`, `Phew, ${t} degrees! Luckily it's cooler indoors.`);
     }
+
 
     // ---------------------------------------------------------------- Sätze
     function wetterSatz() {
@@ -459,7 +464,7 @@ const texte = de
       const tz = schlafenszeit() ? 'nacht' : tageszeit() === 'nacht' ? 'abend' : tageszeit(), r = Math.random();
       if (r < 0.2) return festSatz();
       if (r < 0.38) return wetterSatz();
-      if (r < 0.5 && termine.length) return terminSatz();
+      if (r < 0.5) return tempSatz() || wetterSatz();
       if (r < 0.62) return launeSatz();
       const s = DE ? {
         morgen: ['Guten Morgen, Stockhausen!', 'Erst mal einen Kaffee.'], tag: ['Was mache ich heute noch?', 'Hier ist es gemütlich.', 'Die Fenster könnte ich auch mal putzen.'],
@@ -477,7 +482,7 @@ const texte = de
       if (/wie geht|how are/.test(t)) return launeSatz();
       if (/wetter|regen|sonne|schnee|kalt|warm|weather|rain|snow|cold/.test(t)) return wetterSatz();
       if (/hunger|essen|kochen|food|eat|cook/.test(t)) return tr('Stell mir doch etwas zu essen hin!', 'Why not serve me a meal?');
-      if (/termin|dorf|fest|stockhausen|event|village/.test(t)) return terminSatz();
+      if (/termin|dorf|fest|stockhausen|event|village/.test(t)) return tr('Schau doch mal in die Dorfzeitung unter dem Haus!', 'Have a look at the village paper below the house!');
       if (/drohne|drone/.test(t)) return tr('Meine Drohne auf dem Dachboden fliegt fast schon!', 'My drone in the attic almost flies!');
       if (/schalke|fußball|fussball|football|soccer/.test(t)) return tr('Fußball? Den schaue ich gern im Fernsehen.', 'Football? I like watching it on TV.');
       if (/danke|thank/.test(t)) return tr('Gern geschehen!', "You're welcome!");
@@ -538,7 +543,7 @@ const texte = de
       if (z.tun === 'feuer') welt.feuer = true;
       if (z.tun === 'naschen') welt.kuehlAuf = 3;
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
-      if (z.tun === 'zeitung') sag(terminSatz(), 6);
+      if (z.tun === 'zeitung') { const t = neu(() => zufall(DE ? ['Mal sehen, was es Neues gibt.', 'Die Zeitung lese ich am liebsten in Ruhe.', 'Interessant, interessant …'] : ["Let's see what's new.", 'I like reading the paper in peace.', 'Interesting, interesting …'])); if (t) sag(t); }
       if (z.tun === 'fuettern') { welt.napf = 10; sag(tr(`Hier, ${KNAME}, dein Futter!`, `Here you go, ${KNAME}!`)); }
       if (z.tun === 'streicheln') {
         man.dir = Math.sign(katze.x - man.x) || 1;

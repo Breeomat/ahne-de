@@ -57,7 +57,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   in halben Pixeln auf 640×480, angezeigt 1280×960 ohne Glättung; Mauer, Dach und Wandeinrichtung einmal vorgezeichnet
   (`statisch()`), Spielfeld breiter als die Textspalte; Schrift und Sprechblasen scharf auf der großen Leinwand, Größe passt sich der Bildschirmbreite an).
   Männchen mit Bedürfnissen lebt seinen Tag (kochen, essen, lesen, fernsehen, basteln, duschen, schlafen; Schlafenszeit
-  22:30–6:30 Uhr), Sprechblasen. Mitmachen: Gegenstände anklicken, Essen hinstellen, Licht, Anklopfen, Brief (Antwort aus
+  22:30–6:30 Uhr), Sprechblasen (Wetter, Gradzahl, Jahreszeit/Fest, Laune – keine Termine, Wunsch des Seiteninhabers). Mitmachen: Gegenstände anklicken, Essen hinstellen, Licht, Anklopfen, Brief (Antwort aus
   festen Sätzen, nichts wird gesendet/gespeichert), Dorfzeitung. Echtes Wetter (`src/data/wetter.json`), Sonnenstand
   und Uhrzeit des Besuchers, Blick aufs Dorf aus den Fenstern, Termine der nächsten 14 Tage aus stockhausen-online
   (`scripts/termine.mjs` im Workflow → `src/data/termine.json`, Platzhalter `{ "termine": [] }`).
