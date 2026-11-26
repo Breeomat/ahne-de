@@ -66,7 +66,7 @@ const texte = de
     const cv = document.getElementById('haus-canvas');
     const g = cv.getContext('2d');
     // Pixelpuffer: alles wird bei 1/4 Auflösung gezeichnet und dann ohne Glättung vergrößert
-    const BW = 160, BH = 128;
+    const BW = 350, BH = 280;
     const buf = document.createElement('canvas');
     buf.width = BW; buf.height = BH;
     const bg = buf.getContext('2d');
@@ -234,7 +234,7 @@ const texte = de
 
     // Pixel-Helfer: Rechtecke in Spielkoordinaten
     const R = (x, y, w, h, c) => { bg.fillStyle = c; bg.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(w)), Math.max(1, Math.round(h))); };
-    const T = (txt, x, y, c = '#FFFFFF') => { bg.font = '8px monospace'; bg.fillStyle = c; bg.fillText(txt, x, y); };
+    const T = (txt, x, y, c = '#FFFFFF') => { bg.font = 'bold 13px monospace'; bg.fillStyle = c; bg.fillText(txt, x, y); };
     const ROT = '#B03A2E', SCHWARZ = '#141414', GRAU = '#9E9E9E', GRUEN = '#3FA34D', BLAU = '#3A3ACF', LILA = '#A23AA8', GELB = '#E6E62E', WEISS = '#F2F2F2', HELLBLAU = '#9AF0F0';
 
     // Zeichnungen der Gegenstände, Ursprung oben links (x, y, w, h)
