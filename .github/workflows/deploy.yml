@@ -37,6 +37,9 @@ jobs:
       # Wetter für den Drohnenflug (scripts/wetter.mjs, Open-Meteo); bei Fehlern ohne Wetter
       - name: Wetter holen
         run: node scripts/wetter.mjs
+      # Termine für die Dorfzeitung im Haus-Männchen (scripts/termine.mjs, stockhausen-online); bei Fehlern ohne Termine
+      - name: Termine holen
+        run: node scripts/termine.mjs
       - run: npm run build
       - uses: actions/upload-pages-artifact@v5
         with:
