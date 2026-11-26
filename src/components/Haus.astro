@@ -24,9 +24,10 @@ const termine = (termineDaten as { termine?: { tag: string; titel: string; ort?:
 const texte = de
   ? {
       titel: 'Haus-Männchen',
-      beschreibung: 'Ein kleines Männchen in seinem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
+      beschreibung: 'Ein kleines Männchen und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
       hinweis: 'Klick auf einen Gegenstand, dann geht das Männchen dorthin. Wetter und Uhrzeit sind echt.',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
+      futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
       briefPlatz: 'Was möchtest du dem Männchen schreiben?', senden: 'Einwerfen',
       briefHinweis: 'Der Brief bleibt in deinem Browser, nichts wird gesendet oder gespeichert.',
       zeitungTitel: 'Dorfzeitung Stockhausen', keineTermine: 'In den nächsten zwei Wochen stehen keine Termine im Kalender.',
@@ -35,9 +36,10 @@ const texte = de
     }
   : {
       titel: 'House figure',
-      beschreibung: 'A little figure living in its house in Stockhausen. Watch, click on objects or join in.',
+      beschreibung: 'A little figure and its cat Minka living in their house in Stockhausen. Watch, click on objects or join in.',
       hinweis: 'Click an object and the figure will go there. Weather and time of day are real.',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
+      futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
       briefPlatz: 'What would you like to write to the figure?', senden: 'Post it',
       briefHinweis: 'The letter stays in your browser; nothing is sent or stored.',
       zeitungTitel: 'Stockhausen village paper', keineTermine: 'No events in the calendar for the next two weeks.',
@@ -63,6 +65,8 @@ const texte = de
       <button type="button" data-aktion="licht">{texte.licht}</button>
       <button type="button" data-aktion="klopfen">{texte.klopfen}</button>
       <button type="button" data-aktion="brief">{texte.brief}</button>
+      <button type="button" data-aktion="futter">{texte.futter}</button>
+      <button type="button" data-aktion="knaeuel">{texte.knaeuel}</button>
       <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
     </div>
     <form class="haus__brief" id="haus-brief" hidden>
@@ -176,6 +180,48 @@ const texte = de
       niesel: tr('Niesel', 'drizzle'), regen: tr('Regen', 'rain'), schnee: tr('Schnee', 'snow'), gewitter: tr('Gewitter', 'thunderstorm'),
     };
 
+    // ---------------------------------------------------------------- Kalender: Jahreszeiten und Feiertage (Test: ?datum=JJJJ-MM-TT)
+    const HEUTE = (() => { const d = params.get('datum'); const t = d ? new Date(d + 'T12:00:00') : new Date(); return isNaN(t) ? new Date() : t; })();
+    const MON = HEUTE.getMonth() + 1, TAG = HEUTE.getDate(), JAHR = HEUTE.getFullYear(), MD = MON * 100 + TAG;
+    const tageBis = (d) => Math.round((d - new Date(JAHR, MON - 1, TAG, 12)) / 864e5);
+    function ostersonntag(j) { // Gaußsche Osterformel (Meeus)
+      const a = j % 19, b = Math.floor(j / 100), c = j % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const mon = Math.floor((h + l - 7 * m + 114) / 31), tag = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(j, mon - 1, tag, 12);
+    }
+    const zuOstern = tageBis(ostersonntag(JAHR));
+    const heiligabend = new Date(JAHR, 11, 24, 12), vierterAdvent = new Date(JAHR, 11, 24 - heiligabend.getDay(), 12);
+    const seitAdvent = -tageBis(new Date(vierterAdvent.getTime() - 21 * 864e5));
+    const FEST = {
+      advent: seitAdvent >= 0 && MON >= 11 && MD <= 1223,
+      kerzen: Math.max(0, Math.min(4, Math.floor(seitAdvent / 7) + 1)),
+      weihnachten: MD >= 1224 || MD <= 106,
+      geschenke: MD >= 1224 && MD <= 1226,
+      silvester: MD === 1231 || (MD === 101 && stunde() < 3),
+      neujahr: MD === 101,
+      nikolaus: MD === 1206,
+      halloween: MD >= 1025 && MD <= 1031,
+      ostern: zuOstern <= 2 && zuOstern >= -1,
+    };
+    FEST.lichterkette = FEST.advent || FEST.weihnachten;
+    const JAHRESZEIT = MD >= 321 && MD <= 620 ? 'fruehling' : MD >= 621 && MD <= 922 ? 'sommer' : MD >= 923 && MD <= 1220 ? 'herbst' : 'winter';
+    const LAUBFALL = JAHRESZEIT === 'herbst' && MD <= 1130;
+    function festSatz() {
+      if (FEST.silvester) return tr(stunde() < 3 && MD === 101 ? 'Frohes neues Jahr!' : 'Heute ist Silvester! Ich freue mich aufs Feuerwerk.', stunde() < 3 && MD === 101 ? 'Happy New Year!' : "It's New Year's Eve! I'm looking forward to the fireworks.");
+      if (FEST.neujahr) return tr('Frohes neues Jahr, Stockhausen!', 'Happy New Year, Stockhausen!');
+      if (FEST.geschenke) return tr('Frohe Weihnachten! Unter dem Baum liegen Geschenke.', 'Merry Christmas! There are presents under the tree.');
+      if (FEST.weihnachten) return tr('Der Weihnachtsbaum leuchtet so schön.', 'The Christmas tree looks so pretty.');
+      if (FEST.nikolaus) return tr('Heute ist Nikolaus! Mal sehen, was im Stiefel ist.', "It's St Nicholas Day! Let's see what's in the boot.");
+      if (FEST.advent) return tr(FEST.kerzen === 1 ? 'Die erste Kerze am Adventskranz brennt.' : `Schon ${FEST.kerzen} Kerzen am Adventskranz!`, FEST.kerzen === 1 ? 'The first Advent candle is lit.' : `${FEST.kerzen} Advent candles already!`);
+      if (FEST.halloween) return tr('Der Kürbis vor der Tür grinst schon.', 'The pumpkin by the door is grinning.');
+      if (FEST.ostern) return tr('Frohe Ostern! Im Garten sind Eier versteckt.', 'Happy Easter! There are eggs hidden in the garden.');
+      return {
+        fruehling: tr('Der Baum im Garten blüht!', 'The tree in the garden is in blossom!'), sommer: tr('Herrlicher Sommer im Vogelsberg.', 'Lovely summer in the Vogelsberg.'),
+        herbst: tr('Die Blätter werden bunt.', 'The leaves are turning.'), winter: tr('Draußen ist es winterlich.', "It's wintry outside."),
+      }[JAHRESZEIT];
+    }
+
     // ---------------------------------------------------------------- Haus: Geschosse, Räume, Fenster
     const FOOT = { 1: 208, 2: 148, 3: 88 };
     const TOP = { 1: 152, 2: 92, 3: 24 };
@@ -226,7 +272,7 @@ const texte = de
       { id: 'kamin', n: tr('Kamin', 'Fireplace'), f: 1, x: 256, w: 28, h: 22, act: 'feuer', sx: 252 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
-    const DAUER = { schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -235,17 +281,20 @@ const texte = de
       lesen: (n) => { n.fun = Math.min(100, n.fun + 25); }, naschen: (n) => { n.hunger = Math.min(100, n.hunger + 35); },
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
+      fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
     };
     const TUN = DE ? {
       schlafen: 'legt sich schlafen.', musik: 'legt eine Platte auf.', basteln: 'bastelt an einer kleinen Drohne.', sterne: 'schaut durchs Fernrohr.',
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes its hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -259,6 +308,111 @@ const texte = de
     if (nacht0) { man.tut = O.bett; man.taetigkeit = 'schlafen'; man.zeit = DAUER.schlafen; }
     let blase = null; // { text, bis }
 
+    // ---------------------------------------------------------------- Katze Minka
+    const KNAME = 'Minka';
+    const katze = { x: nacht0 ? 66 : 214, f: nacht0 ? 2 : 1, y: 0, dir: -1, ziel: null, tun: 'schlafen', zeit: 15 + Math.random() * 20, hunger: 70, klettern: null, schritt: 0, hoch: nacht0 ? 9 : 7, sprung: null, blase: null, laeuft: false, gespielt: 0 };
+    katze.y = FOOT[katze.f];
+    welt.napf = 0; welt.knaeuel = null;
+    const herzen = [];
+    const KPLATZ = [
+      { id: 'sofa', f: 1, x: 214, h: 7, tun: 'schlafen' },
+      { id: 'bett', f: 2, x: 66, h: 9, tun: 'schlafen' },
+      { id: 'fenster1', f: 1, x: 216, h: FOOT[1] - 177, tun: 'sitzen' },
+      { id: 'fenster2', f: 2, x: 100, h: FOOT[2] - 123, tun: 'sitzen' },
+      { id: 'kisten', f: 3, x: 234, h: 10, tun: 'schlafen' },
+      { id: 'kamin', f: 1, x: 248, h: 0, tun: 'schlafen', nur: () => welt.feuer },
+      { id: 'teppich', f: 1, x: 190, h: 0, tun: 'putzen' },
+      { id: 'flur', f: 1, x: 46, h: 0, tun: 'sitzen' },
+    ];
+    const NAPF = { f: 1, x: 54 };
+    const KSATZ = { miau: tr('Miau!', 'Meow!'), schnurr: tr('Schnurr …', 'Purr …'), hunger: tr('Miau! Miaaau!', 'Meow! Meeeow!') };
+    function kSag(text, sek = 3) { katze.blase = { text, bis: welt.t + sek }; }
+    function herz(x, y) { herzen.push({ x, y, t0: welt.t }); }
+    function katzeRunter() { if (katze.hoch > 0 && !katze.sprung) katze.sprung = { von: katze.hoch, nach: 0, p: 0 }; }
+    function katzeWaehle() {
+      if (katze.hunger < 35) { katze.ziel = { f: NAPF.f, x: NAPF.x, h: 0, tun: welt.napf > 0 ? 'fressen' : 'warten' }; return; }
+      if (welt.knaeuel) { katze.ziel = { f: welt.knaeuel.f, x: welt.knaeuel.x, h: 0, tun: 'spielen', ball: true }; return; }
+      const r0 = Math.random();
+      if (r0 < 0.2 && man.f !== 3 && man.taetigkeit !== 'schlafen') { katze.ziel = { f: man.f, x: Math.max(36, Math.min(284, man.x + (man.x > 160 ? -10 : 10))), h: 0, tun: 'sitzen' }; return; }
+      let plaetze = KPLATZ.filter((p) => !p.nur || p.nur());
+      if (schlafenszeit() && Math.random() < 0.6) plaetze = [KPLATZ[1]];
+      const p = zufall(plaetze);
+      katze.ziel = { f: p.f, x: p.x, h: p.h, tun: p.tun };
+    }
+    function katzeLaufe(tx, dt) {
+      const v = 34 * dt;
+      if (Math.abs(tx - katze.x) <= v) katze.x = tx; else { katze.dir = Math.sign(tx - katze.x); katze.x += katze.dir * v; katze.laeuft = true; }
+      return katze.x === tx;
+    }
+    function katzeUpdate(dt) {
+      const k = katze;
+      k.hunger = Math.max(0, k.hunger - dt * (k.tun === 'schlafen' ? 0.05 : 0.15));
+      k.laeuft = false;
+      // Wollknäuel rollt aus
+      if (welt.knaeuel) { const kn = welt.knaeuel; kn.x += kn.vx * dt; kn.vx *= Math.pow(0.96, dt * 60); kn.dreh += kn.vx * dt; const lo = kn.f === 3 ? 84 : 34, hi = kn.f === 3 ? 236 : 286; if (kn.x < lo) { kn.x = lo; kn.vx = Math.abs(kn.vx); } if (kn.x > hi) { kn.x = hi; kn.vx = -Math.abs(kn.vx); } }
+      if (k.sprung) {
+        const s = k.sprung; s.p = Math.min(1, s.p + dt / 0.4);
+        k.hoch = s.von + (s.nach - s.von) * s.p + Math.sin(s.p * Math.PI) * 5;
+        if (s.p >= 1) { k.hoch = s.nach; k.sprung = null; }
+        return;
+      }
+      if (k.klettern) {
+        const c = k.klettern; c.p = Math.min(1, c.p + dt * 1.3);
+        k.x = c.x0 + (c.x1 - c.x0) * c.p; k.y = c.y0 + (c.y1 - c.y0) * c.p; k.laeuft = true; k.schritt += dt * 9;
+        if (c.p >= 1) { k.f = c.nach; k.y = FOOT[k.f]; k.klettern = null; }
+        return;
+      }
+      if (k.tun) {
+        k.zeit -= dt;
+        if (k.tun === 'fressen') { if (welt.napf > 0) { k.hunger = Math.min(100, k.hunger + 18 * dt); welt.napf = Math.max(0, welt.napf - dt); } if (k.hunger >= 100 || welt.napf <= 0) k.zeit = Math.min(k.zeit, 0); }
+        if (k.tun === 'warten') { if (welt.napf > 0) { k.tun = 'fressen'; k.zeit = 8; } else if (Math.random() < dt / 4) kSag(KSATZ.hunger); }
+        if (k.tun === 'spielen' && welt.knaeuel) { k.tun = null; k.zeit = 0; }
+        if (k.zeit <= 0 && k.tun !== 'warten') { if (k.tun === 'fressen') log(tr(`${KNAME} hat gefressen.`, `${KNAME} has eaten.`)); k.tun = null; katzeRunter(); }
+        return;
+      }
+      if (!k.ziel) katzeWaehle();
+      const z = k.ziel;
+      if (z.ball && welt.knaeuel) { z.f = welt.knaeuel.f; z.x = welt.knaeuel.x; }
+      if (k.f !== z.f) {
+        const hoch = z.f > k.f, t = TREPPEN[hoch ? k.f : k.f - 1], startX = hoch ? t.x0 : t.x1;
+        if (katzeLaufe(startX, dt)) {
+          k.klettern = hoch ? { x0: t.x0, x1: t.x1, y0: FOOT[t.von], y1: FOOT[t.nach], p: 0, nach: t.nach } : { x0: t.x1, x1: t.x0, y0: FOOT[t.nach], y1: FOOT[t.von], p: 0, nach: t.von };
+          k.dir = Math.sign(k.klettern.x1 - k.klettern.x0);
+        }
+      } else if (katzeLaufe(z.x, dt)) {
+        k.ziel = null;
+        if (z.ball) {
+          if (!welt.knaeuel) return;
+          welt.knaeuel.vx = (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 30); k.gespielt++;
+          if (k.gespielt === 1) log(tr(`${KNAME} spielt mit dem Wollknäuel.`, `${KNAME} plays with the ball of yarn.`));
+          if (k.gespielt >= 5) { welt.knaeuel = null; k.gespielt = 0; k.tun = 'putzen'; k.zeit = 4; log(tr(`${KNAME} hat genug gespielt.`, `${KNAME} has had enough play.`)); }
+          return;
+        }
+        k.tun = z.tun; k.zeit = z.tun === 'schlafen' ? 25 + Math.random() * 30 : z.tun === 'warten' ? 999 : 6 + Math.random() * 6;
+        if (z.tun === 'warten') { kSag(KSATZ.hunger); log(tr(`${KNAME} sitzt vor dem leeren Napf.`, `${KNAME} sits by the empty bowl.`)); }
+        if (z.tun === 'fressen') k.zeit = 8;
+        if (z.h > 0) { k.sprung = { von: 0, nach: z.h, p: 0 }; k.dir = z.x < 160 ? 1 : -1; }
+      }
+      if (k.laeuft) k.schritt += dt * 9;
+    }
+
+    // Katzen-Sprites (doppelte Auflösung, Blick nach rechts)
+    const KFARBE = { o: '#A2A2AA', s: '#5E5E68', w: '#F6F6F2', g: '#7AE07A', k: C.schwarz, n: '#E88A9A', t: '#80808A' };
+    const KATZE_LAUF = [
+      '...............o..o.', '..t............oooo.', '.tt............ogko.', '.t.............ooooo', '.t..oooooooooooooon.', '.toooosoososooooww..',
+      '..oooooooooooooww...', '..ooooooooooooooo...', '...oo.oo....oo.oo...', '...oo.oo....oo.oo...', '...ww.ww....ww.ww...',
+    ];
+    const KATZE_LAUF2 = [...KATZE_LAUF.slice(0, 8), '....oo.oo..oo...oo..', '...oo...oo.oo....oo.', '...ww...ww.ww....ww.'];
+    const KATZE_SITZ = [
+      '............o..o....', '............oooo....', '............ogko....', '............ooooon..', '............oooo....', '..........owwooo....',
+      '.........ooowwoo....', '........oooowwoo....', '.......osoosoooo....', '..t....ooooooooo....', '..tt..oooooooooo....', '...tttoooooooooo....', '......ww.ww.ww......',
+    ];
+    const KATZE_SCHLAF = [
+      '......o..o..........', '....ooooooooooo.....', '...oooosoosooooo....', '..ooooooooooooooot..', '..oooooooooooooottt.', '...ttooooooooooot...', '....tttttt..........',
+    ];
+    const KZ = 1.5; // Vergrößerung der Katze
+
+
     // ---------------------------------------------------------------- Tagebuch und Sprechblasen
     const tagebuch = document.getElementById('haus-tagebuch');
     const uhrText = () => new Date().toLocaleTimeString(DE ? 'de-DE' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -269,7 +423,10 @@ const texte = de
       while (tagebuch.children.length > 60) tagebuch.lastChild.remove();
     }
     const NAME = tr('Das Männchen', 'The figure');
-    function sag(text, sek = 5) { blase = { text, bis: welt.t + sek }; log(DE ? `„${text}“` : `“${text}”`); }
+    const gesagt = [];
+    function sag(text, sek = 5) { blase = { text, bis: welt.t + sek }; gesagt.push(text); if (gesagt.length > 6) gesagt.shift(); log(DE ? `„${text}“` : `“${text}”`); }
+    // neuen Satz wählen, der nicht gerade erst gesagt wurde (sonst null)
+    function neu(fn) { for (let i = 0; i < 6; i++) { const t = fn(); if (!gesagt.includes(t)) return t; } return null; }
 
     // ---------------------------------------------------------------- Termine (Dorfzeitung)
     const fmtTag = (iso) => new Date(iso + 'T12:00:00').toLocaleDateString(DE ? 'de-DE' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -300,9 +457,10 @@ const texte = de
     }
     function plauderSatz() {
       const tz = schlafenszeit() ? 'nacht' : tageszeit() === 'nacht' ? 'abend' : tageszeit(), r = Math.random();
-      if (r < 0.3) return wetterSatz();
-      if (r < 0.45 && termine.length) return terminSatz();
-      if (r < 0.6) return launeSatz();
+      if (r < 0.2) return festSatz();
+      if (r < 0.38) return wetterSatz();
+      if (r < 0.5 && termine.length) return terminSatz();
+      if (r < 0.62) return launeSatz();
       const s = DE ? {
         morgen: ['Guten Morgen, Stockhausen!', 'Erst mal einen Kaffee.'], tag: ['Was mache ich heute noch?', 'Hier ist es gemütlich.', 'Die Fenster könnte ich auch mal putzen.'],
         abend: ['Was für ein Abendhimmel!', 'Bald wird es dunkel.'], nacht: ['Wie ruhig es nachts im Dorf ist.', 'Eigentlich sollte ich schlafen.'],
@@ -372,7 +530,7 @@ const texte = de
     function anfangen(z) {
       man.ziel = null;
       if (!z.tun) return;
-      if (z.tun === 'fenster') { man.warte = 3; man.dir = z.x < 160 ? -1 : 1; if (Math.random() < 0.7) sag(wetterSatz()); return; }
+      if (z.tun === 'fenster') { man.warte = 3; man.dir = z.x < 160 ? -1 : 1; const t = Math.random() < 0.6 ? neu(() => (Math.random() < 0.5 ? wetterSatz() : festSatz())) : null; if (t) sag(t); return; }
       man.tut = z.o || { pose: 'steh' }; man.taetigkeit = z.tun; man.zeit = DAUER[z.tun] || 5;
       if (z.o && z.o.links) man.dir = -1; else if (z.o) man.dir = (z.o.x + z.o.w / 2) >= man.x ? 1 : -1; else man.dir = -1;
       log(`${NAME} ${TUN[z.tun]}`);
@@ -381,6 +539,13 @@ const texte = de
       if (z.tun === 'naschen') welt.kuehlAuf = 3;
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
       if (z.tun === 'zeitung') sag(terminSatz(), 6);
+      if (z.tun === 'fuettern') { welt.napf = 10; sag(tr(`Hier, ${KNAME}, dein Futter!`, `Here you go, ${KNAME}!`)); }
+      if (z.tun === 'streicheln') {
+        man.dir = Math.sign(katze.x - man.x) || 1;
+        if (Math.abs(katze.x - man.x) > 14 || katze.f !== man.f) { man.tut = null; man.taetigkeit = null; return; }
+        if (!katze.tun || katze.tun === 'putzen') { katze.tun = 'sitzen'; katze.zeit = 5; katze.ziel = null; }
+        kSag(KSATZ.schnurr); herz(katze.x, katze.y - katze.hoch - 8);
+      }
       if (z.tun === 'essen' && welt.gast) { sag(tr('Danke, lecker!', 'Thanks, delicious!')); welt.gast = false; }
     }
     function fertig() {
@@ -403,6 +568,7 @@ const texte = de
 
     function update(dt) {
       welt.t += dt;
+      katzeUpdate(dt);
       if (welt.tuerAuf > 0) welt.tuerAuf -= dt;
       if (welt.kuehlAuf > 0) welt.kuehlAuf -= dt;
       if (welt.blitz > 0) welt.blitz -= dt;
@@ -422,6 +588,7 @@ const texte = de
         return;
       }
       if (man.tut) {
+        if (man.taetigkeit === 'streicheln' && Math.random() < dt * 1.5) herz(katze.x + Math.random() * 4 - 2, katze.y - katze.hoch - 8);
         man.zeit -= dt;
         if (man.zeit <= 0 && !(schlaeft && schlafenszeit())) fertig();
         return;
@@ -432,6 +599,9 @@ const texte = de
         if (welt.dunkelSeit > 5) { welt.licht = true; welt.dunkelSeit = 0; sag(tr('So, wieder Licht.', 'There, lights back on.')); }
       } else welt.dunkelSeit = 0;
       if (man.warte > 0) { man.warte -= dt; return; }
+      if (!man.ziel && katze.tun === 'warten' && welt.napf <= 0) man.ziel = { f: NAPF.f, x: NAPF.x + 7, o: null, tun: 'fuettern' };
+      if (!man.ziel && Math.random() < 0.12 && !katze.klettern && !katze.sprung && katze.hoch <= 9 && !welt.knaeuel)
+        man.ziel = { f: katze.f, x: Math.max(36, Math.min(284, katze.x + (katze.x > 160 ? -9 : 9))), o: null, tun: 'streicheln' };
       if (!man.ziel) {
         const o = waehle();
         if (o) geheZu(o); else bummeln();
@@ -494,9 +664,49 @@ const texte = de
       '...............pppq.', '...............pppq.', '...............pppq.', '...............pppq.',
       '..............oooooo', '..............OOOOOO',
     ];
-    function sprite(zeilen, cx, fuss, dir) {
-      const x0 = halb(cx) - 5, y0 = halb(fuss) - zeilen.length / 2;
-      zeilen.forEach((z, j) => { for (let i = 0; i < 20; i++) { const c = z[dir < 0 ? 19 - i : i]; if (c !== '.') Q(x0 + i / 2, y0 + j / 2, FARBE[c]); } });
+    function sprite(zeilen, cx, fuss, dir, farben = FARBE) {
+      const n = zeilen[0].length, x0 = halb(cx - n / 4), y0 = halb(fuss) - zeilen.length / 2;
+      zeilen.forEach((z, j) => { for (let i = 0; i < n; i++) { const c = z[dir < 0 ? n - 1 - i : i]; if (c !== '.') Q(x0 + i / 2, y0 + j / 2, farben[c]); } });
+    }
+    // Sprite vergrößern (nächster Nachbar), damit die Katze neben dem Männchen nicht zu klein wirkt
+    const groesser = (zeilen, f) => {
+      const h = Math.round(zeilen.length * f), w = Math.round(zeilen[0].length * f);
+      return Array.from({ length: h }, (_, j) => Array.from({ length: w }, (_, i) => zeilen[Math.min(zeilen.length - 1, Math.floor(j / f))][Math.min(zeilen[0].length - 1, Math.floor(i / f))]).join(''));
+    };
+    function zeichneKatze() {
+      const k = katze, fy = k.y - k.hoch, x = k.x;
+      // Napf und Wasserschale
+      K(NAPF.x - 3, FOOT[1] - 2, 6, 2, '#C83A3A', '#E85A5A', '#8A2020'); if (welt.napf > 0) { R(NAPF.x - 2.5, FOOT[1] - 2.5, 5, 0.5, '#8A5A2A'); Q(NAPF.x - 1, FOOT[1] - 3, '#6A3A1A'); Q(NAPF.x + 1, FOOT[1] - 3, '#6A3A1A'); }
+      K(NAPF.x + 4, FOOT[1] - 1.5, 4, 1.5, '#3A6AC8', '#5A8AE8', '#1A3A8A'); R(NAPF.x + 4.5, FOOT[1] - 1.5, 3, 0.5, C.cyan);
+      // Wollknäuel
+      if (welt.knaeuel) { const kn = welt.knaeuel, ky = FOOT[kn.f] - 1.5; b.fillStyle = '#D84A6A'; b.beginPath(); b.arc(kn.x, ky, 1.6, 0, Math.PI * 2); b.fill(); b.strokeStyle = '#F88AA8'; b.lineWidth = 0.5; b.beginPath(); b.arc(kn.x, ky, 1, kn.dreh, kn.dreh + 2.5); b.stroke(); R(kn.x - kn.vx * 0.08, FOOT[kn.f] - 0.5, Math.abs(kn.vx) * 0.08 + 1, 0.5, '#D84A6A'); }
+      if (k.tun === 'schlafen' && !k.sprung) {
+        sprite(groesser(KATZE_SCHLAF, KZ), x, fy, k.dir, KFARBE);
+        const t = (welt.t * 0.35 + 0.5) % 1; zText.push({ t: 'z', x: x + 2 + t * 5, y: fy - 6 - t * 9, a: 1 - t, gross: 5 + t * 3 });
+        return;
+      }
+      const sitzt = !k.laeuft && !k.klettern && !k.sprung && k.tun && k.tun !== 'fressen';
+      if (sitzt) {
+        const z = KATZE_SITZ.slice();
+        if (k.tun === 'putzen' && Math.floor(welt.t * 3) % 2) z[4] = '............oooow...';
+        if (Math.floor(welt.t * 1.5) % 2) { z[9] = '...t...ooooooooo....'; z[10] = '..tt..oooooooooo....'; }
+        sprite(groesser(z, KZ), x, fy, k.dir, KFARBE);
+      } else {
+        const lauf = k.laeuft && Math.floor(k.schritt) % 2 ? KATZE_LAUF2 : KATZE_LAUF;
+        const z = k.tun === 'fressen' ? [...lauf.slice(0, 8).map((l, i) => (i < 4 ? '....................' : l)), ...lauf.slice(8)] : lauf;
+        if (k.tun === 'fressen') { const kx = halb(x) + (k.dir > 0 ? 4 : -7.5); R(kx, fy - 4.5, 3.5, 2.5, KFARBE.o); R(kx + (k.dir > 0 ? 2.5 : 0), fy - 3.5, 1, 1, KFARBE.n); }
+        sprite(groesser(z, KZ), x, fy, k.dir, KFARBE);
+      }
+    }
+    function zeichneHerzen() {
+      for (let i = herzen.length - 1; i >= 0; i--) {
+        const h = herzen[i], t = (welt.t - h.t0) / 1.6;
+        if (t >= 1) { herzen.splice(i, 1); continue; }
+        const x = h.x + Math.sin(t * 6) * 1.5, y = h.y - t * 10;
+        b.globalAlpha = 1 - t;
+        Q(x, y, '#FF5A7A'); Q(x + 1, y, '#FF5A7A'); R(x - 0.5, y + 0.5, 2.5, 0.5, '#FF5A7A'); R(x, y + 1, 1.5, 0.5, '#FF5A7A'); Q(x + 0.5, y + 1.5, '#FF5A7A');
+        b.globalAlpha = 1;
+      }
     }
     function zeichneMann() {
       const t = man.taetigkeit, fy = man.y, x = man.x;
@@ -574,6 +784,21 @@ const texte = de
           if (SCHNEE) { const sx = px + Math.sin(welt.t * 1.5 + i) * 2; R(sx, py, i % 4 ? 1 : 2, i % 4 ? 1 : 2, C.weiss); }
           else { const c = WETTER.art === 'niesel' ? 'rgba(170,190,230,0.7)' : '#B0C4EE'; R(px, py, 1, WETTER.art === 'niesel' ? 2 : 4, c); }
         }
+      }
+      // Herbst: fallende Blätter
+      if (LAUBFALL && !SCHNEE) for (let i = 0; i < 28; i++) {
+        const t = welt.t * (6 + (i % 4)), lx = ((i * 71 + t * 2) % 340) - 10 + Math.sin(welt.t + i) * 4, ly = ((i * 43) % 260 + t) % 260 - 10 - dy;
+        R(lx, ly, 1.5, 1, ['#D8843A', '#C84A2A', '#E8C040', '#A85A20'][i % 4]);
+      }
+      // Silvester: Feuerwerk am dunklen Himmel
+      if (FEST.silvester && tageszeit() === 'nacht') for (let i = 0; i < 5; i++) {
+        const per = 2.6 + i * 0.37, ph = ((welt.t + i * 1.1) % per) / per, n = Math.floor((welt.t + i * 1.1) / per);
+        const cx = 30 + ((i * 97 + n * 61) % 260), cy = 18 + ((i * 53 + n * 37) % 55) - dy * 0, farbe = ['#FF5A5A', '#FFD84A', '#5AD8FF', '#C85AFF', '#7AFF7A'][(i + n) % 5];
+        if (ph < 0.25) { R(cx, cy + 60 - ph * 240, 0.5, 2, '#FFE8B0'); continue; }
+        const rad = (ph - 0.25) * 22, a = 1 - (ph - 0.25) / 0.75;
+        b.globalAlpha = Math.max(0, a);
+        for (let k = 0; k < 14; k++) { const w = k / 14 * Math.PI * 2; R(cx + Math.cos(w) * rad, cy + Math.sin(w) * rad + (ph - 0.25) * 6, 1, 1, farbe); }
+        b.globalAlpha = 1;
       }
       b.restore();
     }
@@ -779,9 +1004,21 @@ const texte = de
       R(8.5, 196, 1.5, 18, C.dunkelgrau); K(4, 190, 10, 7, C.gelb, '#FFF08A', '#A89020'); R(5, 192, 8, 0.5, C.dunkelgrau); Q(12, 194, C.schwarz);
       // Baum mit Laub in Schichten
       K(303, 168, 5, 46, C.braun, '#8A5A34', C.dunkelbraun); for (let y = 172; y < 212; y += 3) Q(304 + (y % 2), y, C.dunkelbraun);
-      const l1 = SCHNEE ? '#E8ECF0' : nachts ? '#0E2A0E' : '#2E6E2A', l2 = SCHNEE ? '#FFFFFF' : nachts ? '#163416' : '#3E8A36', l3 = SCHNEE ? '#C8D0DA' : nachts ? '#0A1E0A' : '#245A22';
-      [[296, 150, 22, 24], [300, 143, 14, 8], [292, 157, 28, 11]].forEach(([x, y, w, h]) => R(x, y, w, h, l1));
-      for (let i = 0; i < 40; i++) { const x = 293 + ((i * 37) % 26), y = 145 + ((i * 23) % 28); R(x, y, 1.5, 1, i % 3 ? l2 : l3); }
+      const kahl = JAHRESZEIT === 'winter' || (JAHRESZEIT === 'herbst' && MD > 1120);
+      if (kahl) {
+        // kahle Äste (bei Schnee mit weißen Kanten)
+        b.strokeStyle = nachts ? '#2A1A10' : C.dunkelbraun; b.lineWidth = 1.5;
+        [[305, 172, 296, 152], [306, 168, 316, 150], [305, 160, 304, 142], [300, 160, 292, 158], [310, 162, 318, 160]].forEach(([a, c, d, e]) => { b.beginPath(); b.moveTo(a, c); b.lineTo(d, e); b.stroke(); });
+        b.lineWidth = 0.5; [[298, 156, 294, 150], [313, 155, 316, 146], [304, 148, 300, 142], [304, 148, 308, 141]].forEach(([a, c, d, e]) => { b.beginPath(); b.moveTo(a, c); b.lineTo(d, e); b.stroke(); });
+        if (SCHNEE) [[296, 152], [304, 142], [316, 150], [292, 158], [300, 142], [308, 141]].forEach(([x, y]) => R(x - 1, y - 0.5, 2.5, 1, '#F4F4F8'));
+      } else {
+        const herbst = JAHRESZEIT === 'herbst';
+        const l1 = SCHNEE ? '#E8ECF0' : nachts ? '#0E2A0E' : herbst ? '#B8641E' : '#2E6E2A', l2 = SCHNEE ? '#FFFFFF' : nachts ? '#163416' : herbst ? '#E0A030' : '#3E8A36', l3 = SCHNEE ? '#C8D0DA' : nachts ? '#0A1E0A' : herbst ? '#8E3A1A' : '#245A22';
+        [[296, 150, 22, 24], [300, 143, 14, 8], [292, 157, 28, 11]].forEach(([x, y, w, h]) => R(x, y, w, h, l1));
+        for (let i = 0; i < 40; i++) { const x = 293 + ((i * 37) % 26), y = 145 + ((i * 23) % 28); R(x, y, 1.5, 1, i % 3 ? l2 : l3); }
+        if (JAHRESZEIT === 'fruehling' && MD <= 515 && !nachts) for (let i = 0; i < 26; i++) Q(293 + ((i * 41) % 26), 145 + ((i * 29) % 27), i % 3 ? '#F8C8D8' : '#FFFFFF');
+        if (herbst && !nachts) for (let i = 0; i < 6; i++) R(290 + i * 5, 213, 1.5, 0.5, ['#D8843A', '#C84A2A', '#E8C040'][i % 3]);
+      }
       // Ortsschild-ähnliches Schild ohne Text
       R(314, 200, 1.5, 14, C.grau); K(306, 194, 14, 7, C.gelb, '#FFF08A', '#A89020'); R(307, 196, 12, 3, '#5A5A20');
     }
@@ -990,6 +1227,7 @@ const texte = de
           break;
         }
         case 'lampe': {
+          if (FEST.weihnachten) break;
           const leuchtet = welt.licht && tageszeit() !== 'tag';
           R(x + 3, y + 6, 1, h - 7, C.dunkelgrau); R(x + 3.5, y + 6, 0.5, h - 7, '#2A2A2E'); K(x, y + h - 1.5, 7, 1.5, C.dunkelgrau, C.grau, '#2A2A2E');
           poly([[x - 0.5, y + 6], [x + 1, y], [x + 6, y], [x + 7.5, y + 6]], leuchtet ? '#FFF0A0' : '#C8B870'); R(x - 0.5, y + 5.5, 8, 0.5, leuchtet ? '#E8C860' : '#A89850');
@@ -1011,6 +1249,52 @@ const texte = de
       }
     }
 
+    // ---------------------------------------------------------------- Jahreszeiten und Feiertage im Haus
+    function flamme(x, y) { const f = Math.floor(welt.t * 8 + x) % 2; R(x, y - 1.5, 0.5, 1.5, '#FFD84A'); Q(x, y - 2 - f * 0.5, '#FFF4C0'); }
+    function festDeko() {
+      const nachts = tageszeit() === 'nacht';
+      // Lichterkette an der Dachtraufe (Advent bis Heilige Drei Könige)
+      if (FEST.lichterkette) for (let i = 0; i <= 48; i++) {
+        const t = i / 48, x = 12 + t * 296, y = x < 160 ? 90 - (x - 12) * 0.527 + 1.5 : 90 - (308 - x) * 0.527 + 1.5;
+        const an = nachts ? Math.floor(welt.t * 1.5 + i) % 3 !== 0 : true;
+        const c = ['#FF4A4A', '#FFD84A', '#4AD8FF', '#7AFF6A'][i % 4];
+        R(x - 0.5, y, 1, 1, an ? c : '#5A5A5A');
+        if (an && nachts) { b.fillStyle = c; b.globalAlpha = 0.25; b.fillRect(x - 1.5, y - 1, 3, 3); b.globalAlpha = 1; }
+      }
+      // Adventskranz auf dem Esstisch
+      const tisch = O.tisch, ty = FOOT[1] - tisch.h;
+      if (FEST.advent) {
+        const kx = tisch.x + 3;
+        R(kx, ty - 1, 9, 1.5, '#2E6E2A'); for (let i = 0; i < 9; i += 1.5) Q(kx + i, ty - 1.5, '#4E9A44'); Q(kx + 2, ty - 0.5, C.rot); Q(kx + 6.5, ty - 0.5, C.rot);
+        for (let i = 0; i < 4; i++) { const cx = kx + 1 + i * 2.3; R(cx, ty - 4, 1, 3, '#C83A3A'); if (i < FEST.kerzen) flamme(cx + 0.25, ty - 4); }
+      }
+      // Osterstrauß und Eier im Garten
+      if (FEST.ostern) {
+        const vx = tisch.x + 10;
+        b.strokeStyle = '#6A4A2A'; b.lineWidth = 0.5; [[-4, -10], [0, -12], [4, -9], [-2, -8]].forEach(([dx, dy]) => { b.beginPath(); b.moveTo(vx + 0.75, ty - 3); b.lineTo(vx + dx, ty - 3 + dy); b.stroke(); });
+        [[-3, -9], [1, -11], [3.5, -7], [-1.5, -6]].forEach(([dx, dy], i) => R(vx + dx, ty - 3 + dy, 1, 1.5, [C.rot, C.gelb, C.cyan, C.lila][i]));
+        [[40, 220], [88, 226], [150, 218], [212, 228], [258, 221], [12, 230]].forEach(([x, y], i) => { R(x, y, 2, 2.5, [C.rot, C.gelb, C.cyan, C.lila, '#FF8AC8', C.orange][i]); Q(x + 0.5, y + 1, C.weiss); });
+      }
+      // Weihnachtsbaum im Wohnzimmer (statt der Stehlampe) mit Geschenken
+      if (FEST.weihnachten) {
+        const bx = 247, fuss = FOOT[1];
+        K(bx - 3, fuss - 4, 6, 4, '#B04A34', '#D06A4A', '#6E2A1E'); R(bx - 0.75, fuss - 6, 1.5, 2, C.braun);
+        for (let j = 0; j < 4; j++) { const yb = fuss - 6 - j * 6, br = 12 - j * 2.6; poly([[bx - br / 2, yb], [bx, yb - 9], [bx + br / 2, yb]], j % 2 ? '#2E6E2A' : '#245A22'); R(bx - br / 2, yb - 0.5, br, 0.5, '#1A4A1A'); }
+        poly([[bx, fuss - 34.5], [bx + 1.2, fuss - 32], [bx - 1.2, fuss - 32]], C.gelb); R(bx - 1.5, fuss - 33, 3, 0.5, C.gelb);
+        [[-4, -8], [3, -10], [-2, -14], [2.5, -17], [-1, -21], [1, -25], [-3.5, -12], [4, -7]].forEach(([dx, dy], i) => R(bx + dx, fuss + dy, 1, 1, [C.rot, C.gelb, C.cyan, '#E8E8F0'][i % 4]));
+        [[-5, -9], [4.5, -9], [-3.5, -15], [3, -15], [-2, -21], [2, -21], [0, -27]].forEach(([dx, dy], i) => { if (Math.floor(welt.t * 2 + i) % 3) Q(bx + dx, fuss + dy, '#FFF4A0'); });
+        if (FEST.geschenke) { K(bx - 12, fuss - 4, 5, 4, C.rot, '#FF6A5A', '#8A2020'); R(bx - 9.75, fuss - 4, 0.5, 4, C.gelb); K(bx + 6, fuss - 3, 4, 3, C.blau, '#6A7AE8', '#2A3488'); R(bx + 7.75, fuss - 3, 0.5, 3, C.weiss); K(bx - 6.5, fuss - 2.5, 3, 2.5, C.gruen, '#7ACA6A', '#2E5E2A'); }
+      }
+      // Nikolausstiefel im Flur
+      if (FEST.nikolaus) { R(34, FOOT[1] - 6, 3, 6, '#C83A3A'); R(34, FOOT[1] - 2, 5, 2, '#C83A3A'); R(33.5, FOOT[1] - 6.5, 4, 1, C.weiss); Q(35, FOOT[1] - 7.5, C.gelb); Q(36, FOOT[1] - 7.5, '#8A5A2A'); Q(35.5, FOOT[1] - 8, C.rot); }
+      // Halloween-Kürbis vor der Haustür
+      if (FEST.halloween) {
+        const px = 14, py = 214;
+        K(px - 3, py - 4.5, 6, 4.5, C.orange, '#F8A050', '#A85A20'); R(px - 0.25, py - 5.5, 0.5, 1, C.dunkelgruen);
+        const glut = nachts ? '#FFE070' : '#4A2A10'; Q(px - 1.5, py - 3.5, glut); Q(px + 1, py - 3.5, glut); R(px - 1.5, py - 2, 3, 0.5, glut);
+      }
+    }
+
     // ---------------------------------------------------------------- Brief, der durch den Schlitz fällt
     function zeichneBrief() {
       if (!welt.briefFall) return;
@@ -1027,8 +1311,11 @@ const texte = de
       garten();
       const nacht = zeichneHaus();
       OBJ.forEach(zeichneObjekt);
+      festDeko();
+      zeichneKatze();
       zeichneBrief();
       zeichneMann();
+      zeichneHerzen();
       lampenLicht();
       // Licht aus (nachts): Räume dunkel, Fenster bleiben hell vom Mond
       const dunkel = nacht && !welt.licht ? 'rgba(4,4,24,0.72)' : nacht ? 'rgba(255,200,90,0.06)' : !welt.licht ? 'rgba(10,10,30,0.28)' : null;
@@ -1054,22 +1341,23 @@ const texte = de
         g.fillStyle = 'rgba(240,240,220,0.85)'; g.fillText(r.n.toUpperCase(), x, y);
       });
       zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, z.x * S, z.y * S); });
-      if (blase && welt.t < blase.bis) {
-        g.font = `600 ${bp}px system-ui, sans-serif`;
-        const zh = Math.round(bp * 1.25), maxW = Math.min(820, 340 * bp / 22), worte = blase.text.split(' '), zeilen = [];
-        let z = '';
-        worte.forEach((w) => { const t = z ? z + ' ' + w : w; if (g.measureText(t).width > maxW && z) { zeilen.push(z); z = w; } else z = t; });
-        zeilen.push(z);
-        const bw = Math.max(...zeilen.map((l) => g.measureText(l).width)) + 20, bh = zeilen.length * zh + 14;
-        const kx = man.x * S, ky = (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S;
-        let bx = Math.max(6, Math.min(cv.width - bw - 6, kx - bw / 2)), by = ky - bh - 16;
-        if (by < 6) by = 6;
-        g.fillStyle = '#FFFFF4'; g.strokeStyle = '#101014'; g.lineWidth = 3;
-        g.beginPath(); g.roundRect(bx, by, bw, bh, 10); g.fill(); g.stroke();
-        g.beginPath(); g.moveTo(kx - 8, by + bh - 1); g.lineTo(kx, by + bh + 12); g.lineTo(kx + 8, by + bh - 1); g.fill();
-        g.beginPath(); g.moveTo(kx - 8, by + bh + 1); g.lineTo(kx, by + bh + 12); g.lineTo(kx + 8, by + bh + 1); g.stroke();
-        g.fillStyle = '#101014'; zeilen.forEach((l, i) => g.fillText(l, bx + 10, by + 8 + i * zh));
-      }
+      if (blase && welt.t < blase.bis) sprechblase(blase.text, man.x * S, (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S, bp);
+      if (katze.blase && welt.t < katze.blase.bis) sprechblase(katze.blase.text, katze.x * S, (katze.y - katze.hoch - 10) * S, Math.round(bp * 0.85));
+    }
+    function sprechblase(text, kx, ky, bp) {
+      g.font = `600 ${bp}px system-ui, sans-serif`;
+      const zh = Math.round(bp * 1.25), maxW = Math.min(820, 340 * bp / 22), worte = text.split(' '), zeilen = [];
+      let z = '';
+      worte.forEach((w) => { const t = z ? z + ' ' + w : w; if (g.measureText(t).width > maxW && z) { zeilen.push(z); z = w; } else z = t; });
+      zeilen.push(z);
+      const bw = Math.max(...zeilen.map((l) => g.measureText(l).width)) + 20, bh = zeilen.length * zh + 14;
+      let bx = Math.max(6, Math.min(cv.width - bw - 6, kx - bw / 2)), by = ky - bh - 16;
+      if (by < 6) by = 6;
+      g.fillStyle = '#FFFFF4'; g.strokeStyle = '#101014'; g.lineWidth = 3;
+      g.beginPath(); g.roundRect(bx, by, bw, bh, 10); g.fill(); g.stroke();
+      g.beginPath(); g.moveTo(kx - 8, by + bh - 1); g.lineTo(kx, by + bh + 12); g.lineTo(kx + 8, by + bh - 1); g.fill();
+      g.beginPath(); g.moveTo(kx - 8, by + bh + 1); g.lineTo(kx, by + bh + 12); g.lineTo(kx + 8, by + bh + 1); g.stroke();
+      g.fillStyle = '#101014'; zeilen.forEach((l, i) => g.fillText(l, bx + 10, by + 8 + i * zh));
     }
 
     // ---------------------------------------------------------------- Anzeige oben
@@ -1090,6 +1378,12 @@ const texte = de
     cv.addEventListener('click', (ev) => {
       const r = cv.getBoundingClientRect();
       const sx = ((ev.clientX - r.left) / r.width) * W, sy = ((ev.clientY - r.top) / r.height) * H;
+      const ky = katze.y - katze.hoch;
+      if (Math.abs(sx - katze.x) < 9 && sy > ky - 11 && sy < ky + 2) {
+        kSag(katze.tun === 'schlafen' ? KSATZ.schnurr : zufall([KSATZ.miau, KSATZ.schnurr])); herz(katze.x, ky - 8); herz(katze.x + 2, ky - 6);
+        log(tr(`Du streichelst ${KNAME}.`, `You stroke ${KNAME}.`));
+        return;
+      }
       const o = OBJ.filter((o) => o.act).find((o) => sx >= o.x - 2 && sx <= o.x + o.w + 2 && sy >= FOOT[o.f] - o.h - 4 && sy <= FOOT[o.f] + 1);
       if (!o) return;
       aufwecken(tr('Hm? Ich komme ja schon …', 'Hm? Coming, coming …'));
@@ -1115,6 +1409,15 @@ const texte = de
         briefForm.hidden = !briefForm.hidden; if (!briefForm.hidden) document.getElementById('haus-brief-text').focus();
       } else if (a === 'zeitung') {
         zeitung.hidden = !zeitung.hidden;
+      } else if (a === 'futter') {
+        welt.napf = 10; log(tr(`Du füllst ${KNAME}s Napf.`, `You fill ${KNAME}'s bowl.`));
+        if (!katze.sprung && !katze.klettern) { if (katze.tun !== 'warten') { katze.tun = null; katzeRunter(); } katze.ziel = { f: NAPF.f, x: NAPF.x, h: 0, tun: 'fressen' }; if (katze.tun === 'warten') { katze.tun = 'fressen'; katze.zeit = 8; } }
+        kSag(KSATZ.miau);
+      } else if (a === 'knaeuel') {
+        const f = katze.f, lo = f === 3 ? 90 : 40, hi = f === 3 ? 230 : 280;
+        welt.knaeuel = { f, x: Math.max(lo, Math.min(hi, katze.x + (Math.random() < 0.5 ? -1 : 1) * (25 + Math.random() * 30))), vx: (Math.random() < 0.5 ? -1 : 1) * 30, dreh: 0 };
+        katze.gespielt = 0; if (katze.tun !== 'fressen') { katze.tun = null; katze.ziel = null; katzeRunter(); }
+        log(tr(`Du wirfst ein Wollknäuel für ${KNAME}.`, `You throw a ball of yarn for ${KNAME}.`)); kSag(KSATZ.miau, 2);
       }
     }));
     briefForm.addEventListener('submit', (ev) => {
@@ -1134,7 +1437,7 @@ const texte = de
       if (welt.t < naechstesPlaudern) return;
       naechstesPlaudern = welt.t + 25 + Math.random() * 20;
       if (man.taetigkeit === 'schlafen' || (blase && welt.t < blase.bis)) return;
-      sag(plauderSatz());
+      const t = neu(plauderSatz); if (t) sag(t);
     }
 
     // ---------------------------------------------------------------- Schleife
@@ -1152,7 +1455,8 @@ const texte = de
       requestAnimationFrame(frame);
     }
     log(nacht0 ? tr('Das Männchen schläft. Pssst!', 'The figure is asleep. Shhh!') : tr('Das Männchen ist wach.', 'The figure is awake.'));
-    if (!nacht0) setTimeout(() => sag(wetterSatz()), 1200);
+    const festTag = FEST.advent || FEST.weihnachten || FEST.silvester || FEST.neujahr || FEST.nikolaus || FEST.halloween || FEST.ostern;
+    if (!nacht0) setTimeout(() => sag(festTag ? festSatz() : wetterSatz()), 1200);
     requestAnimationFrame(frame);
   </script>
   <style>

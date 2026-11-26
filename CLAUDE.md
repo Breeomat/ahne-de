@@ -61,7 +61,14 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   festen Sätzen, nichts wird gesendet/gespeichert), Dorfzeitung. Echtes Wetter (`src/data/wetter.json`), Sonnenstand
   und Uhrzeit des Besuchers, Blick aufs Dorf aus den Fenstern, Termine der nächsten 14 Tage aus stockhausen-online
   (`scripts/termine.mjs` im Workflow → `src/data/termine.json`, Platzhalter `{ "termine": [] }`).
-  Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`.
+  Jahreszeiten und Feiertage nach dem echten Datum (`FEST`, `JAHRESZEIT`): Baum im Garten blüht/grün/bunt/kahl,
+  fallende Blätter im Herbst, Lichterkette am Dach (1. Advent bis 6. Januar), Adventskranz mit passender Kerzenzahl,
+  Weihnachtsbaum statt Stehlampe (24.12.–6.1., Geschenke 24.–26.12.), Nikolausstiefel, Silvester-Feuerwerk, Ostern
+  (Karfreitag–Ostermontag: Eier im Garten, Osterstrauß), Halloween-Kürbis (25.–31.10.).
+  Katze „Minka“: läuft selbst durchs Haus (auch Treppen), schläft auf Sofa/Bett/Kisten, sitzt auf Fensterbänken,
+  frisst am Napf im Flur (wartet miauend, wenn er leer ist – dann füttert sie das Männchen), wird vom Männchen gestreichelt.
+  Knöpfe „Katze füttern“, „Wollknäuel werfen“; Klick auf die Katze streichelt sie (Herzchen).
+  Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`.
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
   Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
   `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.
