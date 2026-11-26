@@ -617,6 +617,7 @@ const texte = de
     }
     function plauderSatz() {
       const tz = schlafenszeit() ? 'nacht' : tageszeit() === 'nacht' ? 'abend' : tageszeit(), r = Math.random();
+      if (r < 0.1) { const d = dorfSatz(); if (d) return d; }
       if (r < 0.2) return festSatz();
       if (r < 0.38) return wetterSatz();
       if (r < 0.5) return tempSatz() || wetterSatz();
@@ -735,6 +736,7 @@ const texte = de
       katzeUpdate(dt);
       besuchUpdate(dt);
       pvUpdate(dt);
+      dorfUpdate();
       if (ton.an()) {
         if (man.laeuft && Math.floor(man.schritt) !== man.tonSchritt) { man.tonSchritt = Math.floor(man.schritt); ton.schritt(); }
         if (welt.feuer && Math.random() < dt * 5) ton.knistern();
@@ -1094,6 +1096,84 @@ const texte = de
       if (tz === 'abend') return grau ? ['#3C3C4C', '#6C5C64', '#8C6C64'] : ['#2A2A6A', '#B8504A', '#E89040'];
       return grau ? ['#7C7C88', '#94949E', '#A8A8B2'] : ['#4A7AD8', '#6A9AE8', '#94BCF0'];
     }
+    // ---------------------------------------------------------------- Dorfleben vor dem Fenster
+    // Felder mit Traktor (je nach Jahreszeit), Schulbus (Mo–Fr morgens und mittags), Bäckerwagen (samstags), Lichter im Dorf
+    const wochentag = () => new Date(JAHR, MON - 1, TAG, 12).getDay(); // 0 = Sonntag
+    const feldarbeit = () => { const h = stunde(); return JAHRESZEIT !== 'winter' && h >= 8 && h < 18 && !NASS && !SCHNEE && WETTER.art !== 'nebel' && wochentag() !== 0 && !(JAHRESZEIT === 'herbst' && MD > 1115); };
+    const ARBEIT = () => (JAHRESZEIT === 'fruehling' ? 'saeen' : JAHRESZEIT === 'sommer' ? 'ernten' : 'pfluegen');
+    function hausLicht(i) {
+      const h = stunde(), ein = SONNE.unter - 0.4 + (i * 0.37) % 1.4, aus = 22 + (i * 0.53) % 1.8;
+      const mEin = 6 + (i * 0.29) % 0.8, mAus = SONNE.auf + 0.2 + (i * 0.41) % 0.6;
+      return (h >= ein && h < aus) || (i % 2 === 0 && h >= mEin && h < mAus) || (h < 0.5 + (i * 0.3) % 1 && i % 4 === 0);
+    }
+    function dorfFelder(nachts) {
+      const dunkel = (c) => (nachts ? '#1A1A12' : c);
+      const farbe = SCHNEE ? (nachts ? '#5C6070' : '#E8ECF0') : { fruehling: '#7A5A3A', sommer: '#D8B84A', herbst: '#B89A5A', winter: '#5A3A22' }[JAHRESZEIT];
+      [[0, 146, 64, 10], [198, 146, 122, 10]].forEach(([fx, fy, fw, fh]) => {
+        R(fx, fy, fw, fh, dunkel(farbe));
+        if (SCHNEE || nachts) return;
+        for (let y = fy + 1; y < fy + fh; y += 2) {
+          if (JAHRESZEIT === 'fruehling') for (let x = fx + (y % 4); x < fx + fw; x += 3) Q(x, y, '#6AB84A');
+          else if (JAHRESZEIT === 'sommer') R(fx, y, fw, 0.5, '#B8982A');
+          else R(fx, y, fw, 0.5, '#8A6A3A');
+        }
+      });
+      if (!feldarbeit()) return;
+      // Traktor fährt auf dem rechten Feld hin und her; dahinter die Spur der Arbeit
+      // Strecke vor Wohn- und Arbeitszimmerfenster, damit man ihn durch die Fenster sieht
+      const periode = 30, ph = (welt.t % periode) / periode, hin = ph < 0.5, p = hin ? ph * 2 : (1 - ph) * 2;
+      const tx = 206 + p * 60, ty = hin ? 150 : 154.5, dir = hin ? 1 : -1, art = ARBEIT();
+      // Spur
+      const von = hin ? 206 : tx, bis = hin ? tx : 266;
+      if (art === 'pfluegen') R(von, ty + 0.5, bis - von, 1, '#5A3A22');
+      if (art === 'ernten') R(von, ty - 1, bis - von, 2, '#C8A858');
+      if (art === 'saeen') for (let x = von; x < bis; x += 2) Q(x, ty + 0.5, '#8A6A4A');
+      // Traktor (grün, großes Hinterrad, Kabine)
+      const hx = dir > 0 ? tx - 3 : tx + 3;
+      R(tx - 4, ty - 3, 8, 2.5, '#3A8A3A'); R(hx - 1.5, ty - 6, 3, 3, '#2E6E2E'); R(hx - 1, ty - 5.5, 2, 1.5, '#9AD8F0');
+      b.fillStyle = C.schwarz; b.beginPath(); b.arc(hx, ty, 2, 0, Math.PI * 2); b.fill(); b.beginPath(); b.arc(tx + 3 * dir, ty + 0.7, 1.2, 0, Math.PI * 2); b.fill();
+      R(tx + 2 * dir - 0.25, ty - 5, 0.5, 2, C.dunkelgrau);
+      const rauch = (welt.t * 1.5) % 1; R(tx + 2 * dir - 0.5 - rauch * 2 * dir, ty - 6 - rauch * 4, 1 + rauch, 1, `rgba(180,180,180,${0.7 - rauch * 0.6})`);
+      if (art === 'ernten') { R(tx - 11 * dir - 3, ty - 4, 6, 3.5, '#E8C860'); R(tx - 11 * dir - 3, ty - 0.5, 6, 0.5, C.dunkelbraun); } // Anhänger mit Heu
+      if (art === 'saeen' && Math.floor(welt.t * 4) % 2) Q(tx - 5 * dir, ty - 1, '#C8B890');
+    }
+    // Fahrzeuge auf der Dorfstraße: welt.fahrzeuge = [{ art, t0, dauer, dir }]
+    welt.fahrzeuge = []; welt.fahrtenGesehen = new Set();
+    function dorfUpdate() {
+      const h = stunde(), wt = wochentag(), tag = RAFFER.an ? 'r' + RAFFER.t0 : `${JAHR}-${MON}-${TAG}`;
+      const fahrt = (art, von, bis, dir, text) => {
+        const key = `${art}-${von}-${tag}`;
+        if (h >= von && h < bis && !welt.fahrtenGesehen.has(key)) {
+          welt.fahrtenGesehen.add(key); welt.fahrzeuge.push({ art, t0: welt.t, dauer: 22, dir });
+          log(text);
+          if (art === 'baecker') { ton.baeckerglocke(); if (!man.alarm && man.taetigkeit !== 'schlafen') setTimeout(() => sag(tr('Der Bäckerwagen! Frische Brötchen.', 'The bakery van! Fresh bread rolls.')), 2500); }
+        }
+      };
+      if (wt >= 1 && wt <= 5) { fahrt('bus', 7, 7.75, 1, tr('Der Schulbus fährt durchs Dorf.', 'The school bus drives through the village.')); fahrt('bus', 12.75, 13.5, -1, tr('Der Schulbus bringt die Kinder nach Hause.', 'The school bus brings the children home.')); }
+      if (wt === 6) fahrt('baecker', 8, 10, -1, tr('Der Bäckerwagen fährt durchs Dorf und bimmelt.', 'The bakery van drives through the village, ringing its bell.'));
+      welt.fahrzeuge = welt.fahrzeuge.filter((f) => welt.t - f.t0 < f.dauer);
+    }
+    function dorfFahrzeuge() {
+      for (const f of welt.fahrzeuge) {
+        const p = (welt.t - f.t0) / f.dauer, x = f.dir > 0 ? -25 + p * 370 : 345 - p * 370, y = 158, nachts = tageszeit() === 'nacht';
+        if (f.art === 'bus') {
+          R(x, y - 6, 18, 5, '#E8B820'); R(x, y - 2, 18, 0.75, '#B88A10');
+          for (let i = 0; i < 5; i++) R(x + 1.5 + i * 3.2, y - 5, 2.2, 1.6, nachts ? '#FFF0A0' : '#9AD8F0');
+          R(x + (f.dir > 0 ? 17 : 0), y - 4, 1, 1, nachts ? '#FFF4C0' : C.weiss);
+          R(x + 2, y - 1.5, 2.5, 2, C.schwarz); R(x + 13.5, y - 1.5, 2.5, 2, C.schwarz);
+        } else {
+          R(x, y - 5.5, 12, 4.5, C.weiss); R(x + (f.dir > 0 ? 9 : 0), y - 5, 3, 2, '#9AD8F0');
+          R(x + (f.dir > 0 ? 2.5 : 4.5), y - 4.5, 4, 2, '#C88A4A'); R(x + (f.dir > 0 ? 3 : 5), y - 4.5, 3, 0.5, '#E8B070'); // Brot
+          R(x + 1.5, y - 1.5, 2, 2, C.schwarz); R(x + 8.5, y - 1.5, 2, 2, C.schwarz);
+        }
+      }
+    }
+    function dorfSatz() {
+      if (feldarbeit()) return { saeen: tr('Der Bauer sät auf dem Feld.', 'The farmer is sowing the field.'), ernten: tr('Draußen wird das Getreide geerntet.', 'They are harvesting the grain outside.'), pfluegen: tr('Der Traktor pflügt das Feld.', 'The tractor is ploughing the field.') }[ARBEIT()];
+      if (tageszeit() === 'nacht' && !schlafenszeit()) return tr('Im Dorf gehen die Lichter an.', 'The lights are coming on in the village.');
+      return null;
+    }
+
     function draussen(x0, y0, w, h, dy = 0) {
       // Landschaft im Rechteck (Fenster oder Hausränder); dy verschiebt den Ausschnitt, damit Fenster den Horizont zeigen
       b.save(); b.beginPath(); b.rect(x0, y0, w, h); b.clip(); b.translate(0, dy); y0 -= dy;
@@ -1120,12 +1200,14 @@ const texte = de
       b.fillStyle = huegel2; b.beginPath(); b.moveTo(0, 170);
       for (let x = 0; x <= 320; x += 8) b.lineTo(x, 160 + Math.sin(x / 23 + 1) * 5);
       b.lineTo(320, 240); b.lineTo(0, 240); b.fill();
+      dorfFelder(nachts);
       const haeuser = [[4, 158], [14, 162], [70, 156], [92, 160], [124, 155], [196, 158], [228, 154], [262, 160], [300, 157], [310, 161]];
       haeuser.forEach(([hx, hy], i) => {
         R(hx, hy, 8, 6, nachts ? '#3A3430' : '#D8CCAE');
         poly([[hx - 1, hy], [hx + 4, hy - 4], [hx + 9, hy]], SCHNEE ? '#F0F0F0' : nachts ? '#3A1A14' : C.rot);
-        if (nachts && i % 3 !== 1) P(hx + 2, hy + 2, C.gelb);
-        if (!nachts) P(hx + 2, hy + 2, '#5A6A8A');
+        const licht = hausLicht(i);
+        P(hx + 2, hy + 2, licht ? C.gelb : nachts ? '#1A1A24' : '#5A6A8A'); if (i % 2) P(hx + 5, hy + 2, hausLicht(i + 7) ? C.gelb : nachts ? '#1A1A24' : '#5A6A8A');
+        if (licht && nachts) { b.fillStyle = 'rgba(255,220,120,0.18)'; b.fillRect(hx + 0.5, hy + 0.5, 4, 4); }
       });
       // Dorfstraße und Feuerwehrauto im Einsatz
       R(0, 158, 320, 1.5, nachts ? '#2A2A30' : '#8A8A90');
@@ -1139,6 +1221,7 @@ const texte = de
           if (blink) { b.fillStyle = 'rgba(80,120,255,0.25)'; b.beginPath(); b.arc(fx + 20, fy2 - 6.5, 8, 0, Math.PI * 2); b.fill(); }
         }
       }
+      dorfFahrzeuge();
       // Kirchturm im Dorf (schematisch)
       R(150, 146, 5, 14, nachts ? '#3A3430' : '#E0D8C4'); poly([[149, 146], [152.5, 136], [156, 146]], nachts ? '#1A2A3A' : '#3A5A6A');
       if (WETTER.art === 'nebel') { b.fillStyle = tz === 'nacht' ? 'rgba(60,60,70,0.55)' : 'rgba(210,210,215,0.6)'; b.fillRect(x0, y0, w, h); }
@@ -2000,6 +2083,7 @@ const texte = de
         miau: () => { piep(620, 0.45, 'sawtooth', 0.05, 0, 900); piep(900, 0.25, 'sawtooth', 0.04, 0.2, 520); },
         fauch: () => rauschen(0.5, 0.15, 3000, 0, 'highpass'),
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
+        baeckerglocke: () => { for (let i = 0; i < 6; i++) piep(i % 2 ? 1320 : 1760, 0.18, 'triangle', 0.08, i * 0.2); },
         piepser: () => { for (let i = 0; i < 6; i++) piep(2100, 0.12, 'square', 0.08, i * 0.22); },
         martinshorn: () => { for (let i = 0; i < 4; i++) { piep(440, 0.62, 'triangle', 0.09, i * 1.3); piep(587, 0.62, 'triangle', 0.09, i * 1.3 + 0.65); } },
         klopf: () => { rauschen(0.06, 0.4, 300); rauschen(0.06, 0.4, 300, 0.18); rauschen(0.06, 0.4, 300, 0.36); },

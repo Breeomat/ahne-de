@@ -83,6 +83,10 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Zeitraffer (Knopf): 24 Stunden in 120 s ab 6 Uhr (`RAFFER`, `stunde()`), Figuren und Besuch 5× so schnell (Sprechblasen
   in Echtzeit, `spielzeit`), nur die festen Besuche; Himmel, Wärmepumpen (Vortag), PV und Akku
   laufen mit; Post um 10 Uhr, Kaffeebesuch um 15 Uhr; endet von selbst.
+  Dorfleben in der Landschaft (auch durch die Fenster): Felder je Jahreszeit (Saat, Getreide, Stoppeln, Schnee), Traktor
+  sät/erntet/pflügt werktags 8–18 Uhr bei trockenem Wetter vor Wohn- und Arbeitszimmerfenster (nicht im Winter),
+  Schulbus Mo–Fr gegen 7 und 13 Uhr, Bäckerwagen samstags 8–10 Uhr (Glocke bei Ton an), Lichter in den Dorfhäusern
+  gehen nach Sonnenuntergang nach und nach an und spät wieder aus (`dorfFelder`, `dorfFahrzeuge`, `hausLicht`).
   Besucher kommen und gehen nur über den Weg links neben dem Haus (nicht vor dem Keller entlang).
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
   Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).
