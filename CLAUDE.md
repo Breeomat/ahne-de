@@ -77,6 +77,12 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Lampe nach Betriebsart. Herr Hausmann schaut nach (Sprechblase mit Vorlauf/Außentemperatur von gestern).
   PV-Anlage auf der rechten Dachschräge (bei Schnee weiß) und Stromspeicher: SIMULIERT aus Sonnenstand und Wetter
   (`PV`, 9,9 kWp, 10 kWh, Akku im Spiel 30× schneller), Anzeige oben „PV … kW · Akku … %“, Energiefluss am Kabel.
+  Feuerwehr-Alarm (Knopf): Piepser, Herr Hausmann läuft doppelt so schnell zur Haustür, zieht Jacke und Helm an, ist
+  ca. eine halbe Minute weg; das Feuerwehrauto mit Blaulicht fährt auf der Dorfstraße in der Landschaft vorbei (in den
+  Fenstern und neben dem Haus zu sehen), Martinshorn bei Ton an; danach kommt er müde zurück. Kein Besuch währenddessen.
+  Zeitraffer (Knopf): 24 Stunden in 120 s ab 6 Uhr (`RAFFER`, `stunde()`), Himmel, Wärmepumpen (Vortag), PV und Akku
+  laufen mit; Post um 10 Uhr, Kaffeebesuch um 15 Uhr; endet von selbst.
+  Besucher kommen und gehen nur über den Weg links neben dem Haus (nicht vor dem Keller entlang).
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
   Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).
   Extras: Computer → auf dem Bildschirm läuft eine eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen;
