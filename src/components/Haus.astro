@@ -27,6 +27,8 @@ const texte = de
       beschreibung: 'Ein kleines Männchen und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
       hinweis: 'Klick auf einen Gegenstand, dann geht das Männchen dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
+      kalenderTitel: 'Jahreszeit und Feste:',
+      feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
       besuchTitel: 'Besuch einladen:', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
@@ -42,6 +44,8 @@ const texte = de
       beschreibung: 'A little figure and its cat Minka living in their house in Stockhausen. Watch, click on objects or join in.',
       hinweis: 'Click an object and the figure will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
+      kalenderTitel: 'Season and holidays:',
+      feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
       besuchTitel: 'Invite a visitor:', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
@@ -75,6 +79,10 @@ const texte = de
       <button type="button" data-aktion="knaeuel">{texte.knaeuel}</button>
       <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
       <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
+    </div>
+    <div class="haus__aktionen haus__besuch">
+      <span>{texte.kalenderTitel}</span>
+      {texte.feste.map(([k, l]) => <button type="button" data-fest={k}>{l}</button>)}
     </div>
     <div class="haus__aktionen haus__besuch">
       <span>{texte.besuchTitel}</span>
@@ -209,32 +217,37 @@ const texte = de
     };
 
     // ---------------------------------------------------------------- Kalender: Jahreszeiten und Feiertage (Test: ?datum=JJJJ-MM-TT)
-    const HEUTE = (() => { const d = params.get('datum'); const t = d ? new Date(d + 'T12:00:00') : new Date(); return isNaN(t) ? new Date() : t; })();
-    const MON = HEUTE.getMonth() + 1, TAG = HEUTE.getDate(), JAHR = HEUTE.getFullYear(), MD = MON * 100 + TAG;
-    const tageBis = (d) => Math.round((d - new Date(JAHR, MON - 1, TAG, 12)) / 864e5);
     function ostersonntag(j) { // Gaußsche Osterformel (Meeus)
       const a = j % 19, b = Math.floor(j / 100), c = j % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
       const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
       const mon = Math.floor((h + l - 7 * m + 114) / 31), tag = ((h + l - 7 * m + 114) % 31) + 1;
       return new Date(j, mon - 1, tag, 12);
     }
-    const zuOstern = tageBis(ostersonntag(JAHR));
-    const heiligabend = new Date(JAHR, 11, 24, 12), vierterAdvent = new Date(JAHR, 11, 24 - heiligabend.getDay(), 12);
-    const seitAdvent = -tageBis(new Date(vierterAdvent.getTime() - 21 * 864e5));
-    const FEST = {
-      advent: seitAdvent >= 0 && MON >= 11 && MD <= 1223,
-      kerzen: Math.max(0, Math.min(4, Math.floor(seitAdvent / 7) + 1)),
-      weihnachten: MD >= 1224 || MD <= 106,
-      geschenke: MD >= 1224 && MD <= 1226,
-      silvester: MD === 1231 || (MD === 101 && stunde() < 3),
-      neujahr: MD === 101,
-      nikolaus: MD === 1206,
-      halloween: MD >= 1025 && MD <= 1031,
-      ostern: zuOstern <= 2 && zuOstern >= -1,
-    };
-    FEST.lichterkette = FEST.advent || FEST.weihnachten;
-    const JAHRESZEIT = MD >= 321 && MD <= 620 ? 'fruehling' : MD >= 621 && MD <= 922 ? 'sommer' : MD >= 923 && MD <= 1220 ? 'herbst' : 'winter';
-    const LAUBFALL = JAHRESZEIT === 'herbst' && MD <= 1130;
+    let MON, TAG, JAHR, MD, JAHRESZEIT, LAUBFALL;
+    const FEST = {};
+    // Kalender setzen: echtes Datum oder per Knopf/?datum= gewähltes
+    function kalender(heute) {
+      MON = heute.getMonth() + 1; TAG = heute.getDate(); JAHR = heute.getFullYear(); MD = MON * 100 + TAG;
+      const tageBis = (d) => Math.round((d - new Date(JAHR, MON - 1, TAG, 12)) / 864e5);
+      const zuOstern = tageBis(ostersonntag(JAHR));
+      const heiligabend = new Date(JAHR, 11, 24, 12), vierterAdvent = new Date(JAHR, 11, 24 - heiligabend.getDay(), 12);
+      const seitAdvent = -tageBis(new Date(vierterAdvent.getTime() - 21 * 864e5));
+      Object.assign(FEST, {
+        advent: seitAdvent >= 0 && MON >= 11 && MD <= 1223,
+        kerzen: Math.max(0, Math.min(4, Math.floor(seitAdvent / 7) + 1)),
+        weihnachten: MD >= 1224 || MD <= 106,
+        geschenke: MD >= 1224 && MD <= 1226,
+        silvester: MD === 1231 || (MD === 101 && stunde() < 3),
+        neujahr: MD === 101,
+        nikolaus: MD === 1206,
+        halloween: MD >= 1025 && MD <= 1031,
+        ostern: zuOstern <= 2 && zuOstern >= -1,
+      });
+      FEST.lichterkette = FEST.advent || FEST.weihnachten;
+      JAHRESZEIT = MD >= 321 && MD <= 620 ? 'fruehling' : MD >= 621 && MD <= 922 ? 'sommer' : MD >= 923 && MD <= 1220 ? 'herbst' : 'winter';
+      LAUBFALL = JAHRESZEIT === 'herbst' && MD <= 1130;
+    }
+    kalender((() => { const d = params.get('datum'); const t = d ? new Date(d + 'T12:00:00') : new Date(); return isNaN(t) ? new Date() : t; })());
     function festSatz() {
       if (FEST.silvester) return tr(stunde() < 3 && MD === 101 ? 'Frohes neues Jahr!' : 'Heute ist Silvester! Ich freue mich aufs Feuerwerk.', stunde() < 3 && MD === 101 ? 'Happy New Year!' : "It's New Year's Eve! I'm looking forward to the fireworks.");
       if (FEST.neujahr) return tr('Frohes neues Jahr, Stockhausen!', 'Happy New Year, Stockhausen!');
@@ -1775,6 +1788,26 @@ const texte = de
       aufwecken(tr('Musik? Gute Idee!', 'Music? Good idea!'));
       geheZu(O.stereo);
       log(tr(`Du wählst ${k.textContent} am Plattenspieler.`, `You pick ${k.textContent} on the record player.`));
+    }));
+
+    // ---------------------------------------------------------------- Jahreszeit und Feste per Knopf
+    const echtJahr = new Date().getFullYear();
+    const zeitAnfang = params.get('zeit');
+    function festDatum(k) {
+      const j = echtJahr, d = (m, t, jj = j) => new Date(jj, m - 1, t, 12);
+      if (k === 'ostern') { let o = ostersonntag(j); if (o < new Date()) o = ostersonntag(j + 1); return o; }
+      return { fruehling: d(4, 20), sommer: d(7, 15), herbst: d(10, 12), winter: d(1, 20, j + 1), advent: d(12, 12), nikolaus: d(12, 6), weihnachten: d(12, 24), silvester: d(12, 31), halloween: d(10, 31) }[k] || new Date();
+    }
+    document.querySelectorAll('[data-fest]').forEach((k) => k.addEventListener('click', () => {
+      const f = k.dataset.fest;
+      kalender(f === 'heute' ? new Date() : festDatum(f));
+      // Feuerwerk braucht den dunklen Abend; sonst wieder die echte Uhrzeit
+      if (f === 'silvester') params.set('zeit', 'abend'); else if (welt.zeitGesetzt) { if (zeitAnfang) params.set('zeit', zeitAnfang); else params.delete('zeit'); }
+      welt.zeitGesetzt = f === 'silvester';
+      document.querySelectorAll('[data-fest]').forEach((x) => x.classList.toggle('an', x === k && f !== 'heute'));
+      log(f === 'heute' ? tr('Der Kalender zeigt wieder das echte Datum.', 'The calendar shows the real date again.') : tr(`Du stellst den Kalender auf: ${k.textContent}.`, `You set the calendar to: ${k.textContent}.`));
+      aufwecken(tr('Oh, was ist denn heute?', "Oh, what's today?"));
+      sag(festSatz());
     }));
 
     // ---------------------------------------------------------------- Besuch per Knopf
