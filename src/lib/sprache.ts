@@ -8,6 +8,8 @@ export const seiten = {
   datenschutz: { de: 'datenschutz/', en: 'en/privacy/' },
   // versteckt: 5× auf „Marc“ tippen (Ueberraschungen.astro), nicht in der Sitemap, noindex
   visitenkarte: { de: 'visitenkarte/', en: 'en/business-card/' },
+  // öffentlich: Pixel-Spiel „Haus-Männchen“ (Haus.astro), in der Sitemap
+  haus: { de: 'haus/', en: 'en/house/' },
   // versteckt: Browserspiel „Brummis Paketdienst“ (Spiel.astro), nicht in der Sitemap, noindex
   spiel: { de: 'spiel/', en: 'en/game/' },
 } satisfies Record<string, Text>;

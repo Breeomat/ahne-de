@@ -1,0 +1,319 @@
+---
+// „Haus-Männchen“ – öffentliches Zuschauerspiel im Pixel-Stil (/haus/, /en/house/).
+// Ein dreistöckiges Haus, ein Männchen mit Bedürfnissen (Hunger, Energie, Spaß, Hygiene).
+// Es geht seinen Tag selbst; Klicks auf Gegenstände lenken seine Aufmerksamkeit.
+// Die Grafik wird in kleiner Auflösung gezeichnet und vergrößert, daher die Pixel-Optik.
+// Speichert nichts. Tageszeit wie auf der Startseite (Uhrzeit des Besuchers).
+import Basis from '../layouts/Basis.astro';
+import { url } from '../lib/site';
+import type { Sprache } from '../lib/sprache';
+
+interface Props {
+  sprache: Sprache;
+}
+const { sprache } = Astro.props;
+const de = sprache === 'de';
+const texte = de
+  ? {
+      titel: 'Haus-Männchen',
+      beschreibung: 'Ein kleines Männchen in seinem Haus. Einfach zusehen oder Gegenstände anklicken.',
+      hinweis: 'Klick auf einen Gegenstand, um die Aufmerksamkeit des Männchens dorthin zu lenken.',
+      wacht: 'Das Männchen wacht auf.',
+      lenkt: 'Du lenkst die Aufmerksamkeit auf',
+      geht: 'Es geht Richtung',
+      tag: 'Tag',
+      brief: 'Ein Brief fällt durch den Briefschlitz.',
+      katze: 'Eine Katze schleicht durch das Esszimmer.',
+      gewitter: 'Draußen zieht ein Gewitter auf.',
+      fertig: 'ist fertig.',
+      arbeit: 'arbeitet kurz am Schreibtisch.',
+      hunger: 'Hunger', energie: 'Energie', spass: 'Spaß', hygiene: 'Hygiene',
+      zurueck: 'Startseite',
+    }
+  : {
+      titel: 'House figure',
+      beschreibung: 'A little figure living in its house. Just watch, or click on objects.',
+      hinweis: 'Click an object to draw the figure’s attention to it.',
+      wacht: 'The figure wakes up.',
+      lenkt: 'You draw its attention to',
+      geht: 'It heads for',
+      tag: 'Day',
+      brief: 'A letter drops through the letter slot.',
+      katze: 'A cat sneaks through the dining room.',
+      gewitter: 'A thunderstorm is rolling in outside.',
+      fertig: 'is done.',
+      arbeit: 'works at the desk for a moment.',
+      hunger: 'Hunger', energie: 'Energy', spass: 'Fun', hygiene: 'Hygiene',
+      zurueck: 'Home',
+    };
+---
+<Basis sprache={sprache} seite="haus" titel={texte.titel} beschreibung={texte.beschreibung}>
+  <section class="haus">
+    <h1>{texte.titel}</h1>
+    <p class="haus__intro">{texte.beschreibung}</p>
+    <div class="haus__hud">
+      <span id="haus-uhr"></span>
+      <span>{texte.hunger} <i class="haus__bar"><b id="haus-b-hunger"></b></i></span>
+      <span>{texte.energie} <i class="haus__bar"><b id="haus-b-energy"></b></i></span>
+      <span>{texte.spass} <i class="haus__bar"><b id="haus-b-fun"></b></i></span>
+      <span>{texte.hygiene} <i class="haus__bar"><b id="haus-b-hygiene"></b></i></span>
+    </div>
+    <canvas id="haus-canvas" width="700" height="560" aria-label={texte.beschreibung} role="img"></canvas>
+    <p class="haus__hinweis"><small>{texte.hinweis}</small></p>
+    <div id="haus-tagebuch" class="haus__tagebuch" aria-live="polite"></div>
+  </section>
+  <script define:vars={{ texte, sprache }}>
+    const cv = document.getElementById('haus-canvas');
+    const g = cv.getContext('2d');
+    // Pixelpuffer: alles wird bei 1/4 Auflösung gezeichnet und dann ohne Glättung vergrößert
+    const PX = 4;
+    const buf = document.createElement('canvas');
+    buf.width = cv.width / PX; buf.height = cv.height / PX;
+    const bg = buf.getContext('2d');
+    bg.setTransform(1 / PX, 0, 0, 1 / PX, 0, 0);
+    g.imageSmoothingEnabled = false;
+
+    const W = 700, H = 560, STAIR = 300;
+    const FOOT = {1: 495, 2: 365, 3: 235};
+    const ROOMS = [
+      {n: sprache === 'de' ? 'Schlafzimmer' : 'Bedroom', f: 3, x1: 150, x2: 400, c: '#6F3D86', w: '#6C5EB5'},
+      {n: sprache === 'de' ? 'Arbeitszimmer' : 'Study', f: 3, x1: 400, x2: 650, c: '#352879', w: '#6C5EB5'},
+      {n: sprache === 'de' ? 'Bad' : 'Bathroom', f: 2, x1: 150, x2: 300, c: '#70A4B2', w: '#9AD284'},
+      {n: sprache === 'de' ? 'Wohnzimmer' : 'Living room', f: 2, x1: 300, x2: 650, c: '#6F4F25', w: '#B8C76F'},
+      {n: sprache === 'de' ? 'Küche' : 'Kitchen', f: 1, x1: 150, x2: 400, c: '#9A6759', w: '#68372B'},
+      {n: sprache === 'de' ? 'Esszimmer' : 'Dining room', f: 1, x1: 400, x2: 650, c: '#588D43', w: '#9AD284'}
+    ];
+    const OBJ = [
+      {id: 'bett', n: sprache === 'de' ? 'Bett' : 'Bed', f: 3, x: 170, w: 80, h: 28, act: 'sleep', col: '#FFFFFF', dunkel: '#6C5EB5'},
+      {id: 'schreib', n: sprache === 'de' ? 'Schreibtisch' : 'Desk', f: 3, x: 470, w: 70, h: 40, act: 'work', col: '#6F4F25', dunkel: '#433900'},
+      {id: 'regal', n: sprache === 'de' ? 'Regal' : 'Shelf', f: 3, x: 585, w: 50, h: 85, act: 'read', col: '#B8C76F', dunkel: '#588D43'},
+      {id: 'dusche', n: sprache === 'de' ? 'Dusche' : 'Shower', f: 2, x: 165, w: 50, h: 85, act: 'shower', col: '#70A4B2', dunkel: '#352879'},
+      {id: 'sofa', n: sprache === 'de' ? 'Sofa' : 'Sofa', f: 2, x: 320, w: 90, h: 35, act: 'rest', col: '#68372B', dunkel: '#433900'},
+      {id: 'tv', n: sprache === 'de' ? 'Fernseher' : 'TV', f: 2, x: 530, w: 60, h: 50, act: 'tv', col: '#444444', dunkel: '#000000'},
+      {id: 'kuehl', n: sprache === 'de' ? 'Kühlschrank' : 'Fridge', f: 1, x: 165, w: 42, h: 90, act: 'eat', col: '#FFFFFF', dunkel: '#959595'},
+      {id: 'tisch', n: sprache === 'de' ? 'Esstisch' : 'Table', f: 1, x: 455, w: 90, h: 30, act: 'eat', col: '#6F4F25', dunkel: '#433900'}
+    ];
+    const EFFECT = {
+      sleep: n => { n.energy = 100; },
+      work: n => { n.fun = Math.min(100, n.fun + 15); },
+      read: n => { n.fun = Math.min(100, n.fun + 25); },
+      shower: n => { n.hygiene = 100; },
+      rest: n => { n.energy = Math.min(100, n.energy + 20); },
+      tv: n => { n.fun = Math.min(100, n.fun + 30); },
+      eat: n => { n.hunger = 100; }
+    };
+    const TEXT = sprache === 'de' ? {
+      sleep: 'legt sich ins Bett.', work: 'setzt sich an den Schreibtisch.', read: 'zieht ein Buch aus dem Regal.',
+      shower: 'geht unter die Dusche.', rest: 'lässt sich aufs Sofa fallen.', tv: 'schaltet den Fernseher ein.', eat: 'holt sich etwas aus dem Kühlschrank.'
+    } : {
+      sleep: 'lies down in bed.', work: 'sits down at the desk.', read: 'takes a book from the shelf.',
+      shower: 'steps into the shower.', rest: 'flops onto the sofa.', tv: 'switches on the TV.', eat: 'grabs something from the fridge.'
+    };
+    const DECAY = {hunger: 0.25, energy: 0.18, fun: 0.3, hygiene: 0.12};
+    const man = {x: 450, f: 2, n: {hunger: 80, energy: 80, fun: 80, hygiene: 80}, goal: null, busy: 0, act: null, moving: false, walk: 0};
+    let gm = 7 * 60;
+    // Tageszeit: Uhr des Besuchers, Spielzeit läuft im Tempo des Spiels
+    const jetzt = new Date();
+    gm = jetzt.getHours() * 60 + jetzt.getMinutes();
+
+    const hour = () => Math.floor(gm / 60) % 24;
+    const isNight = () => hour() >= 22 || hour() < 6;
+    const fmtTime = () => `${texte.tag} ${Math.floor(gm / 1440) + 1}, ${String(hour()).padStart(2, '0')}:${String(Math.floor(gm) % 60).padStart(2, '0')}`;
+    const tagebuch = document.getElementById('haus-tagebuch');
+    function log(t) {
+      const div = document.createElement('div');
+      div.textContent = `${fmtTime()} – ${t}`;
+      tagebuch.prepend(div);
+      while (tagebuch.children.length > 60) tagebuch.lastChild.remove();
+    }
+
+    function pickGoal() {
+      const n = man.n;
+      let want = null;
+      if (isNight() && n.energy < 60) {
+        want = OBJ.find(o => o.id === 'bett');
+      } else {
+        const low = Object.entries(n).sort((a, b) => a[1] - b[1])[0];
+        if (low[1] < 45) {
+          const match = {
+            hunger: o => o.act === 'eat',
+            energy: o => o.act === 'sleep' || o.act === 'rest',
+            fun: o => ['tv', 'work', 'read'].includes(o.act),
+            hygiene: o => o.act === 'shower'
+          }[low[0]];
+          const cand = OBJ.filter(match);
+          want = cand[Math.floor(Math.random() * cand.length)];
+        }
+      }
+      if (want) {
+        man.goal = {f: want.f, x: want.x + want.w / 2, obj: want};
+        return;
+      }
+      const r = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+      man.goal = {f: r.f, x: r.x1 + 25 + Math.random() * (r.x2 - r.x1 - 50), obj: null};
+    }
+
+    function moveTo(tx, dt) {
+      const sp = 40 * dt;
+      if (Math.abs(tx - man.x) <= sp) man.x = tx;
+      else man.x += Math.sign(tx - man.x) * sp;
+      man.moving = true;
+    }
+
+    function update(dt) {
+      gm += dt * 2;
+      for (const k in DECAY) {
+        if (man.act && man.act.act === 'sleep' && k === 'energy') continue;
+        man.n[k] = Math.max(0, man.n[k] - DECAY[k] * dt);
+      }
+      man.moving = false;
+      if (man.busy > 0) {
+        man.busy -= dt;
+        if (man.busy <= 0 && man.act) {
+          EFFECT[man.act.act](man.n);
+          log(man.act.act === 'work' ? texte.arbeit : texte.fertig);
+          man.act = null;
+        }
+        return;
+      }
+      if (!man.goal) pickGoal();
+      const goal = man.goal;
+      if (man.f !== goal.f) {
+        moveTo(STAIR, dt);
+        if (Math.abs(man.x - STAIR) < 2) man.f = goal.f;
+      } else {
+        moveTo(goal.x, dt);
+        if (Math.abs(man.x - goal.x) < 2) {
+          man.goal = null;
+          if (goal.obj) {
+            man.act = goal.obj;
+            man.busy = goal.obj.act === 'sleep' ? 8 : 4;
+            log(TEXT[goal.obj.act]);
+          }
+        }
+      }
+      man.walk += dt * (man.moving ? 8 : 0);
+    }
+
+    const EVENTS = [
+      {t: texte.brief, fn: n => { n.fun = Math.min(100, n.fun + 10); }},
+      {t: texte.katze, fn: () => {}},
+      {t: texte.gewitter, fn: n => { n.energy = Math.max(0, n.energy - 5); }}
+    ];
+    setInterval(() => {
+      const e = EVENTS[Math.floor(Math.random() * EVENTS.length)];
+      e.fn(man.n);
+      log(e.t);
+    }, 30000);
+
+    cv.addEventListener('click', ev => {
+      const rect = cv.getBoundingClientRect();
+      const sx = (ev.clientX - rect.left) * W / rect.width;
+      const sy = (ev.clientY - rect.top) * H / rect.height;
+      const o = OBJ.find(o => sx >= o.x && sx <= o.x + o.w && sy >= FOOT[o.f] - o.h && sy <= FOOT[o.f]);
+      if (!o) return;
+      man.goal = {f: o.f, x: o.x + o.w / 2, obj: o};
+      man.busy = 0; man.act = null;
+      log(`${texte.lenkt} ${o.n}.`);
+    });
+
+    // Pixel-Helfer: Rechtecke in Spielkoordinaten
+    const R = (x, y, w, h, c) => { bg.fillStyle = c; bg.fillRect(x, y, w, h); };
+
+    function drawScene() {
+      const night = isNight();
+      R(0, 0, W, H, '#000000');
+      // Sterne bei Nacht, Himmel über dem Dach
+      if (night) for (let i = 0; i < 30; i++) R((i * 97) % 700, (i * 53) % 110, 4, 4, '#FFFFFF');
+      // Dach
+      bg.fillStyle = '#68372B';
+      bg.beginPath(); bg.moveTo(120, 122); bg.lineTo(350, 40); bg.lineTo(680, 122); bg.closePath(); bg.fill();
+      for (let i = 0; i < 12; i++) R(150 + i * 42, 90 - (i % 2) * 4 + 30, 12, 4, '#433900');
+
+      ROOMS.forEach(r => {
+        const top = FOOT[r.f] - 115, h = FOOT[r.f] + 15 - top;
+        R(r.x1, top, r.x2 - r.x1, h, r.c);
+        // Tapetenmuster
+        for (let x = r.x1 + 6; x < r.x2; x += 16) R(x, top + 6, 2, h - 20, r.w);
+        // Fenster
+        const fx = r.x1 + 14, fw = 26;
+        R(fx - 2, top + 22, fw + 4, 38, '#000000');
+        R(fx, top + 24, fw, 34, night ? '#B8C76F' : '#70A4B2');
+        R(fx + fw / 2 - 1, top + 24, 2, 34, '#000000');
+        // Raumname
+        bg.font = '8px monospace';
+        bg.fillStyle = '#FFFFFF';
+        bg.fillText(r.n.toUpperCase(), r.x1 + 6, top + 12);
+        const occupied = man.f === r.f && man.x >= r.x1 && man.x <= r.x2;
+        if (night && !occupied) R(r.x1, top, r.x2 - r.x1, h, 'rgba(0,0,0,0.6)');
+      });
+
+      // Wände und Geschossdecken
+      R(136, 118, 528, 4, '#70A4B2'); R(136, 118, 4, 402, '#70A4B2'); R(660, 118, 4, 402, '#70A4B2');
+      [1, 2].forEach(f => R(140, FOOT[f + 1] + 9, 520, 8, '#6C6C6C'));
+      R(140, FOOT[1] + 15, 520, 6, '#444444');
+
+      // Treppe
+      R(292, 120, 16, 395, '#444444');
+      for (let y = 130; y < 515; y += 14) R(292, y, 16, 2, '#959595');
+
+      OBJ.forEach(o => {
+        const y = FOOT[o.f] - o.h;
+        R(o.x, y, o.w, o.h, o.col);
+        R(o.x, y + o.h - 4, o.w, 4, o.dunkel);
+        bg.font = '8px monospace';
+        bg.fillStyle = '#FFFFFF';
+        bg.fillText(o.n.toUpperCase(), o.x, y - 3);
+      });
+      if (man.act && man.act.act === 'tv') R(536, FOOT[2] - 44, 48, 34, '#70A4B2');
+
+      // Männchen (Strichfigur aus Pixeln)
+      const fy = FOOT[man.f];
+      if (man.act && man.act.act === 'sleep') {
+        R(man.x - 22, fy - 40, 44, 10, '#6C5EB5');
+        R(man.x - 30, fy - 40, 9, 9, '#B8C76F');
+        bg.font = '10px monospace'; bg.fillStyle = '#FFFFFF';
+        bg.fillText('z z', man.x + 6, fy - 48);
+      } else {
+        const s = man.moving ? Math.round(Math.sin(man.walk)) * 4 : 0;
+        R(man.x - 4, fy - 52, 8, 8, '#B8C76F');
+        R(man.x - 2, fy - 48, 2, 2, '#000000');
+        R(man.x - 5, fy - 43, 10, 14, '#6C5EB5');
+        R(man.x - 4 + s, fy - 29, 3, 18, '#FFFFFF');
+        R(man.x + 1 - s, fy - 29, 3, 18, '#FFFFFF');
+      }
+    }
+
+    function updateHud() {
+      document.getElementById('haus-uhr').textContent = fmtTime();
+      for (const [k, id] of [['hunger', 'haus-b-hunger'], ['energy', 'haus-b-energy'], ['fun', 'haus-b-fun'], ['hygiene', 'haus-b-hygiene']]) {
+        document.getElementById(id).style.width = Math.round(man.n[k]) + '%';
+      }
+    }
+
+    let last = performance.now();
+    function frame(now) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      if (!reduziert) update(dt);
+      drawScene();
+      g.imageSmoothingEnabled = false;
+      g.drawImage(buf, 0, 0, W, H);
+      updateHud();
+      requestAnimationFrame(frame);
+    }
+    const reduziert = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    log(texte.wacht);
+    requestAnimationFrame(frame);
+  </script>
+  <style>
+    .haus { max-width: 760px; margin: 0 auto; }
+    .haus__intro { color: var(--gedaempft, #9aa); }
+    .haus__hud { display: flex; gap: 14px; flex-wrap: wrap; font-size: .9rem; margin: .5rem 0; }
+    .haus__bar { display: inline-block; width: 70px; height: 8px; background: #333; border-radius: 0; overflow: hidden; vertical-align: middle; margin-left: 4px; }
+    .haus__bar b { display: block; height: 100%; background: #9AD284; transition: width .4s; }
+    #haus-canvas { width: 100%; height: auto; background: #000000; image-rendering: pixelated; border: 8px solid #6C5EB5; border-radius: 0; display: block; cursor: pointer; }
+    .haus__tagebuch { margin-top: .75rem; font-size: .9rem; line-height: 1.5; max-height: 220px; overflow: auto; background: #352879; color: #70A4B2; font-family: monospace; padding: .5rem .75rem; }
+    .haus__tagebuch div { border-bottom: 1px solid #6C5EB5; padding: 2px 0; }
+  </style>
+</Basis>
