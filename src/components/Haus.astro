@@ -25,10 +25,9 @@ const texte = de
   ? {
       titel: 'Haus-Männchen',
       beschreibung: 'Ein kleines Männchen und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
-      hinweis: 'Klick auf einen Gegenstand, dann geht das Männchen dorthin. Computer, Fernrohr und Plattenspieler öffnen ein kleines Extra. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
+      hinweis: 'Klick auf einen Gegenstand, dann geht das Männchen dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
-      retroTitel: 'Am Computer: Sternenfänger', retroStart: 'Spiel starten',
-      retroHinweis: 'Fang die fallenden Sterne mit dem Korb (rote Kometen zählen 3). Steuerung: Pfeiltasten oder A/D, mit Maus oder Finger über dem Spielfeld. 30 Sekunden.',
+      besuchTitel: 'Besuch einladen:', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
@@ -41,10 +40,9 @@ const texte = de
   : {
       titel: 'House figure',
       beschreibung: 'A little figure and its cat Minka living in their house in Stockhausen. Watch, click on objects or join in.',
-      hinweis: 'Click an object and the figure will go there. The computer, telescope and record player open a little extra. Weather, time, stars and holidays are real.',
+      hinweis: 'Click an object and the figure will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
-      retroTitel: 'On the computer: Star Catcher', retroStart: 'Start game',
-      retroHinweis: 'Catch the falling stars with the basket (red comets count 3). Controls: arrow keys or A/D, or mouse/finger over the playfield. 30 seconds.',
+      besuchTitel: 'Invite a visitor:', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
@@ -78,6 +76,14 @@ const texte = de
       <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
       <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
     </div>
+    <div class="haus__aktionen haus__besuch">
+      <span>{texte.besuchTitel}</span>
+      <button type="button" data-besuch="post">{texte.post}</button>
+      <button type="button" data-besuch="nachbar">{texte.nachbar}</button>
+      <button type="button" data-besuch="kaffee">{texte.kaffee}</button>
+      <button type="button" data-besuch="feger">{texte.feger}</button>
+      <button type="button" data-besuch="schippen" hidden>{texte.schippen}</button>
+    </div>
     <form class="haus__brief" id="haus-brief" hidden>
       <label for="haus-brief-text">{texte.briefPlatz}</label>
       <div>
@@ -108,12 +114,6 @@ const texte = de
         <button type="button" data-musik="walzer">{texte.walzer}</button>
         <button type="button" data-musik="disco">Disco</button>
       </div>
-    </section>
-    <section class="haus__panel" id="haus-retro" hidden>
-      <h2>{texte.retroTitel}</h2>
-      <canvas id="haus-retro-canvas" width="480" height="300" tabindex="0"></canvas>
-      <p><small>{texte.retroHinweis}</small></p>
-      <div class="haus__aktionen"><button type="button" id="haus-retro-start">{texte.retroStart}</button></div>
     </section>
     <section class="haus__panel" id="haus-sterne" hidden>
       <h2>{texte.sterneTitel}</h2>
@@ -1543,6 +1543,39 @@ const texte = de
       if (welt.blitz > 0) { b.fillStyle = 'rgba(255,255,255,0.18)'; b.fillRect(0, 0, W, H); }
     }
 
+    // Video am Computer: eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen), scharf auf der großen Leinwand
+    function bildschirmVideo() {
+      if (man.taetigkeit !== 'arbeiten') return;
+      const o = O.schreibtisch, y0 = FOOT[o.f] - o.h, x = (o.x + 9) * S, y = (y0 - 8) * S, w = 12 * S, h = 8 * S, t = welt.t;
+      g.save(); g.beginPath(); g.rect(x, y, w, h); g.clip();
+      const himmel = g.createLinearGradient(0, y, 0, y + h * 0.6);
+      himmel.addColorStop(0, '#3A1A6A'); himmel.addColorStop(0.5, '#D8507A'); himmel.addColorStop(1, '#FFB04A');
+      g.fillStyle = himmel; g.fillRect(x, y, w, h);
+      g.fillStyle = '#FFE08A'; g.beginPath(); g.arc(x + w * 0.7, y + h * 0.5, h * 0.18, 0, Math.PI * 2); g.fill();
+      g.fillStyle = '#1E6A8A'; g.fillRect(x, y + h * 0.55, w, h * 0.12);
+      for (let i = 0; i < 6; i++) { g.fillStyle = 'rgba(255,220,140,0.6)'; g.fillRect(x + ((i * 9 + t * 4) % w), y + h * 0.58 + (i % 2) * 2, 4, 1); }
+      // Häuserzeile (zieht langsam vorbei)
+      g.fillStyle = '#2A1440';
+      for (let i = 0; i < 9; i++) { const bx = x + ((i * 8 - t * 6) % (w + 16) + w + 16) % (w + 16) - 8, bh = 6 + ((i * 7) % 5) * 2; g.fillRect(bx, y + h * 0.55 - bh, 6, bh); }
+      // Palmen und Straße
+      const strasseY = y + h * 0.7;
+      g.fillStyle = '#3A3A48'; g.fillRect(x, strasseY, w, h * 0.3);
+      g.fillStyle = '#E8E0A0'; for (let i = 0; i < 6; i++) g.fillRect(x + ((i * 12 - t * 40) % (w + 12) + w + 12) % (w + 12) - 6, strasseY + h * 0.14, 6, 1);
+      for (let i = 0; i < 3; i++) {
+        const px = x + ((i * 20 - t * 22) % (w + 20) + w + 20) % (w + 20) - 10;
+        g.fillStyle = '#4A2A1A'; g.fillRect(px, strasseY - 12, 1.5, 12);
+        g.fillStyle = '#1E5A2A'; [[-5, -13], [3, -13], [-4, -11], [2, -11]].forEach(([dx, dy]) => g.fillRect(px + dx, strasseY + dy, 4, 1.5));
+      }
+      // Sportwagen
+      const cx = x + w * 0.32, cy = strasseY + h * 0.06 + Math.round(Math.sin(t * 12) * 0.5);
+      g.fillStyle = '#D82A3A'; g.fillRect(cx, cy, 14, 3); g.fillRect(cx + 3, cy - 2, 7, 2);
+      g.fillStyle = '#9AD8F0'; g.fillRect(cx + 4, cy - 1.5, 5, 1.5);
+      g.fillStyle = '#101014'; g.fillRect(cx + 2, cy + 3, 3, 2); g.fillRect(cx + 10, cy + 3, 3, 2);
+      g.fillStyle = '#FFF4A0'; g.fillRect(cx + 13, cy + 0.5, 1.5, 1);
+      g.fillStyle = 'rgba(255,255,255,0.08)'; for (let yy = y; yy < y + h; yy += 2) g.fillRect(x, yy, w, 1); // Bildschirmzeilen
+      g.restore();
+    }
+
     // Schrift und Sprechblasen auf der großen Leinwand (scharf)
     function schrift() {
       g.textBaseline = 'top';
@@ -1602,7 +1635,7 @@ const texte = de
       }
       const o = OBJ.filter((o) => o.act).find((o) => sx >= o.x - 2 && sx <= o.x + o.w + 2 && sy >= FOOT[o.f] - o.h - 4 && sy <= FOOT[o.f] + 1);
       if (!o) return;
-      const panel = { schreibtisch: retroPanel, teleskop: sternePanel, stereo: musikPanel }[o.id];
+      const panel = { teleskop: sternePanel, stereo: musikPanel }[o.id];
       if (panel) { panel.hidden = false; if (panel === sternePanel) sterneZeichnen(); panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
       aufwecken(tr('Hm? Ich komme ja schon …', 'Hm? Coming, coming …'));
       geheZu(o);
@@ -1736,68 +1769,14 @@ const texte = de
       log(tr(`Du wählst ${k.textContent} am Plattenspieler.`, `You pick ${k.textContent} on the record player.`));
     }));
 
-    // ---------------------------------------------------------------- Computer: Retro-Spiel „Sternenfänger“
-    const retroPanel = document.getElementById('haus-retro'), rc = document.getElementById('haus-retro-canvas'), rg = rc.getContext('2d');
-    const RW = 160, RH = 100;
-    rg.setTransform(rc.width / RW, 0, 0, rc.height / RH, 0, 0); rg.imageSmoothingEnabled = false;
-    const retro = { laeuft: false, x: 80, sterne: [], punkte: 0, best: 0, rest: 30, spawn: 0, links: false, rechts: false, ende: false };
-    const RTXT = { punkte: tr('PUNKTE', 'SCORE'), zeit: tr('ZEIT', 'TIME'), start: tr('START DRÜCKEN', 'PRESS START'), ende: tr('ENDE', 'GAME OVER'), best: tr('BESTE', 'BEST') };
-    function retroStart() {
-      Object.assign(retro, { laeuft: true, x: 80, sterne: [], punkte: 0, rest: 30, spawn: 0, ende: false });
-      if (man.taetigkeit !== 'arbeiten') { aufwecken(tr('Computer? Ich komme!', 'Computer? Coming!')); geheZu(O.schreibtisch); }
-      rc.focus();
-    }
-    document.getElementById('haus-retro-start').addEventListener('click', retroStart);
-    addEventListener('keydown', (e) => {
-      if (retroPanel.hidden || !retro.laeuft) return;
-      if (['ArrowLeft', 'a', 'A'].includes(e.key)) { retro.links = true; e.preventDefault(); }
-      if (['ArrowRight', 'd', 'D'].includes(e.key)) { retro.rechts = true; e.preventDefault(); }
-    });
-    addEventListener('keyup', (e) => {
-      if (['ArrowLeft', 'a', 'A'].includes(e.key)) retro.links = false;
-      if (['ArrowRight', 'd', 'D'].includes(e.key)) retro.rechts = false;
-    });
-    const retroZeiger = (e) => { const r = rc.getBoundingClientRect(); retro.x = Math.max(8, Math.min(RW - 8, ((e.clientX - r.left) / r.width) * RW)); };
-    rc.addEventListener('pointermove', retroZeiger); rc.addEventListener('pointerdown', retroZeiger);
-    function retroFrame(dt) {
-      if (retroPanel.hidden) return;
-      if (retro.laeuft) {
-        retro.rest -= dt; retro.spawn -= dt;
-        if (retro.links) retro.x -= 90 * dt; if (retro.rechts) retro.x += 90 * dt;
-        retro.x = Math.max(8, Math.min(RW - 8, retro.x));
-        if (retro.spawn <= 0) { retro.spawn = 0.45 + Math.random() * 0.5; const komet = Math.random() < 0.12; retro.sterne.push({ x: 6 + Math.random() * (RW - 12), y: -4, v: komet ? 55 : 28 + Math.random() * 22, komet }); }
-        retro.sterne.forEach((s) => { s.y += s.v * dt; });
-        retro.sterne = retro.sterne.filter((s) => {
-          if (s.y >= 84 && s.y <= 90 && Math.abs(s.x - retro.x) < 9) { retro.punkte += s.komet ? 3 : 1; ton.an() && (s.komet ? ton.klingel() : ton.brief()); return false; }
-          return s.y < RH + 4;
-        });
-        if (retro.rest <= 0) {
-          retro.laeuft = false; retro.ende = true; retro.best = Math.max(retro.best, retro.punkte);
-          sag(tr(`${retro.punkte} Punkte – nicht schlecht!`, `${retro.punkte} points – not bad!`));
-          log(tr(`Sternenfänger: ${retro.punkte} Punkte.`, `Star Catcher: ${retro.punkte} points.`));
-        }
-      }
-      // Bild
-      rg.fillStyle = '#10103A'; rg.fillRect(0, 0, RW, RH);
-      for (let i = 0; i < 30; i++) { rg.fillStyle = i % 3 ? '#4A4A8A' : '#8A8AC8'; rg.fillRect((i * 37) % RW, (i * 23 + Math.floor(welt.t * 4)) % 80, 1, 1); }
-      rg.fillStyle = '#2E5E2A'; rg.fillRect(0, 92, RW, 8); rg.fillStyle = '#4E9A44'; rg.fillRect(0, 92, RW, 1);
-      retro.sterne.forEach((s) => {
-        rg.fillStyle = s.komet ? '#FF6A4A' : '#FFE060'; const x = Math.round(s.x), y = Math.round(s.y);
-        rg.fillRect(x - 1, y, 3, 1); rg.fillRect(x, y - 1, 1, 3);
-        if (s.komet) { rg.fillStyle = 'rgba(255,150,80,0.6)'; rg.fillRect(x, y - 5, 1, 4); }
-      });
-      const kx = Math.round(retro.x);
-      rg.fillStyle = '#8A5A30'; rg.fillRect(kx - 8, 86, 16, 5); rg.fillStyle = '#B07A48'; rg.fillRect(kx - 8, 86, 16, 1);
-      rg.fillStyle = '#5A3A1E'; for (let i = -6; i < 8; i += 3) rg.fillRect(kx + i, 87, 1, 4);
-      rg.fillStyle = '#E8E8FF'; rg.font = '7px ui-monospace, monospace'; rg.textBaseline = 'top';
-      rg.fillText(`${RTXT.punkte} ${retro.punkte}`, 3, 2); rg.fillText(`${RTXT.zeit} ${Math.max(0, Math.ceil(retro.rest))}`, RW - 42, 2);
-      if (!retro.laeuft) {
-        rg.fillStyle = 'rgba(0,0,0,0.5)'; rg.fillRect(20, 34, 120, 28); rg.fillStyle = '#FFE060';
-        const t1 = retro.ende ? `${RTXT.ende}: ${retro.punkte}` : RTXT.start;
-        rg.fillText(t1, 80 - rg.measureText(t1).width / 2, 40);
-        if (retro.best) { const t2 = `${RTXT.best}: ${retro.best}`; rg.fillStyle = '#A8C8D8'; rg.fillText(t2, 80 - rg.measureText(t2).width / 2, 51); }
-      }
-    }
+    // ---------------------------------------------------------------- Besuch per Knopf
+    const schippKnopf = document.querySelector('[data-besuch="schippen"]');
+    if (SCHNEE) schippKnopf.hidden = false;
+    document.querySelectorAll('[data-besuch]').forEach((k) => k.addEventListener('click', () => {
+      if (besuch) { log(tr('Es ist schon Besuch da.', 'There is already a visitor.')); return; }
+      besuchStarten(k.dataset.besuch);
+      welt.naechsterBesuch = welt.t + 80 + Math.random() * 90;
+    }));
 
     // ---------------------------------------------------------------- Fernrohr: echter Sternenhimmel über Stockhausen
     const sternePanel = document.getElementById('haus-sterne'), sc = document.getElementById('haus-sterne-canvas'), sg = sc.getContext('2d');
@@ -1892,12 +1871,12 @@ const texte = de
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       if (!reduziert) { update(dt); plaudern(); }
-      retroFrame(dt);
       if (!sternePanel.hidden && now - sterneZuletzt > 30000) { sterneZuletzt = now; sterneZeichnen(); }
       else welt.t += dt;
       bild();
       g.imageSmoothingEnabled = false;
       g.drawImage(buf, 0, 0, cv.width, cv.height);
+      bildschirmVideo();
       schrift();
       hud();
       requestAnimationFrame(frame);
@@ -1937,6 +1916,8 @@ const texte = de
     .haus__panel canvas { display: block; width: min(100%, 480px); height: auto; image-rendering: pixelated; touch-action: none; }
     .haus__panel p { color: #A8C8D8; margin: .5rem 0 0; }
     .haus__aktionen button.an { background: #6C5EB5; }
+    .haus__besuch span { align-self: center; color: var(--gedaempft, #9aa); font-size: .9rem; }
+    .haus__besuch button[hidden] { display: none; }
     .haus__tagebuch { margin-top: .75rem; font-size: .9rem; line-height: 1.5; max-height: 220px; overflow: auto; background: #352879; color: #A8C8D8; font-family: ui-monospace, monospace; padding: .5rem .75rem; }
     .haus__tagebuch div { border-bottom: 1px solid #6C5EB5; padding: 2px 0; }
   </style>

@@ -71,7 +71,9 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Besuch (tagsüber alle paar Minuten, `besuchUpdate`): Postbote, Nachbar mit Hund (14–17:30 Uhr oft zum Kaffee am
   Esstisch, Hund liegt unter dem Tisch, Minka flüchtet ins Obergeschoss), Schornsteinfeger (danach auf dem Dach), bei
   Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
-  Extras: Computer → Retro-Spiel „Sternenfänger“ (30 s, nichts gespeichert); Fernrohr → echter Sternenhimmel über
+  Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).
+  Extras: Computer → auf dem Bildschirm läuft eine eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen;
+  bewusst keine Inhalte aus echten Spielen wie GTA – urheberrechtlich geschützt); Fernrohr → echter Sternenhimmel über
   Stockhausen zur aktuellen Uhrzeit (helle Sterne mit Koordinaten, Sternbilder, Mond mit Phase, vereinfachte Bahn);
   Plattenspieler → Rock/Walzer/Disco, das Männchen tanzt passend. Ton (Knopf, standardmäßig aus): im Browser erzeugt
   (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Klingel, Klopfen, Regen, Donner, Kaminknistern, Feuerwerk,
