@@ -1697,10 +1697,18 @@ const texte = de
     // ---------------------------------------------------------------- Geräusche (im Browser erzeugt, standardmäßig aus)
     const ton = (() => {
       let ctx = null, master = null, rausch = null, regenQuelle = null, regenGain = null, musikZeit = 0, musikSchritt = 0;
-      const an = () => !!ctx && ctx.state === 'running';
+      const an = () => !!ctx && ctx.state !== 'closed';
       function start() {
+        // iPhone/iPad: als „Wiedergabe“ anmelden, damit der Ton auch bei Stummschalter spielt (Safari 16.4+)
+        try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) { /* ältere Browser */ }
         ctx = new (window.AudioContext || window.webkitAudioContext)();
+        ctx.resume && ctx.resume(); // Safari startet den Ton sonst „angehalten“
         master = ctx.createGain(); master.gain.value = 0.35; master.connect(ctx.destination);
+        // kurzer stiller Ton im selben Antippen schaltet die Wiedergabe auf iOS frei
+        const still = ctx.createBuffer(1, 1, 22050), q0 = ctx.createBufferSource(); q0.buffer = still; q0.connect(ctx.destination); q0.start(0);
+        // nach dem Zurückkehren in den Tab (iOS unterbricht den Ton) wieder aufnehmen
+        document.addEventListener('visibilitychange', () => { if (ctx && !document.hidden && ctx.state !== 'running') ctx.resume(); });
+        addEventListener('pointerdown', () => { if (ctx && ctx.state !== 'running') ctx.resume(); });
         rausch = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
         const d = rausch.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
         if (NASS) { // Regen ans Fenster als leises, gefiltertes Rauschen
