@@ -66,33 +66,47 @@ const texte = de
     const cv = document.getElementById('haus-canvas');
     const g = cv.getContext('2d');
     // Pixelpuffer: alles wird bei 1/4 Auflösung gezeichnet und dann ohne Glättung vergrößert
-    const PX = 4;
+    const BW = 160, BH = 128;
     const buf = document.createElement('canvas');
-    buf.width = cv.width / PX; buf.height = cv.height / PX;
+    buf.width = BW; buf.height = BH;
     const bg = buf.getContext('2d');
-    bg.setTransform(1 / PX, 0, 0, 1 / PX, 0, 0);
+    bg.setTransform(BW / 700, 0, 0, BH / 560, 0, 0);
     g.imageSmoothingEnabled = false;
 
-    const W = 700, H = 560, STAIR = 300;
-    const FOOT = {1: 495, 2: 365, 3: 235};
+    const W = 700, H = 560, STAIR = 305;
+    // Böden (Fußlinie) und Deckenhöhe je Geschoss, wie beim Vorbild: oben, Mitte, unten
+    const FOOT = {1: 488, 2: 358, 3: 185};
+    const TOP = {1: 368, 2: 198, 3: 105};
+    // Räume: Wände aus Rot, Innenraum schwarz
     const ROOMS = [
-      {n: sprache === 'de' ? 'Schlafzimmer' : 'Bedroom', f: 3, x1: 150, x2: 400, c: '#6F3D86', w: '#6C5EB5'},
-      {n: sprache === 'de' ? 'Arbeitszimmer' : 'Study', f: 3, x1: 400, x2: 650, c: '#352879', w: '#6C5EB5'},
-      {n: sprache === 'de' ? 'Bad' : 'Bathroom', f: 2, x1: 150, x2: 300, c: '#70A4B2', w: '#9AD284'},
-      {n: sprache === 'de' ? 'Wohnzimmer' : 'Living room', f: 2, x1: 300, x2: 650, c: '#6F4F25', w: '#B8C76F'},
-      {n: sprache === 'de' ? 'Küche' : 'Kitchen', f: 1, x1: 150, x2: 400, c: '#9A6759', w: '#68372B'},
-      {n: sprache === 'de' ? 'Esszimmer' : 'Dining room', f: 1, x1: 400, x2: 650, c: '#588D43', w: '#9AD284'}
+      {n: sprache === 'de' ? 'Dachboden' : 'Attic', f: 3, x1: 20, x2: 680},
+      {n: sprache === 'de' ? 'Schlafzimmer' : 'Bedroom', f: 2, x1: 20, x2: 262},
+      {n: sprache === 'de' ? 'Bad' : 'Bathroom', f: 2, x1: 262, x2: 440},
+      {n: sprache === 'de' ? 'Arbeitszimmer' : 'Study', f: 2, x1: 440, x2: 680},
+      {n: sprache === 'de' ? 'Küche' : 'Kitchen', f: 1, x1: 20, x2: 340},
+      {n: sprache === 'de' ? 'Wohnzimmer' : 'Living room', f: 1, x1: 340, x2: 680}
     ];
+    // Gegenstände: act = Aktion beim Benutzen (null = nur Deko), art = Zeichnung
     const OBJ = [
-      {id: 'bett', n: sprache === 'de' ? 'Bett' : 'Bed', f: 3, x: 170, w: 80, h: 28, act: 'sleep', col: '#FFFFFF', dunkel: '#6C5EB5'},
-      {id: 'schreib', n: sprache === 'de' ? 'Schreibtisch' : 'Desk', f: 3, x: 470, w: 70, h: 40, act: 'work', col: '#6F4F25', dunkel: '#433900'},
-      {id: 'regal', n: sprache === 'de' ? 'Regal' : 'Shelf', f: 3, x: 585, w: 50, h: 85, act: 'read', col: '#B8C76F', dunkel: '#588D43'},
-      {id: 'dusche', n: sprache === 'de' ? 'Dusche' : 'Shower', f: 2, x: 165, w: 50, h: 85, act: 'shower', col: '#70A4B2', dunkel: '#352879'},
-      {id: 'sofa', n: sprache === 'de' ? 'Sofa' : 'Sofa', f: 2, x: 320, w: 90, h: 35, act: 'rest', col: '#68372B', dunkel: '#433900'},
-      {id: 'tv', n: sprache === 'de' ? 'Fernseher' : 'TV', f: 2, x: 530, w: 60, h: 50, act: 'tv', col: '#444444', dunkel: '#000000'},
-      {id: 'kuehl', n: sprache === 'de' ? 'Kühlschrank' : 'Fridge', f: 1, x: 165, w: 42, h: 90, act: 'eat', col: '#FFFFFF', dunkel: '#959595'},
-      {id: 'tisch', n: sprache === 'de' ? 'Esstisch' : 'Table', f: 1, x: 455, w: 90, h: 30, act: 'eat', col: '#6F4F25', dunkel: '#433900'}
+      {id: 'tv', n: sprache === 'de' ? 'Fernseher' : 'TV', f: 3, x: 60, w: 44, h: 34, act: 'tv', art: 'tv'},
+      {id: 'stereo', n: sprache === 'de' ? 'Stereo' : 'Stereo', f: 3, x: 128, w: 64, h: 30, act: 'music', art: 'stereo'},
+      {id: 'sessel3', n: sprache === 'de' ? 'Sessel' : 'Armchair', f: 3, x: 218, w: 50, h: 28, act: 'rest', art: 'armchair'},
+      {id: 'bett3', n: sprache === 'de' ? 'Bett' : 'Bed', f: 3, x: 330, w: 92, h: 30, act: 'sleep', art: 'bed'},
+      {id: 'kuehl3', n: sprache === 'de' ? 'Schrank' : 'Cabinet', f: 3, x: 600, w: 26, h: 44, act: null, art: 'cabinet'},
+      {id: 'bett2', n: sprache === 'de' ? 'Bett' : 'Bed', f: 2, x: 36, w: 84, h: 34, act: 'sleep', art: 'bed'},
+      {id: 'komm', n: sprache === 'de' ? 'Kommode' : 'Dresser', f: 2, x: 172, w: 46, h: 30, act: null, art: 'dresser'},
+      {id: 'dusche', n: sprache === 'de' ? 'Badewanne' : 'Bathtub', f: 2, x: 336, w: 92, h: 30, act: 'shower', art: 'bath'},
+      {id: 'regal', n: sprache === 'de' ? 'Regal' : 'Shelf', f: 2, x: 456, w: 40, h: 74, act: 'read', art: 'bookshelf'},
+      {id: 'schreib', n: sprache === 'de' ? 'Schreibtisch' : 'Desk', f: 2, x: 512, w: 74, h: 34, act: 'work', art: 'desk'},
+      {id: 'uhr', n: sprache === 'de' ? 'Uhr' : 'Clock', f: 2, x: 620, w: 0, h: 0, act: null, art: 'clock'},
+      {id: 'kuehl', n: sprache === 'de' ? 'Kühlschrank' : 'Fridge', f: 1, x: 36, w: 40, h: 74, act: 'eat', art: 'fridge'},
+      {id: 'herd', n: sprache === 'de' ? 'Herd' : 'Stove', f: 1, x: 112, w: 90, h: 40, act: null, art: 'stove'},
+      {id: 'tisch', n: sprache === 'de' ? 'Esstisch' : 'Table', f: 1, x: 214, w: 62, h: 28, act: 'eat', art: 'table'},
+      {id: 'sofa', n: sprache === 'de' ? 'Sofa' : 'Sofa', f: 1, x: 462, w: 74, h: 30, act: 'rest', art: 'sofa'},
+      {id: 'lampe', n: sprache === 'de' ? 'Stehlampe' : 'Lamp', f: 1, x: 400, w: 22, h: 80, act: null, art: 'lamp'},
+      {id: 'kamin', n: sprache === 'de' ? 'Kamin' : 'Fireplace', f: 1, x: 586, w: 74, h: 44, act: null, art: 'fireplace'}
     ];
+    const INTERAKTIV = OBJ.filter(o => o.act);
     const EFFECT = {
       sleep: n => { n.energy = 100; },
       work: n => { n.fun = Math.min(100, n.fun + 15); },
@@ -100,14 +114,15 @@ const texte = de
       shower: n => { n.hygiene = 100; },
       rest: n => { n.energy = Math.min(100, n.energy + 20); },
       tv: n => { n.fun = Math.min(100, n.fun + 30); },
+      music: n => { n.fun = Math.min(100, n.fun + 20); },
       eat: n => { n.hunger = 100; }
     };
     const TEXT = sprache === 'de' ? {
       sleep: 'legt sich ins Bett.', work: 'setzt sich an den Schreibtisch.', read: 'zieht ein Buch aus dem Regal.',
-      shower: 'geht unter die Dusche.', rest: 'lässt sich aufs Sofa fallen.', tv: 'schaltet den Fernseher ein.', eat: 'holt sich etwas aus dem Kühlschrank.'
+      shower: 'geht unter die Dusche.', rest: 'lässt sich aufs Sofa fallen.', tv: 'schaltet den Fernseher ein.', music: 'dreht die Musik auf.', eat: 'holt sich etwas aus dem Kühlschrank.'
     } : {
       sleep: 'lies down in bed.', work: 'sits down at the desk.', read: 'takes a book from the shelf.',
-      shower: 'steps into the shower.', rest: 'flops onto the sofa.', tv: 'switches on the TV.', eat: 'grabs something from the fridge.'
+      shower: 'steps into the shower.', rest: 'flops onto the sofa.', tv: 'switches on the TV.', music: 'turns up the music.', eat: 'grabs something from the fridge.'
     };
     const DECAY = {hunger: 0.25, energy: 0.18, fun: 0.3, hygiene: 0.12};
     const man = {x: 450, f: 2, n: {hunger: 80, energy: 80, fun: 80, hygiene: 80}, goal: null, busy: 0, act: null, moving: false, walk: 0};
@@ -131,17 +146,17 @@ const texte = de
       const n = man.n;
       let want = null;
       if (isNight() && n.energy < 60) {
-        want = OBJ.find(o => o.id === 'bett');
+        want = INTERAKTIV.find(o => o.id === 'bett2');
       } else {
         const low = Object.entries(n).sort((a, b) => a[1] - b[1])[0];
         if (low[1] < 45) {
           const match = {
             hunger: o => o.act === 'eat',
             energy: o => o.act === 'sleep' || o.act === 'rest',
-            fun: o => ['tv', 'work', 'read'].includes(o.act),
+            fun: o => ['tv', 'music', 'work', 'read'].includes(o.act),
             hygiene: o => o.act === 'shower'
           }[low[0]];
-          const cand = OBJ.filter(match);
+          const cand = INTERAKTIV.filter(match);
           want = cand[Math.floor(Math.random() * cand.length)];
         }
       }
@@ -149,7 +164,7 @@ const texte = de
         man.goal = {f: want.f, x: want.x + want.w / 2, obj: want};
         return;
       }
-      const r = ROOMS[Math.floor(Math.random() * ROOMS.length)];
+      const r = ROOMS[1 + Math.floor(Math.random() * (ROOMS.length - 1))];
       man.goal = {f: r.f, x: r.x1 + 25 + Math.random() * (r.x2 - r.x1 - 50), obj: null};
     }
 
@@ -210,7 +225,7 @@ const texte = de
       const rect = cv.getBoundingClientRect();
       const sx = (ev.clientX - rect.left) * W / rect.width;
       const sy = (ev.clientY - rect.top) * H / rect.height;
-      const o = OBJ.find(o => sx >= o.x && sx <= o.x + o.w && sy >= FOOT[o.f] - o.h && sy <= FOOT[o.f]);
+      const o = INTERAKTIV.find(o => sx >= o.x && sx <= o.x + o.w && sy >= FOOT[o.f] - o.h && sy <= FOOT[o.f]);
       if (!o) return;
       man.goal = {f: o.f, x: o.x + o.w / 2, obj: o};
       man.busy = 0; man.act = null;
@@ -218,71 +233,165 @@ const texte = de
     });
 
     // Pixel-Helfer: Rechtecke in Spielkoordinaten
-    const R = (x, y, w, h, c) => { bg.fillStyle = c; bg.fillRect(x, y, w, h); };
+    const R = (x, y, w, h, c) => { bg.fillStyle = c; bg.fillRect(Math.round(x), Math.round(y), Math.max(1, Math.round(w)), Math.max(1, Math.round(h))); };
+    const T = (txt, x, y, c = '#FFFFFF') => { bg.font = '8px monospace'; bg.fillStyle = c; bg.fillText(txt, x, y); };
+    const ROT = '#B03A2E', SCHWARZ = '#141414', GRAU = '#9E9E9E', GRUEN = '#3FA34D', BLAU = '#3A3ACF', LILA = '#A23AA8', GELB = '#E6E62E', WEISS = '#F2F2F2', HELLBLAU = '#9AF0F0';
 
-    function drawScene() {
-      const night = isNight();
+    // Zeichnungen der Gegenstände, Ursprung oben links (x, y, w, h)
+    const ART = {
+      tv(x, y) {
+        R(x + 6, y + 2, 2, 2, WEISS); R(x + 34, y + 2, 2, 2, WEISS);
+        R(x, y + 6, 44, 24, '#C0C0C0'); R(x + 3, y + 9, 38, 17, SCHWARZ); R(x + 5, y + 11, 34, 13, HELLBLAU);
+        R(x + 16, y + 30, 12, 4, GRAU); R(x + 8, y + 33, 28, 2, GRAU);
+      },
+      stereo(x, y) {
+        R(x, y + 2, 64, 26, GRUEN); R(x + 4, y + 6, 56, 18, SCHWARZ);
+        for (let i = 0; i < 8; i++) R(x + 8 + i * 6, y + 9, 2, 12, WEISS);
+        R(x + 4, y + 26, 6, 4, GRAU); R(x + 54, y + 26, 6, 4, GRAU);
+      },
+      armchair(x, y, w, h) {
+        R(x, y + 8, w, h - 8, BLAU); R(x + 4, y, w - 8, 10, BLAU); R(x - 4, y + 14, 6, h - 14, BLAU);
+        R(x + 6, y + 14, w - 12, h - 18, LILA);
+      },
+      sofa(x, y, w, h) {
+        R(x, y + 10, w, h - 10, LILA); R(x + 2, y, w - 4, 12, LILA); R(x + 4, y + 14, w - 8, h - 16, '#7A2C78');
+        R(x + 4, y + h, 4, 3, SCHWARZ); R(x + w - 8, y + h, 4, 3, SCHWARZ);
+      },
+      bed(x, y, w, h) {
+        R(x, y + 8, w, 6, GRUEN); R(x, y + 14, 4, h - 14, GRUEN); R(x + w - 4, y + 14, 4, h - 14, GRUEN);
+        R(x + 6, y + 2, 16, 8, WEISS); R(x + 24, y + 4, w - 30, 8, WEISS);
+        R(x + 4, y + 14, w - 8, 10, BLAU); for (let i = 0; i < w - 8; i += 6) R(x + 4 + i, y + 14, 3, 10, HELLBLAU);
+      },
+      bett2(x, y, w, h) { ART.bed(x, y, w, h); },
+      cabinet(x, y, w, h) {
+        R(x, y, w, h, GRUEN); R(x + 3, y + 3, w - 6, h / 2 - 5, SCHWARZ); R(x + 3, y + h / 2 + 2, w - 6, h / 2 - 5, SCHWARZ);
+        R(x + w / 2 - 2, y + 8, 4, 2, GRUEN);
+      },
+      fridge(x, y, w, h) {
+        R(x, y, w, h, WEISS); R(x, y + h * 0.42, w, 2, GRAU);
+        R(x + w - 6, y + 6, 2, 10, GRAU); R(x + w - 6, y + h * 0.42 + 6, 2, 12, GRAU);
+        R(x - 3, y + 8, 3, 10, WEISS);
+      },
+      stove(x, y, w, h) {
+        R(x, y + 10, w, h - 10, GRUEN); R(x + 3, y + 14, w - 6, 4, GRAU);
+        R(x, y, 28, 14, WEISS); R(x + 6, y + 4, 16, 6, GRAU);
+        R(x + 4, y + h - 6, 10, 4, SCHWARZ); R(x + w - 14, y + h - 6, 10, 4, SCHWARZ);
+        R(x + w - 6, y + 16, 2, 6, GELB);
+      },
+      table(x, y, w, h) {
+        R(x, y + 6, w, 4, WEISS); R(x + 4, y + 10, 4, h - 10, GRAU); R(x + w - 8, y + 10, 4, h - 10, GRAU);
+        R(x + w / 2 - 4, y - 8, 10, 8, WEISS); R(x + w / 2 - 2, y - 4, 6, 2, SCHWARZ);
+      },
+      bath(x, y, w, h) {
+        R(x, y + 6, w, h - 6, WEISS); R(x + 4, y + 10, w - 8, h - 14, HELLBLAU);
+        R(x + w - 14, y - 14, 4, 20, GRAU); R(x + w - 26, y - 14, 16, 4, GRAU);
+      },
+      bookshelf(x, y, w, h) {
+        R(x, y, w, h, WEISS); R(x + 3, y + 3, w - 6, h - 6, SCHWARZ);
+        R(x + 6, y + 8, 6, 14, '#68372B'); R(x + 14, y + 12, 6, 10, GELB);
+        R(x + 6, y + 36, 8, 12, LILA); R(x + 18, y + 40, 6, 8, GRUEN);
+      },
+      desk(x, y, w, h) {
+        R(x, y + 14, w, 4, WEISS); R(x + 4, y + 18, 4, h - 18, GRAU); R(x + w - 8, y + 18, 4, h - 18, GRAU);
+        R(x + 26, y - 10, 36, 24, BLAU); R(x + 30, y - 6, 28, 16, SCHWARZ);
+        R(x + 34, y + 2, 10, 2, GELB);
+      },
+      clock(x, y) {
+        R(x - 16, y - 16, 32, 32, WEISS); R(x - 12, y - 12, 24, 24, ROT);
+        R(x - 1, y - 9, 2, 9, SCHWARZ); R(x - 1, y - 1, 6, 2, SCHWARZ);
+      },
+      lamp(x, y, w, h) {
+        R(x + 8, y + 6, 6, h - 6, GELB); R(x - 4, y + 2, 26, 6, GELB); R(x, y + 4, 22, 2, WEISS);
+        R(x + 2, y + h - 3, 18, 4, GRAU);
+      },
+      fireplace(x, y, w, h) {
+        R(x, y + 10, w, h - 10, '#9A3E32'); R(x + 10, y + 16, w - 20, h - 22, SCHWARZ);
+        for (let i = 0; i < w; i += 8) R(x + i, y + 10, 4, 3, GELB);
+        R(x + 16, y + h - 10, 4, 6, '#E8703A'); R(x + 28, y + h - 8, 4, 4, GELB);
+      },
+      dresser(x, y, w, h) {
+        R(x, y, w, h, GRUEN); R(x + 3, y + 3, w - 6, h / 2 - 4, SCHWARZ); R(x + 3, y + h / 2 + 1, w - 6, h / 2 - 4, SCHWARZ);
+        R(x + w - 16, y + 6, 2, 3, GRAU); R(x + w - 16, y + h / 2 + 7, 2, 3, GRAU);
+      }
+    };
+    ART.bett2 = ART.bed;
+
+    // Raum-Hintergrund: Wände rot, Innenraum schwarz, Dachschrägen
+    function drawHouse(night){
+      // Himmel hinter dem Dach
       R(0, 0, W, H, '#000000');
-      // Sterne bei Nacht, Himmel über dem Dach
-      if (night) for (let i = 0; i < 30; i++) R((i * 97) % 700, (i * 53) % 110, 4, 4, '#FFFFFF');
-      // Dach
-      bg.fillStyle = '#68372B';
-      bg.beginPath(); bg.moveTo(120, 122); bg.lineTo(350, 40); bg.lineTo(680, 122); bg.closePath(); bg.fill();
-      for (let i = 0; i < 12; i++) R(150 + i * 42, 90 - (i % 2) * 4 + 30, 12, 4, '#433900');
-
+      if (night) for (let i = 0; i < 40; i++) R((i * 97) % 700, (i * 53) % 90, 2, 2, WEISS);
+      // Dach: blauer Himmel links und rechts, rotes Dach dazwischen
+      bg.fillStyle = BLAU; bg.beginPath(); bg.moveTo(0, 0); bg.lineTo(700, 0); bg.lineTo(700, 105); bg.lineTo(650, 105); bg.lineTo(60, 105); bg.lineTo(0, 105); bg.closePath(); bg.fill();
+      bg.fillStyle = ROT; bg.beginPath(); bg.moveTo(20, 105); bg.lineTo(350, 20); bg.lineTo(680, 105); bg.closePath(); bg.fill();
+      // Hauswände
+      R(20, 105, 660, 455, ROT);
+      // Innenräume je Geschoss
       ROOMS.forEach(r => {
-        const top = FOOT[r.f] - 115, h = FOOT[r.f] + 15 - top;
-        R(r.x1, top, r.x2 - r.x1, h, r.c);
-        // Tapetenmuster
-        for (let x = r.x1 + 6; x < r.x2; x += 16) R(x, top + 6, 2, h - 20, r.w);
-        // Fenster
-        const fx = r.x1 + 14, fw = 26;
-        R(fx - 2, top + 22, fw + 4, 38, '#000000');
-        R(fx, top + 24, fw, 34, night ? '#B8C76F' : '#70A4B2');
-        R(fx + fw / 2 - 1, top + 24, 2, 34, '#000000');
-        // Raumname
-        bg.font = '8px monospace';
-        bg.fillStyle = '#FFFFFF';
-        bg.fillText(r.n.toUpperCase(), r.x1 + 6, top + 12);
+        const top = TOP[r.f], foot = FOOT[r.f];
+        R(r.x1 + 4, top, r.x2 - r.x1 - 8, foot - top, SCHWARZ);
+      });
+      // Geschossdecken: Boden grau oben, rot darunter
+      [3, 2].forEach(f => R(20, FOOT[f], 660, 10, ROT));
+      R(20, FOOT[3], 660, 4, GRAU);
+      R(20, FOOT[2] + 4, 660, 3, ROT);
+      R(20, FOOT[1] + 6, 660, 12, ROT);
+      // Mittelwand und Außenwände dunkler
+      R(262, TOP[2], 4, FOOT[2] - TOP[2], ROT);
+      R(440, TOP[2], 4, FOOT[2] - TOP[2], ROT);
+      R(340, TOP[1], 4, FOOT[1] - TOP[1], ROT);
+
+      // Muster in den Böden (Karos im Bad und in der Küche)
+      for (let x = 268; x < 436; x += 8) for (let y = FOOT[2] - 14; y < FOOT[2]; y += 6) R(x + ((y / 6) % 2) * 4, y, 4, 3, HELLBLAU);
+      for (let x = 24; x < 336; x += 8) for (let y = FOOT[1] - 14; y < FOOT[1]; y += 6) R(x + ((y / 6) % 2) * 4, y, 4, 3, GRUEN);
+      for (let x = 348; x < 676; x += 16) R(x, FOOT[1] - 3, 10, 3, GELB);
+      for (let x = 24; x < 258; x += 16) R(x + 6, FOOT[2] - 2, 10, 2, LILA);
+
+      // Treppen (rote Stufen) zwischen den Geschossen, wie im Vorbild
+      for (let y = TOP[2] + 6; y < FOOT[2] - 8; y += 10) R(STAIR - 14, y, 28, 4, ROT);
+      for (let y = TOP[1] + 6; y < FOOT[1] - 8; y += 10) R(STAIR - 14, y, 28, 4, ROT);
+      R(STAIR - 16, TOP[2], 4, FOOT[2] - TOP[2], ROT); R(STAIR + 12, TOP[2], 4, FOOT[2] - TOP[2], ROT);
+      R(STAIR - 16, TOP[1], 4, FOOT[1] - TOP[1], ROT); R(STAIR + 12, TOP[1], 4, FOOT[1] - TOP[1], ROT);
+
+      // Raumnamen
+      ROOMS.forEach(r => T(r.n.toUpperCase(), r.x1 + 8, TOP[r.f] + 12, '#B8C76F'));
+    }
+
+    function drawObject(o){
+      if (o.art === 'clock') { ART.clock(o.x, TOP[o.f] + 50); return; }
+      const top = FOOT[o.f] - o.h;
+      const f = ART[o.art];
+      if (f) f(o.x, top, o.w, o.h);
+      if (o.art === 'tv' && man.act && man.act.id === 'tv') R(o.x + 5, top + 11, 34, 13, '#68CFCF');
+    }
+
+    function drawSceneFull(){
+      const night = isNight();
+      drawHouse(night);
+      // Gegenstände
+      OBJ.forEach(drawObject);
+      // Nacht: Räume ohne Männchen abdunkeln
+      if (night) ROOMS.forEach(r => {
         const occupied = man.f === r.f && man.x >= r.x1 && man.x <= r.x2;
-        if (night && !occupied) R(r.x1, top, r.x2 - r.x1, h, 'rgba(0,0,0,0.6)');
+        if (!occupied) R(r.x1 + 4, TOP[r.f], r.x2 - r.x1 - 8, FOOT[r.f] - TOP[r.f], 'rgba(0,0,0,0.6)');
       });
-
-      // Wände und Geschossdecken
-      R(136, 118, 528, 4, '#70A4B2'); R(136, 118, 4, 402, '#70A4B2'); R(660, 118, 4, 402, '#70A4B2');
-      [1, 2].forEach(f => R(140, FOOT[f + 1] + 9, 520, 8, '#6C6C6C'));
-      R(140, FOOT[1] + 15, 520, 6, '#444444');
-
-      // Treppe
-      R(292, 120, 16, 395, '#444444');
-      for (let y = 130; y < 515; y += 14) R(292, y, 16, 2, '#959595');
-
-      OBJ.forEach(o => {
-        const y = FOOT[o.f] - o.h;
-        R(o.x, y, o.w, o.h, o.col);
-        R(o.x, y + o.h - 4, o.w, 4, o.dunkel);
-        bg.font = '8px monospace';
-        bg.fillStyle = '#FFFFFF';
-        bg.fillText(o.n.toUpperCase(), o.x, y - 3);
-      });
-      if (man.act && man.act.act === 'tv') R(536, FOOT[2] - 44, 48, 34, '#70A4B2');
-
-      // Männchen (Strichfigur aus Pixeln)
+      // Männchen mit Pixel-Figur
       const fy = FOOT[man.f];
       if (man.act && man.act.act === 'sleep') {
-        R(man.x - 22, fy - 40, 44, 10, '#6C5EB5');
-        R(man.x - 30, fy - 40, 9, 9, '#B8C76F');
-        bg.font = '10px monospace'; bg.fillStyle = '#FFFFFF';
-        bg.fillText('z z', man.x + 6, fy - 48);
+        R(man.x - 22, fy - 34, 44, 6, BLAU); R(man.x - 22, fy - 28, 44, 2, HELLBLAU);
+        R(man.x - 30, fy - 40, 8, 8, '#E8D9B8');
+        T('Z Z', man.x + 6, fy - 46);
       } else {
-        const s = man.moving ? Math.round(Math.sin(man.walk)) * 4 : 0;
-        R(man.x - 4, fy - 52, 8, 8, '#B8C76F');
-        R(man.x - 2, fy - 48, 2, 2, '#000000');
-        R(man.x - 5, fy - 43, 10, 14, '#6C5EB5');
-        R(man.x - 4 + s, fy - 29, 3, 18, '#FFFFFF');
-        R(man.x + 1 - s, fy - 29, 3, 18, '#FFFFFF');
+        const s = man.moving ? Math.round(Math.sin(man.walk)) * 3 : 0;
+        R(man.x - 4, fy - 44, 8, 8, '#E8D9B8');
+        R(man.x - 4, fy - 44, 8, 3, '#8A4A1E');
+        R(man.x - 2, fy - 40, 2, 2, SCHWARZ); R(man.x + 1, fy - 40, 2, 2, SCHWARZ);
+        R(man.x - 5, fy - 35, 10, 14, ROT);
+        R(man.x - 4 + s, fy - 21, 3, 20, WEISS);
+        R(man.x + 1 - s, fy - 21, 3, 20, WEISS);
       }
     }
+    const drawScene = drawSceneFull;
 
     function updateHud() {
       document.getElementById('haus-uhr').textContent = fmtTime();
