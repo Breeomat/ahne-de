@@ -24,8 +24,8 @@ const termine = (termineDaten as { termine?: { tag: string; titel: string; ort?:
 const texte = de
   ? {
       titel: 'Haus-Männchen',
-      beschreibung: 'Ein kleines Männchen und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
-      hinweis: 'Klick auf einen Gegenstand, dann geht das Männchen dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
+      beschreibung: 'Herr Hausmann und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
+      hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
       kalenderTitel: 'Jahreszeit und Feste:',
       feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
@@ -33,7 +33,7 @@ const texte = de
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
-      briefPlatz: 'Was möchtest du dem Männchen schreiben?', senden: 'Einwerfen',
+      briefPlatz: 'Was möchtest du Herrn Hausmann schreiben?', senden: 'Einwerfen',
       briefHinweis: 'Der Brief bleibt in deinem Browser, nichts wird gesendet oder gespeichert.',
       zeitungTitel: 'Dorfzeitung Stockhausen', keineTermine: 'In den nächsten zwei Wochen stehen keine Termine im Kalender.',
       alleTermine: 'Alle Termine auf stockhausen-online.de',
@@ -41,8 +41,8 @@ const texte = de
     }
   : {
       titel: 'House figure',
-      beschreibung: 'A little figure and its cat Minka living in their house in Stockhausen. Watch, click on objects or join in.',
-      hinweis: 'Click an object and the figure will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
+      beschreibung: 'Mr Hausmann and his cat Minka in their house in Stockhausen. Watch, click on objects or join in.',
+      hinweis: 'Click an object and Mr Hausmann will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
       kalenderTitel: 'Season and holidays:',
       feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
@@ -50,7 +50,7 @@ const texte = de
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
-      briefPlatz: 'What would you like to write to the figure?', senden: 'Post it',
+      briefPlatz: 'What would you like to write to Mr Hausmann?', senden: 'Post it',
       briefHinweis: 'The letter stays in your browser; nothing is sent or stored.',
       zeitungTitel: 'Stockhausen village paper', keineTermine: 'No events in the calendar for the next two weeks.',
       alleTermine: 'All events on stockhausen-online.de (German)',
@@ -333,7 +333,7 @@ const texte = de
       fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
-      ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes its hands.', arbeiten: 'sits down at the computer.',
+      ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
       fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.',
@@ -464,7 +464,7 @@ const texte = de
       tagebuch.prepend(div);
       while (tagebuch.children.length > 60) tagebuch.lastChild.remove();
     }
-    const NAME = tr('Das Männchen', 'The figure');
+    const NAME = tr('Herr Hausmann', 'Mr Hausmann');
     const gesagt = [];
     function sag(text, sek = 5) { blase = { text, bis: welt.t + sek }; gesagt.push(text); if (gesagt.length > 6) gesagt.shift(); log(DE ? `„${text}“` : `“${text}”`); }
     // neuen Satz wählen, der nicht gerade erst gesagt wurde (sonst null)
@@ -581,7 +581,7 @@ const texte = de
       man.tut = z.o || { pose: 'steh' }; man.taetigkeit = z.tun; man.zeit = DAUER[z.tun] || 5;
       if (z.o && z.o.links) man.dir = -1; else if (z.o) man.dir = (z.o.x + z.o.w / 2) >= man.x ? 1 : -1; else man.dir = -1;
       log(`${NAME} ${TUN[z.tun]}`);
-      if (z.tun === 'schlafen' && welt.licht && schlafenszeit()) { welt.licht = false; log(tr('Das Männchen macht das Licht aus.', 'The figure turns off the light.')); }
+      if (z.tun === 'schlafen' && welt.licht && schlafenszeit()) { welt.licht = false; log(tr('Herr Hausmann macht das Licht aus.', 'Mr Hausmann turns off the light.')); }
       if (z.tun === 'feuer') welt.feuer = true;
       if (z.tun === 'naschen') welt.kuehlAuf = 3;
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
@@ -671,7 +671,7 @@ const texte = de
           man.dir = Math.sign(man.klettern.x1 - man.klettern.x0);
         }
       } else if (laufeZu(z.x, dt)) {
-        if (z.tun === 'briefLesen') { man.ziel = null; man.folge && man.folge(); man.folge = null; log(tr('Das Männchen liest deinen Brief.', 'The figure reads your letter.')); }
+        if (z.tun === 'briefLesen') { man.ziel = null; man.folge && man.folge(); man.folge = null; log(tr('Herr Hausmann liest deinen Brief.', 'Mr Hausmann reads your letter.')); }
         else anfangen(z);
       }
       if (man.laeuft) man.schritt += dt * 8;
@@ -1922,7 +1922,7 @@ const texte = de
       hud();
       requestAnimationFrame(frame);
     }
-    log(nacht0 ? tr('Das Männchen schläft. Pssst!', 'The figure is asleep. Shhh!') : tr('Das Männchen ist wach.', 'The figure is awake.'));
+    log(nacht0 ? tr('Herr Hausmann schläft. Pssst!', 'Mr Hausmann is asleep. Shhh!') : tr('Herr Hausmann ist wach.', 'Mr Hausmann is awake.'));
     const festTag = FEST.advent || FEST.weihnachten || FEST.silvester || FEST.neujahr || FEST.nikolaus || FEST.halloween || FEST.ostern;
     if (!nacht0) setTimeout(() => sag(festTag ? festSatz() : wetterSatz()), 1200);
     requestAnimationFrame(frame);
