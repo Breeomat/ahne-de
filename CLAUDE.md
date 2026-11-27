@@ -110,8 +110,11 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   bewusst keine Inhalte aus echten Spielen wie GTA – urheberrechtlich geschützt); Fernrohr → echter Sternenhimmel über
   Stockhausen zur aktuellen Uhrzeit (helle Sterne mit Koordinaten, Sternbilder, Mond mit Phase, vereinfachte Bahn);
   Plattenspieler → Rock/Walzer/Disco, das Männchen tanzt passend. Ton (Knopf, standardmäßig aus): im Browser erzeugt
-  (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Klingel, Klopfen, Regen, Donner, Kaminknistern, Feuerwerk,
-  eigene kleine Melodien am Plattenspieler.
+  (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Schnurren, Klingel, Klopfen, Tür, Hundebellen, Regen, Donner,
+  Kaminknistern, Feuerwerk, Brutzeln, Wasser, Waschmaschine, Tastatur, Fernseher, Schnarchen, Essen, Igel, Traktor,
+  Schulbus-Hupe, Bäckerglocke, Martinshorn, Piepser, Staubsauger, Brummi-Summen, eigene kleine Melodien am Plattenspieler.
+  Sprechen: jede Sprechblase klingt als kurze Fantasiesprache (Silbentöne, Tonhöhe je Figur, `STIMME`, `ton.plappern`),
+  dazu bewegt sich der Mund (`KOPF_OFFEN`, `redet()`); Kinder hoch, Heizungsbauer tief, Brummi piepsig.
   Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`,
   `?besuch=post|paket|nachbar|kaffee|nachbarin|freund|pizza|klempner|feger|kamerad|wanderer|kinder|schippen` (Besuch nach 3 s).
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem

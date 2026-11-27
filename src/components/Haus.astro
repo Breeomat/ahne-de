@@ -840,6 +840,13 @@ const texte = de
       h: C.haar, H: '#8A5A2C', s: C.haut, d: '#C08A62', w: C.weiss, e: C.schwarz, m: '#B04A3A',
       t: C.hemd, T: '#E87058', c: '#8E3426', b: '#3A2A1A', p: C.hose, P: '#4A5A9A', q: '#1E2648', o: C.schuh, O: '#120A06',
     };
+    const KOPF_OFFEN = [
+      '.......hhhhhh.......', '.....hhhhhhhhhh.....', '....hhHHhhhhhhhh....', '....hHhhhhhhhhhhh...',
+      '....hhhhhhssssshh...', '....hhhhssssssssh...', '....hhhsssssswess...', '....hhssssssswess...',
+      '.....dssssssssssss..', '.....ddsssssssss....', '......sssssmmmss....', '.......sssssmms.....', '........dsss........',
+    ];
+    // spricht gerade? (Mund geht im Takt der Silben auf und zu)
+    const redet = (bl) => bl && bl.start !== undefined && spielzeit - bl.start < Math.min(2.6, bl.text.length * 0.045) && Math.floor(spielzeit * 8) % 2 === 0;
     const KOPF = [
       '.......hhhhhh.......', '.....hhhhhhhhhh.....', '....hhHHhhhhhhhh....', '....hHhhhhhhhhhhh...',
       '....hhhhhhssssshh...', '....hhhhssssssssh...', '....hhhsssssswess...', '....hhssssssswess...',
@@ -946,7 +953,7 @@ const texte = de
       const beine = sitzt ? BEINE_SITZ : (man.laeuft && Math.floor(man.schritt) % 2) || schrittBein ? BEINE_SCHRITT : BEINE;
       const rumpf = arme ? RUMPF_HOCH : RUMPF;
       const schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      sprite([...KOPF, ...rumpf, ...beine], x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, farben);
+      sprite([...(redet(blase) ? KOPF_OFFEN : KOPF), ...rumpf, ...beine], x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, farben);
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
       // Gegenstände in der Hand
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
@@ -1086,6 +1093,7 @@ const texte = de
           bs.zeit -= dt;
           if (bs.zeit <= 0) {
             ton.klingel(); log(tr('Es klingelt an der Tür.', 'The doorbell rings.'));
+            if (bs.hund) setTimeout(() => ton.bellen(), 900);
             aufwecken(tr('Oh, Besuch!', 'Oh, a visitor!'));
             man.tut = null; man.taetigkeit = null;
             man.ziel = { f: 1, x: 36, o: null, tun: 'besuch' };
@@ -1164,12 +1172,12 @@ const texte = de
       if (g.klein) { // zwei Kinder, kleiner
         const kids = [[x, fa], [x - 8 * (bs.dir || 1), { ...fa, t: '#5AA84A', T: '#7AC86A', c: '#3A7A2A', h: '#5A3A1A', H: '#7A5A3A' }]];
         if (FEST.halloween) { kids[0][1] = { ...fa, t: '#E87A1A', T: '#FF9A3A', c: '#A84A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; kids[1][1] = { ...fa, t: '#1A1A1A', T: '#3A3A3A', c: '#0A0A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; }
-        kids.forEach(([kx, kf]) => sprite(groesser([...KOPF, ...RUMPF, ...beine], 0.7), kx, fy, bs.dir, kf));
+        kids.forEach(([kx, kf], i) => sprite(groesser([...(i === 0 && redet(bs.blase) ? KOPF_OFFEN : KOPF), ...RUMPF, ...beine], 0.7), kx, fy, bs.dir, kf));
         if (FEST.halloween) { K(x + 3 * bs.dir, fy - 6, 3, 2.5, C.orange, '#FFA050', '#A85A20'); R(x - 8 * bs.dir - 2, fy - 19, 4, 2, C.schwarz); poly([[x - 8 * bs.dir - 1.5, fy - 19], [x - 8 * bs.dir, fy - 23], [x - 8 * bs.dir + 1.5, fy - 19]], C.schwarz); }
         else { b.fillStyle = '#E84A4A'; b.beginPath(); b.arc(x + 4 * bs.dir, fy - 1.2, 1.2, 0, Math.PI * 2); b.fill(); }
         return;
       }
-      sprite([...KOPF, ...RUMPF, ...beine], x, fy, bs.dir, fa);
+      sprite([...(redet(bs.blase) ? KOPF_OFFEN : KOPF), ...RUMPF, ...beine], x, fy, bs.dir, fa);
       const kopfY = fy - (sitzt ? 16 : 19), d = bs.dir || 1;
       if (bs.art === 'post') { R(x - 3.5, kopfY, 7, 1.5, '#2A3A8A'); R(x + (d > 0 ? 1 : -5), kopfY + 1, 4, 0.5, '#1A2050'); K(x + (d > 0 ? -5 : 3), fy - 10, 3, 4, '#7A4A2A', '#9A6A3A', '#4A2A10'); }
       if (bs.art === 'paket' && ['kommt', 'klingelt', 'wartet', 'tuer'].includes(bs.phase)) { K(x + 2 * d - 2, fy - 12, 5, 4, '#B08850', '#D0A870', '#7A5A30'); R(x - 3.5, kopfY, 7, 1.2, '#5A3A1A'); }
@@ -1248,7 +1256,7 @@ const texte = de
       const fahrt = (art, von, bis, dir, text) => {
         const key = `${art}-${von}-${tag}`;
         if (h >= von && h < bis && !welt.fahrtenGesehen.has(key)) {
-          welt.fahrtenGesehen.add(key); welt.fahrzeuge.push({ art, t0: welt.t, dauer: 22, dir });
+          welt.fahrtenGesehen.add(key); welt.fahrzeuge.push({ art, t0: welt.t, dauer: 22, dir }); if (art === 'bus') setTimeout(() => ton.hupe(), 6000);
           log(text);
           if (art === 'baecker') { ton.baeckerglocke(); if (!man.alarm && man.taetigkeit !== 'schlafen') setTimeout(() => sag(tr('Der Bäckerwagen! Frische Brötchen.', 'The bakery van! Fresh bread rolls.')), 2500); }
         }
@@ -2217,6 +2225,31 @@ const texte = de
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
         sauger: () => rauschen(0.3, 0.05, 1200, 0, 'bandpass'),
         summen: () => piep(190 + Math.random() * 20, 0.22, 'sawtooth', 0.025),
+        // Fantasiesprache: kurze Silbentöne passend zur Länge des Satzes, Tonhöhe je Stimme
+        plappern: (text, st) => {
+          if (!an()) return;
+          const silben = Math.min(16, Math.max(2, Math.round(text.replace(/[^A-Za-zÄÖÜäöüß]/g, '').length / 3)));
+          let t = 0;
+          for (let i = 0; i < silben; i++) {
+            const frage = i === silben - 1 && /\?/.test(text), f = st.grund * (0.82 + Math.random() * 0.4) * (frage ? 1.3 : 1);
+            piep(f, st.dauer || 0.07, st.typ || 'triangle', st.vol || 0.07, t, f * (frage ? 1.2 : 0.9 + Math.random() * 0.2));
+            t += (st.takt || 0.09) + Math.random() * 0.03; if (Math.random() < 0.18) t += 0.09;
+          }
+        },
+        bellen: () => { piep(260, 0.12, 'sawtooth', 0.07, 0, 180); piep(280, 0.12, 'sawtooth', 0.07, 0.22, 190); },
+        tuer: () => piep(320, 0.35, 'sawtooth', 0.025, 0, 210),
+        brutzeln: () => rauschen(0.08, 0.04, 5000, 0, 'highpass'),
+        wasser: () => rauschen(0.25, 0.05, 2200, 0, 'bandpass'),
+        waschen: () => { rauschen(0.4, 0.06, 260); piep(55, 0.3, 'sine', 0.04); },
+        tippen: () => rauschen(0.02, 0.08, 4500, 0, 'highpass'),
+        fernsehen: () => { for (let i = 0; i < 3; i++) piep(220 + Math.random() * 200, 0.06, 'square', 0.012, i * 0.09); },
+        schnarchen: () => { rauschen(0.9, 0.05, 220); piep(70, 0.9, 'sawtooth', 0.015, 0, 60); },
+        schnurren: () => { for (let i = 0; i < 8; i++) rauschen(0.04, 0.05, 300, i * 0.05); },
+        traktor: () => { piep(48, 0.08, 'square', 0.02); },
+        hupe: () => { piep(392, 0.25, 'sawtooth', 0.04); piep(330, 0.3, 'sawtooth', 0.04, 0.3); },
+        rascheln: () => rauschen(0.15, 0.04, 3000, 0, 'bandpass'),
+        mampfen: () => rauschen(0.05, 0.05, 1500, 0, 'bandpass'),
+        klack: () => rauschen(0.04, 0.2, 800),
         klick: () => { rauschen(0.05, 0.3, 4000, 0, 'highpass'); rauschen(0.08, 0.2, 2000, 0.08, 'highpass'); },
         baeckerglocke: () => { for (let i = 0; i < 6; i++) piep(i % 2 ? 1320 : 1760, 0.18, 'triangle', 0.08, i * 0.2); },
         piepser: () => { for (let i = 0; i < 6; i++) piep(2100, 0.12, 'square', 0.08, i * 0.22); },
@@ -2566,6 +2599,41 @@ const texte = de
     }
 
 
+    // ---------------------------------------------------------------- Stimmen und Alltagsgeräusche
+    const STIMME = {
+      mann: { grund: 150 }, post: { grund: 160 }, paket: { grund: 235 }, nachbar: { grund: 120 }, kaffee: { grund: 120 }, schippen: { grund: 120 },
+      nachbarin: { grund: 265 }, freund: { grund: 140, typ: 'sawtooth', vol: 0.035 }, pizza: { grund: 175 }, klempner: { grund: 105, typ: 'sawtooth', vol: 0.035 },
+      feger: { grund: 130 }, kamerad: { grund: 145 }, wanderer: { grund: 245 }, kinder: { grund: 390, takt: 0.07 },
+      brummi: { grund: 720, typ: 'square', vol: 0.03, takt: 0.06, dauer: 0.04 },
+    };
+    const zuletzt = { mann: null, gast: null, brummi: null };
+    const takt = {};
+    const alle = (k, sek, dt) => { takt[k] = (takt[k] || 0) - dt; if (takt[k] <= 0) { takt[k] = sek * (0.8 + Math.random() * 0.4); return true; } return false; };
+    let tuerVorher = 0;
+    function geraeusche(dt) {
+      // neue Sprechblase → Startzeit merken (für den Mund) und plappern
+      const neu = (bl, k, st) => { if (bl && bl !== zuletzt[k]) { zuletzt[k] = bl; bl.start = spielzeit; ton.plappern(bl.text, st); } };
+      neu(blase, 'mann', STIMME.mann);
+      if (besuch) neu(besuch.blase, 'gast', STIMME[besuch.art] || STIMME.nachbar);
+      if (welt.brummi) neu(welt.brummi.blase, 'brummi', STIMME.brummi);
+      if (!ton.an()) { tuerVorher = welt.tuerAuf; return; }
+      if (welt.tuerAuf > 0 && tuerVorher <= 0) ton.tuer();
+      tuerVorher = welt.tuerAuf;
+      const t = man.taetigkeit;
+      if (t === 'kochen' && alle('brutzeln', 0.12, dt)) ton.brutzeln();
+      if ((t === 'duschen' || t === 'abwaschen' || t === 'giessen' || t === 'waschen') && alle('wasser', 0.22, dt)) ton.wasser();
+      if (t === 'zaehne' && alle('zaehne', 0.18, dt)) ton.tippen();
+      if (t === 'arbeiten' && alle('tippen', 0.14, dt)) ton.tippen();
+      if (t === 'fernsehen' && alle('tv', 0.6, dt)) ton.fernsehen();
+      if (t === 'schlafen' && alle('schnarchen', 3.2, dt)) ton.schnarchen();
+      if ((t === 'essen' || t === 'naschen' || (besuch && besuch.phase === 'drin' && besuch.g.drin === 'tisch')) && alle('mampfen', 0.7, dt)) ton.mampfen();
+      if (t === 'streicheln' && alle('schnurren', 0.5, dt)) ton.schnurren();
+      if (welt.waschLauf > 0 && alle('waschen', 0.45, dt)) ton.waschen();
+      if (welt.igel && alle('igel', 0.6, dt)) ton.rascheln();
+      if (welt.kuehlAuf > 2.9 && alle('kuehl', 1, dt)) ton.klack();
+      if (feldarbeit() && alle('traktor', 0.28, dt)) ton.traktor();
+    }
+
     // ---------------------------------------------------------------- Schleife
     let last = performance.now();
     function frame(now) {
@@ -2573,6 +2641,7 @@ const texte = de
       last = now;
       spielzeit += dt;
       if (welt.fotoBlitz > 0) welt.fotoBlitz -= dt;
+      geraeusche(dt);
       rafferTick();
       // im Zeitraffer laufen Herr Hausmann, Minka und Besuch fünfmal so schnell (Sprechblasen bleiben lesbar)
       if (!reduziert) { update(dt * (RAFFER.an ? 5 : 1)); plaudern(); }
