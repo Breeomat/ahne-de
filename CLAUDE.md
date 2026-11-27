@@ -68,16 +68,18 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Katze „Minka“: läuft selbst durchs Haus (auch Treppen), schläft auf Sofa/Bett/Kisten, sitzt auf Fensterbänken,
   frisst am Napf im Flur (wartet miauend, wenn er leer ist – dann füttert sie das Männchen), wird vom Männchen gestreichelt.
   Knöpfe „Katze füttern“, „Wollknäuel werfen“; Klick auf die Katze streichelt sie (Herzchen).
-  Besuch (7:30–21 Uhr alle paar Minuten, `besuchUpdate`, Liste `GAST` mit Uhrzeitfenster, Kleidung, Sätzen; dieselben
+  Besuch (7:30–21 Uhr alle 2,5–5 Minuten, `besuchUpdate`, Liste `GAST` mit Uhrzeitfenster, Kleidung, Sätzen; dieselben
   Gäste nicht kurz hintereinander): Postbote, Paketbotin (Paket im Flur → Herr Hausmann packt aus), Nachbar mit Hund,
   Kaffeebesuch (14–17:30, Esstisch, Hund unter dem Tisch, Minka flüchtet), Nachbarin mit Apfelkuchen, Freund zum
   Abendessen (17–20:30, Teller am Tisch), Pizzabote (18–21), Heizungsbauer (geht mit in den Keller zu den Wärmepumpen,
   nennt die Werte von gestern), Schornsteinfeger (danach auf dem Dach), Feuerwehrkamerad, Wanderin, Nachbarskinder
   (Halloween: verkleidet, „Süßes oder Saures!“), bei Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Tempo (auf Wunsch ruhiger): Tätigkeiten doppelt so lang, Bedürfnisse sinken halb so schnell, kurze Pause nach jeder
+  Tätigkeit, Plaudern alle 50–90 s.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
-  Brummi zu Besuch (Drohne von der Startseite, gleiches Aussehen; tagsüber alle 5–9 Min. oder Knopf „Brummi rufen“):
+  Brummi zu Besuch (Drohne von der Startseite, gleiches Aussehen; tagsüber alle 10–18 Min. oder Knopf „Brummi rufen“):
   fliegt durchs Rundfenster in den Dachboden, lädt auf der Werkbank (Ladeanzeige), Herr Hausmann grüßt, Minka springt
   nach ihr, danach fliegt Brummi wieder hinaus (`brummiUpdate`, Summen bei Ton an).
   Kaminfeuer brennt herunter (`welt.glut`, ca. 3 Min.), Flammen werden kleiner; Herr Hausmann legt rechtzeitig nach
@@ -98,7 +100,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   sät/erntet/pflügt werktags 8–18 Uhr bei trockenem Wetter vor Wohn- und Arbeitszimmerfenster (nicht im Winter),
   Schulbus Mo–Fr gegen 7 und 13 Uhr, Bäckerwagen samstags 8–10 Uhr (Glocke bei Ton an), Lichter in den Dorfhäusern
   gehen nach Sonnenuntergang nach und nach an und spät wieder aus (`dorfFelder`, `dorfFahrzeuge`, `hausLicht`).
-  Nachts (`nachtUpdate`, alle 35–65 s): Igel läuft über die Wiese, Minka jagt eine Motte, Herr Hausmann holt sich
+  Nachts (`nachtUpdate`, alle 70–130 s): Igel läuft über die Wiese, Minka jagt eine Motte, Herr Hausmann holt sich
   verschlafen ein Glas Milch und geht zurück ins Bett, bei Vollmond (echte Mondphase) schaut er einmal aus dem
   Schlafzimmerfenster. Der Mond am Himmel zeigt die echte Phase. Nachts plaudert er nicht.
   Foto (Knopf): Blitz, „Bitte lächeln!“, speichert das Bild mit Leiste (Name, Adresse, Datum) als PNG auf dem Gerät des

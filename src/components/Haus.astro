@@ -429,7 +429,8 @@ const texte = de
       { id: 'sauger', n: tr('Staubsauger', 'Vacuum cleaner'), f: 1, x: 56, w: 5, h: 9, act: 'saugen', sx: 222 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
-    const DAUER = { giessen: 4, saugen: 9, waesche: 5, abwaschen: 6, zaehne: 4, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
+    // Dauer der Tätigkeiten in Sekunden (auf Wunsch doppelt so lang wie anfangs, damit weniger los ist)
+    const DAUER = { giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -736,6 +737,7 @@ const texte = de
     }
     function fertig() {
       const t = man.taetigkeit;
+      man.warte = 3 + Math.random() * 5; // kurz verschnaufen, bevor es weitergeht
       WIRKUNG[t] && WIRKUNG[t](man.n);
       man.tut = null; man.taetigkeit = null;
       if (t === 'kochen') { welt.teller = true; geheZu(O.tisch, 'essen'); return; }
@@ -781,7 +783,7 @@ const texte = de
       if (welt.blitz > 0) welt.blitz -= dt;
       if (WETTER.art === 'gewitter' && Math.random() < dt / 9) { welt.blitz = 0.25; ton.donner(); }
       const schlaeft = man.taetigkeit === 'schlafen';
-      for (const [k, r] of Object.entries({ hunger: 0.22, energy: 0.14, fun: 0.28, hygiene: 0.1 })) {
+      for (const [k, r] of Object.entries({ hunger: 0.11, energy: 0.07, fun: 0.14, hygiene: 0.05 })) {
         if (schlaeft && k === 'energy') { man.n.energy = Math.min(100, man.n.energy + 1.5 * dt); continue; }
         man.n[k] = Math.max(0, man.n[k] - r * dt * (schlaeft ? 0.3 : 1));
       }
@@ -1019,7 +1021,7 @@ const texte = de
     ];
     const HUND2 = [...HUND.slice(0, 7), '.....hh..hhhh..hh...', '.....ww..wwww..ww...'];
     let besuch = null;
-    welt.naechsterBesuch = params.get('besuch') ? 3 : 25 + Math.random() * 35;
+    welt.naechsterBesuch = params.get('besuch') ? 3 : 50 + Math.random() * 70;
     welt.letzteGaeste = [];
     const hundDrin = () => besuch && besuch.hund && besuch.drin;
     const WEG_RAUS = [[34, 208], [24, 208], [17, 214], [-25, 214]];
@@ -1058,7 +1060,7 @@ const texte = de
       if (!besuch) {
         const h = stunde(), test = params.get('besuch');
         if (!man.alarm && !RAFFER.an && welt.t > welt.naechsterBesuch && (test || (!schlafenszeit() && h >= 7.5 && h <= 21 && man.taetigkeit !== 'schlafen'))) {
-          welt.naechsterBesuch = welt.t + 70 + Math.random() * 80;
+          welt.naechsterBesuch = welt.t + 140 + Math.random() * 160;
           const art = test && GAST[test] ? test : gastWaehlen();
           if (test) params.delete('besuch');
           besuchStarten(art);
@@ -2152,10 +2154,10 @@ const texte = de
       man.tut = null; man.taetigkeit = null;
     });
     // Plaudern: alle 25–45 s etwas sagen (nicht im Schlaf)
-    let naechstesPlaudern = 6;
+    let naechstesPlaudern = 12;
     function plaudern() {
       if (welt.t < naechstesPlaudern) return;
-      naechstesPlaudern = welt.t + 25 + Math.random() * 20;
+      naechstesPlaudern = welt.t + 50 + Math.random() * 40;
       if (man.alarm || schlafenszeit() || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'drin'].includes(besuch.phase))) return;
       const t = neu(plauderSatz); if (t) sag(t);
     }
@@ -2300,7 +2302,7 @@ const texte = de
     document.querySelectorAll('[data-besuch]').forEach((k) => k.addEventListener('click', () => {
       if (besuch) { log(tr('Es ist schon Besuch da.', 'There is already a visitor.')); return; }
       besuchStarten(k.dataset.besuch);
-      welt.naechsterBesuch = welt.t + 80 + Math.random() * 90;
+      welt.naechsterBesuch = welt.t + 160 + Math.random() * 180;
     }));
 
     // ---------------------------------------------------------------- Fernrohr: echter Sternenhimmel über Stockhausen
@@ -2464,7 +2466,7 @@ const texte = de
     }
 
     // ---------------------------------------------------------------- Nachts: Igel, Motte, Glas Milch, Vollmond
-    welt.naechsteNacht = 20 + Math.random() * 20; welt.igel = null; welt.motte = null; welt.vollmondGesehen = false;
+    welt.naechsteNacht = 40 + Math.random() * 40; welt.igel = null; welt.motte = null; welt.vollmondGesehen = false;
     let mondCache = null, mondZeit = -1;
     function mondJetzt() { if (!mondCache || spielzeit - mondZeit > 60) { mondCache = mondDaten(Date.now()); mondZeit = spielzeit; } return mondCache; }
     function mondAmHimmel(cx, cy, rr) { // Mond mit echter Phase (Pixel für Pixel in halben Pixeln)
@@ -2480,7 +2482,7 @@ const texte = de
       if (welt.igel) { welt.igel.x += welt.igel.dir * 6 * dt; if (welt.igel.x < -10 || welt.igel.x > 330) welt.igel = null; }
       if (welt.motte && welt.t > welt.motte.bis) welt.motte = null;
       if (!nacht || man.alarm || besuch || welt.t < welt.naechsteNacht) return;
-      welt.naechsteNacht = welt.t + 35 + Math.random() * 30;
+      welt.naechsteNacht = welt.t + 70 + Math.random() * 60;
       const schlaeft = man.taetigkeit === 'schlafen', m = mondJetzt(), vollmond = m.elong > 160;
       const moeglich = ['igel', 'motte'];
       if (schlaeft && schlafenszeit()) moeglich.push('milch');
@@ -2541,7 +2543,7 @@ const texte = de
 
     // ---------------------------------------------------------------- Brummi zu Besuch (die Drohne von der Startseite)
     // fliegt durch das Rundfenster in den Dachboden, lädt auf der Werkbank, Herr Hausmann grüßt, Minka will sie fangen
-    welt.brummi = null; welt.naechsterBrummi = 90 + Math.random() * 120;
+    welt.brummi = null; welt.naechsterBrummi = 180 + Math.random() * 240;
     function brummiStarten(perKnopf) {
       welt.brummi = { x: 340, y: 18, phase: 'anflug', wege: [[250, 10], [180, 28], [160, 46], [140, 62], [117, 74]], zeit: 0, blase: { text: tr('Bsss! Hallo Herr Hausmann!', 'Bzzz! Hello Mr Hausmann!'), bis: spielzeit + 3.5 }, akku: 20, summ: 0 };
       log(perKnopf ? tr('Du rufst Brummi. Die Drohne summt heran.', 'You call Brummi. The drone buzzes over.') : tr('Brummi, die Drohne, kommt zu Besuch.', 'Brummi the drone comes to visit.'));
@@ -2549,7 +2551,7 @@ const texte = de
     function brummiUpdate(dt) {
       const br = welt.brummi;
       if (!br) {
-        if (welt.t > welt.naechsterBrummi && !schlafenszeit() && tageszeit() !== 'nacht' && !man.alarm && !RAFFER.an) { welt.naechsterBrummi = welt.t + 300 + Math.random() * 240; brummiStarten(false); }
+        if (welt.t > welt.naechsterBrummi && !schlafenszeit() && tageszeit() !== 'nacht' && !man.alarm && !RAFFER.an) { welt.naechsterBrummi = welt.t + 600 + Math.random() * 480; brummiStarten(false); }
         return;
       }
       const flieg = (v) => {
