@@ -68,9 +68,14 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Katze „Minka“: läuft selbst durchs Haus (auch Treppen), schläft auf Sofa/Bett/Kisten, sitzt auf Fensterbänken,
   frisst am Napf im Flur (wartet miauend, wenn er leer ist – dann füttert sie das Männchen), wird vom Männchen gestreichelt.
   Knöpfe „Katze füttern“, „Wollknäuel werfen“; Klick auf die Katze streichelt sie (Herzchen).
-  Besuch (tagsüber alle paar Minuten, `besuchUpdate`): Postbote, Nachbar mit Hund (14–17:30 Uhr oft zum Kaffee am
-  Esstisch, Hund liegt unter dem Tisch, Minka flüchtet ins Obergeschoss), Schornsteinfeger (danach auf dem Dach), bei
-  Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Besuch (7:30–21 Uhr alle paar Minuten, `besuchUpdate`, Liste `GAST` mit Uhrzeitfenster, Kleidung, Sätzen; dieselben
+  Gäste nicht kurz hintereinander): Postbote, Paketbotin (Paket im Flur → Herr Hausmann packt aus), Nachbar mit Hund,
+  Kaffeebesuch (14–17:30, Esstisch, Hund unter dem Tisch, Minka flüchtet), Nachbarin mit Apfelkuchen, Freund zum
+  Abendessen (17–20:30, Teller am Tisch), Pizzabote (18–21), Heizungsbauer (geht mit in den Keller zu den Wärmepumpen,
+  nennt die Werte von gestern), Schornsteinfeger (danach auf dem Dach), Feuerwehrkamerad, Wanderin, Nachbarskinder
+  (Halloween: verkleidet, „Süßes oder Saures!“), bei Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Kaminfeuer brennt herunter (`welt.glut`, ca. 3 Min.), Flammen werden kleiner; Herr Hausmann legt rechtzeitig nach
+  oder zündet es später neu an (abends oder unter 6 °C); daneben ein Holzkorb, ohne Feuer nur Asche.
   Keller (Geschoss 0, Treppe vom Erdgeschoss): zwei Wärmepumpen, Warmwasserspeicher, Stromspeicher, Wechselrichter,
   Waschmaschine, Regal. Die Wärmepumpen zeigen den echten Zustand von gestern zur selben Uhrzeit: die Seite lädt
   `/waermepumpe/` und liest dort die eingebetteten Messwerte (`var DD=…,ENDE=`); Ventilator dreht bei Verdichter an,
@@ -94,7 +99,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Besuchers – nichts wird hochgeladen.
   Besucher kommen und gehen nur über den Weg links neben dem Haus (nicht vor dem Keller entlang).
   Jahreszeit und Feste auch per Knopf (`kalender()`, „Heute (echt)“ setzt zurück; Silvester stellt auf Abend).
-  Besuch auch per Knopf (Postbote, Nachbar, Kaffeebesuch, Schornsteinfeger; „Schnee schippen“ nur bei Schnee).
+  Besuch auch per Knopf (alle Gäste; „Schnee schippen“ nur bei Schnee).
   Extras: Computer → auf dem Bildschirm läuft eine eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen;
   bewusst keine Inhalte aus echten Spielen wie GTA – urheberrechtlich geschützt); Fernrohr → echter Sternenhimmel über
   Stockhausen zur aktuellen Uhrzeit (helle Sterne mit Koordinaten, Sternbilder, Mond mit Phase, vereinfachte Bahn);
@@ -102,7 +107,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Klingel, Klopfen, Regen, Donner, Kaminknistern, Feuerwerk,
   eigene kleine Melodien am Plattenspieler.
   Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`,
-  `?besuch=post|nachbar|kaffee|feger|schippen` (Besuch nach 3 s).
+  `?besuch=post|paket|nachbar|kaffee|nachbarin|freund|pizza|klempner|feger|kamerad|wanderer|kinder|schippen` (Besuch nach 3 s).
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
   Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
   `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.

@@ -32,7 +32,8 @@ const texte = de
       keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
       kalenderTitel: 'Jahreszeit und Feste', gMitmachen: 'Mitmachen', gKatze: 'Katze Minka', gExtras: 'Extras',
       feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
-      besuchTitel: 'Besuch einladen', post: 'Postbote', nachbar: 'Nachbar mit Hund', kaffee: 'Kaffeebesuch', feger: 'Schornsteinfeger', schippen: 'Schnee schippen',
+      besuchTitel: 'Besuch einladen',
+      gaeste: [['post', 'Postbote'], ['paket', 'Paketbotin'], ['nachbar', 'Nachbar mit Hund'], ['kaffee', 'Kaffeebesuch'], ['nachbarin', 'Nachbarin mit Kuchen'], ['freund', 'Freund zum Essen'], ['pizza', 'Pizzabote'], ['klempner', 'Heizungsbauer'], ['feger', 'Schornsteinfeger'], ['kamerad', 'Feuerwehrkamerad'], ['wanderer', 'Wanderin'], ['kinder', 'Nachbarskinder']], schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
@@ -51,7 +52,8 @@ const texte = de
       keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
       kalenderTitel: 'Season and holidays', gMitmachen: 'Join in', gKatze: 'Minka the cat', gExtras: 'Extras',
       feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
-      besuchTitel: 'Invite a visitor', post: 'Postman', nachbar: 'Neighbour with dog', kaffee: 'Coffee visit', feger: 'Chimney sweep', schippen: 'Shovel snow',
+      besuchTitel: 'Invite a visitor',
+      gaeste: [['post', 'Postman'], ['paket', 'Parcel courier'], ['nachbar', 'Neighbour with dog'], ['kaffee', 'Coffee visit'], ['nachbarin', 'Neighbour with cake'], ['freund', 'Friend for dinner'], ['pizza', 'Pizza courier'], ['klempner', 'Heating engineer'], ['feger', 'Chimney sweep'], ['kamerad', 'Fellow firefighter'], ['wanderer', 'Hiker'], ['kinder', 'Neighbours’ children']], schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
@@ -94,13 +96,10 @@ const texte = de
           <button type="button" data-aktion="knaeuel">{texte.knaeuel}</button>
         </div>
       </div>
-      <div class="haus__gruppe">
+      <div class="haus__gruppe haus__gruppe--breit">
         <p class="haus__gruppentitel">{texte.besuchTitel}</p>
         <div class="haus__aktionen">
-          <button type="button" data-besuch="post">{texte.post}</button>
-          <button type="button" data-besuch="nachbar">{texte.nachbar}</button>
-          <button type="button" data-besuch="kaffee">{texte.kaffee}</button>
-          <button type="button" data-besuch="feger">{texte.feger}</button>
+          {texte.gaeste.map(([k, l]) => <button type="button" data-besuch={k}>{l}</button>)}
           <button type="button" data-besuch="schippen" hidden>{texte.schippen}</button>
         </div>
       </div>
@@ -427,7 +426,7 @@ const texte = de
       { id: 'kregal', n: tr('Kellerregal', 'Shelf'), f: 0, x: 268, w: 18, h: 19 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
-    const DAUER = { milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 4, schlafen: 40, musik: 8, basteln: 9, sterne: 8, ausruhen: 8, duschen: 6, waschen: 3, arbeiten: 10, lesen: 8, naschen: 3, kochen: 7, essen: 6, zeitung: 7, fernsehen: 10, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -437,6 +436,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
+      gast: (n) => { n.fun = Math.min(100, n.fun + 20); }, auspacken: (n) => { n.fun = Math.min(100, n.fun + 25); }, nachlegen: () => {},
       milch: (n) => { n.hunger = Math.min(100, n.hunger + 15); }, vollmond: (n) => { n.fun = Math.min(100, n.fun + 10); },
       besuch: (n) => { n.fun = Math.min(100, n.fun + 20); }, pruefen: (n) => { n.fun = Math.min(100, n.fun + 8); }, akkupruefen: (n) => { n.fun = Math.min(100, n.fun + 5); }, kaffee: (n) => { n.fun = Math.min(100, n.fun + 35); n.hunger = Math.min(100, n.hunger + 20); },
     };
@@ -445,13 +445,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', vollmond: 'schaut verschlafen aus dem Fenster.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', vollmond: 'sleepily looks out of the window.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -461,7 +461,7 @@ const texte = de
       ziel: null, tut: null, zeit: 0, laeuft: false, schritt: 0, klettern: null, warte: 0, folge: null,
     };
     man.y = FOOT[man.f];
-    const welt = { licht: !nacht0 && tageszeit() !== 'tag' ? true : !nacht0, feuer: WETTER.temp !== null && WETTER.temp < 6 && tageszeit() !== 'tag', teller: false, tuerAuf: 0, brief: null, blitz: 0, kuehlAuf: 0, t: 0 };
+    const welt = { licht: !nacht0 && tageszeit() !== 'tag' ? true : !nacht0, feuer: WETTER.temp !== null && WETTER.temp < 6 && tageszeit() !== 'tag', teller: false, tuerAuf: 0, brief: null, blitz: 0, kuehlAuf: 0, t: 0, glut: 70 };
     if (nacht0) { man.tut = O.bett; man.taetigkeit = 'schlafen'; man.zeit = DAUER.schlafen; }
     let blase = null; // { text, bis }
 
@@ -667,7 +667,7 @@ const texte = de
         return zufall(tz === 'nacht' || tz === 'abend' ? [O.teleskop, O.tv, O.stereo, O.regal] : [O.tv, O.stereo, O.werkbank, O.regal, O.tisch]);
       }
       if (welt.teller) return O.tisch;
-      if (!welt.feuer && WETTER.temp !== null && WETTER.temp < 6 && Math.random() < 0.2) return O.kamin;
+      if (!welt.feuer && !schlafenszeit() && (tageszeit() !== 'tag' || (WETTER.temp !== null && WETTER.temp < 6)) && Math.random() < 0.25) return O.kamin;
       if (Math.random() < 0.35) return zufall([O.schreibtisch, O.werkbank, O.regal, O.tisch, O.stereo, O.wp1, O.wp2, O.akku]);
       return null;
     }
@@ -704,7 +704,9 @@ const texte = de
       if (z.o && z.o.links) man.dir = -1; else if (z.o) man.dir = (z.o.x + z.o.w / 2) >= man.x ? 1 : -1; else man.dir = -1;
       log(`${NAME} ${TUN[z.tun]}`);
       if (z.tun === 'schlafen' && welt.licht && schlafenszeit()) { welt.licht = false; log(tr('Herr Hausmann macht das Licht aus.', 'Mr Hausmann turns off the light.')); }
-      if (z.tun === 'feuer') welt.feuer = true;
+      if (z.tun === 'feuer') { welt.feuer = true; welt.glut = 100; sag(tr('So, jetzt wird es gemütlich warm.', "There, now it'll get nice and warm."), 4); }
+      if (z.tun === 'nachlegen') { welt.glut = Math.min(100, (welt.glut || 0) + 65); sag(tr('Ich lege mal Holz nach.', "I'll put another log on."), 3); }
+      if (z.tun === 'auspacken') sag(zufall(DE ? ['Ein neues Buch – toll!', 'Ersatzteile für meine Drohne!', 'Katzenfutter für Minka.', 'Ein warmer Wollpulli!', 'Neue Glühbirnen für den Keller.'] : ['A new book – great!', 'Spare parts for my drone!', 'Cat food for Minka.', 'A warm woolly jumper!', 'New light bulbs for the cellar.']), 4);
       if (z.tun === 'naschen' || z.tun === 'milch') welt.kuehlAuf = 3;
       if (z.tun === 'vollmond') { man.dir = 1; sag(tr('Was für ein schöner Vollmond …', 'What a lovely full moon …'), 5); }
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
@@ -727,7 +729,8 @@ const texte = de
       man.tut = null; man.taetigkeit = null;
       if (t === 'kochen') { welt.teller = true; geheZu(O.tisch, 'essen'); return; }
       if ((t === 'milch' || t === 'vollmond') && schlafenszeit()) { geheZu(O.bett); return; } // zurück ins Bett
-      if (t === 'essen') welt.teller = false;
+      if (t === 'essen') { welt.teller = false; welt.gericht = null; }
+      if (t === 'auspacken') welt.paket = false;
       if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(tr('Ausgeschlafen!', 'Well rested!')); }
       if (t === 'brief' && welt.brief) {
         const brief = welt.brief; welt.brief = null;
@@ -746,6 +749,12 @@ const texte = de
       besuchUpdate(dt);
       pvUpdate(dt);
       dorfUpdate();
+      // Kaminfeuer brennt in gut drei Minuten herunter; Herr Hausmann legt rechtzeitig nach oder zündet es später neu an
+      if (welt.feuer) {
+        welt.glut -= dt * 0.5;
+        if (welt.glut <= 0) { welt.feuer = false; welt.glut = 0; log(tr('Das Feuer im Kamin ist heruntergebrannt.', 'The fire has burnt down.')); }
+        else if (welt.glut < 28 && !man.ziel && !man.tut && !man.alarm && !schlafenszeit() && man.taetigkeit !== 'schlafen' && Math.random() < dt * 0.6) geheZu(O.kamin, 'nachlegen');
+      }
       nachtUpdate(dt);
       if (ton.an()) {
         if (man.laeuft && Math.floor(man.schritt) !== man.tonSchritt) { man.tonSchritt = Math.floor(man.schritt); ton.schritt(); }
@@ -930,12 +939,51 @@ const texte = de
       if (t === 'basteln' && Math.floor(welt.t * 6) % 2) P(hx + 2 * dir, hy - 2, C.gelb);
     }
 
-    // ---------------------------------------------------------------- Besuch: Postbote, Nachbar mit Hund, Schornsteinfeger
+    // ---------------------------------------------------------------- Besuch: 13 verschiedene Gäste (jeweils eigene Kleidung, Sätze, Tageszeit)
+    const gs = (t) => ['g', t], ms = (t) => ['m', t];
+    const GF = (o) => ({ ...FARBE, ...o }); // Gastfarben: wie Herr Hausmann, aber andere Kleidung/Haare
     const GAST = {
-      post: { name: tr('Der Postbote', 'The postman'), farbe: { ...FARBE, t: '#E8C020', T: '#FFE060', c: '#A88A10', p: '#2A3A8A', P: '#4A5AAA', q: '#1A2050', h: '#3A2A1A', H: '#5A4A3A' } },
-      nachbar: { name: tr('Der Nachbar', 'The neighbour'), farbe: { ...FARBE, t: '#3A7A4A', T: '#5A9A6A', c: '#2A5A34', h: '#9A9A9A', H: '#C8C8C8', p: '#5A4A3A', P: '#7A6A5A', q: '#3A2A1A' } },
-      feger: { name: tr('Der Schornsteinfeger', 'The chimney sweep'), farbe: { ...FARBE, t: '#1E1E24', T: '#3A3A42', c: '#0A0A0E', p: '#1E1E24', P: '#3A3A42', q: '#0A0A0E', h: '#2A1A10', H: '#3A2A20' } },
+      post: { name: tr('Der Postbote', 'The postman'), zeit: [9, 17], farbe: GF({ t: '#E8C020', T: '#FFE060', c: '#A88A10', p: '#2A3A8A', P: '#4A5AAA', q: '#1A2050', h: '#3A2A1A', H: '#5A4A3A' }),
+        tuer: () => [gs(tr('Post für dich!', 'Mail for you!')), ms(tr('Danke schön!', 'Thank you!')), gs(tr('Schönen Tag noch!', 'Have a nice day!'))] },
+      paket: { name: tr('Die Paketbotin', 'The parcel courier'), zeit: [9, 18], farbe: GF({ t: '#8A5A2A', T: '#AA7A4A', c: '#5A3A1A', p: '#3A2A1A', P: '#5A4A3A', q: '#1A1008', h: '#C8782A', H: '#E8A050' }), danach: 'paket',
+        tuer: () => [gs(tr('Ein Paket für dich!', 'A parcel for you!')), ms(tr('Oh, was ist da wohl drin?', "Oh, I wonder what's inside?")), gs(tr('Viel Spaß beim Auspacken!', 'Enjoy unpacking!'))] },
+      nachbar: { name: tr('Der Nachbar', 'The neighbour'), zeit: [8, 20], hund: true, farbe: GF({ t: '#3A7A4A', T: '#5A9A6A', c: '#2A5A34', h: '#9A9A9A', H: '#C8C8C8', p: '#5A4A3A', P: '#7A6A5A', q: '#3A2A1A' }),
+        tuer: () => {
+          const t = WETTER.temp;
+          const a = NASS ? tr('Bei dem Regen? Nimm einen Schirm mit!', 'In this rain? Take an umbrella!') : t !== null && t <= 3 ? tr(`Bei ${t} Grad? Zieh dich warm an!`, `At ${t} degrees? Wrap up warm!`) : tr('Viel Spaß, schönes Wetter dafür!', 'Have fun, nice weather for it!');
+          return [gs(tr('Hallo! Ich gehe mit dem Hund spazieren.', "Hi! I'm taking the dog for a walk.")), ms(a), gs(tr('Bis bald!', 'See you soon!'))];
+        } },
+      kaffee: { name: tr('Der Nachbar', 'The neighbour'), zeit: [14, 17.5], hund: true, drin: 'tisch', mahl: 'kaffee', farbe: null,
+        tuer: () => [gs(tr('Hallo! Hast du Zeit für einen Kaffee?', 'Hi! Got time for a coffee?')), ms(tr('Klar, komm rein!', 'Sure, come in!'))],
+        drinnen: () => [gs(tr('Der Kaffee ist gut!', 'The coffee is good!')), ms(tr('Und der Kuchen ist selbst gebacken.', 'And the cake is home-made.')),
+          gs(zufall(DE ? ['Wie geht es Minka?', 'Was machst du am Wochenende?', 'Dein Haus ist richtig gemütlich.'] : ["How's Minka?", 'What are you up to this weekend?', 'Your house is really cosy.'])),
+          ms(zufall(DE ? ['Prima, sie schläft fast den ganzen Tag.', 'Vielleicht ein bisschen basteln.', 'Danke, ich fühle mich hier wohl.'] : ['Great, she sleeps nearly all day.', 'Maybe a bit of tinkering.', 'Thanks, I like it here.'])),
+          gs(tr('So, ich muss dann mal los. Danke!', "Right, I'd better be off. Thanks!")), ms(tr('Komm bald wieder!', 'Come again soon!'))] },
+      nachbarin: { name: tr('Die Nachbarin', 'The neighbour'), zeit: [10, 18], farbe: GF({ t: '#A84A8A', T: '#C86AAA', c: '#7A2A5A', h: '#D8D8D8', H: '#FFFFFF', p: '#4A3A5A', P: '#6A5A7A', q: '#2A1A3A' }), danach: 'kuchen',
+        tuer: () => [gs(tr('Ich habe Apfelkuchen gebacken – ein Stück ist für dich!', "I've baked an apple cake – here's a slice for you!")), ms(tr('Oh, wie lieb! Vielen Dank!', 'Oh, how kind! Thank you!')), gs(tr('Lass ihn dir schmecken!', 'Enjoy it!'))] },
+      freund: { name: tr('Ein Freund', 'A friend'), zeit: [17, 20.5], drin: 'tisch', mahl: 'essen', farbe: GF({ t: '#2A5AA8', T: '#4A7AC8', c: '#1A3A7A', h: '#1A1A1A', H: '#3A3A3A', p: '#3A3A3A', P: '#5A5A5A', q: '#1A1A1A' }),
+        tuer: () => [gs(tr('Hallo! Ich bin zum Abendessen eingeladen.', "Hi! I'm here for dinner.")), ms(tr('Komm rein, das Essen ist fertig!', 'Come in, dinner is ready!'))],
+        drinnen: () => [gs(tr('Das schmeckt aber gut!', 'This tastes great!')), ms(tr('Danke, selbst gekocht!', 'Thanks, home-cooked!')), gs(tr('Was gibt es Neues bei dir?', "What's new with you?")),
+          ms(zufall(DE ? ['Minka hat neulich eine Motte gejagt.', 'Ich bastle an einer kleinen Drohne.', 'Die Wärmepumpen laufen gut.'] : ['Minka chased a moth the other day.', "I'm building a little drone.", 'The heat pumps are running well.'])),
+          gs(tr('Danke für den schönen Abend!', 'Thanks for a lovely evening!')), ms(tr('Gern, bis bald!', 'Any time, see you soon!'))] },
+      pizza: { name: tr('Der Pizzabote', 'The pizza courier'), zeit: [18, 21], farbe: GF({ t: '#C83A2A', T: '#E85A4A', c: '#8A2018', p: '#2A2A2A', P: '#4A4A4A', q: '#101010', h: '#3A2A1A', H: '#5A4A3A' }), danach: 'pizza',
+        tuer: () => [gs(tr('Eine Pizza für Herrn Hausmann!', 'A pizza for Mr Hausmann!')), ms(tr('Danke, die riecht aber lecker!', 'Thanks, it smells delicious!')), gs(tr('Guten Appetit!', 'Enjoy your meal!'))] },
+      klempner: { name: tr('Der Heizungsbauer', 'The heating engineer'), zeit: [8, 16], drin: 'keller', farbe: GF({ t: '#2A4A8A', T: '#4A6AAA', c: '#1A2A5A', p: '#2A4A8A', P: '#4A6AAA', q: '#1A2A5A', h: '#6A4A2A', H: '#8A6A4A' }),
+        tuer: () => [gs(tr('Guten Tag! Ich schaue heute nach den Wärmepumpen.', "Good morning! I've come to check the heat pumps.")), ms(tr('Gern, sie stehen im Keller.', "Sure, they're in the cellar."))],
+        drinnen: () => [gs(tr('Dann schauen wir mal …', "Let's have a look …")), ms(wpSatz('Master', 1)), gs(tr('Druck und Filter sehen gut aus. Alles in Ordnung!', 'Pressure and filters look fine. All good!')), ms(tr('Prima, vielen Dank!', 'Great, thanks a lot!'))] },
+      feger: { name: tr('Der Schornsteinfeger', 'The chimney sweep'), zeit: [8, 16], farbe: GF({ t: '#1E1E24', T: '#3A3A42', c: '#0A0A0E', p: '#1E1E24', P: '#3A3A42', q: '#0A0A0E', h: '#2A1A10', H: '#3A2A20' }), danach: 'dach',
+        tuer: () => [gs(tr('Grüß dich! Ich kehre heute den Schornstein.', "Hello! I'm sweeping the chimney today.")), ms(tr('Prima – und Glück bringst du auch noch mit!', 'Great – and you bring luck too!')), gs(tr('So sagt man. Ich steige mal aufs Dach.', "So they say. I'll climb onto the roof."))] },
+      kamerad: { name: tr('Ein Feuerwehrkamerad', 'A fellow firefighter'), zeit: [10, 20], farbe: GF({ t: '#1A2A4A', T: '#3A4A6A', c: '#0A1A2A', p: '#3A3A3A', P: '#5A5A5A', q: '#1A1A1A', h: '#8A6A3A', H: '#AA8A5A' }),
+        tuer: () => [gs(tr('Hallo! Denkst du an die nächste Übung?', 'Hi! You remember the next training session?')), ms(tr('Klar, ich bin dabei!', "Of course, I'll be there!")), gs(tr('Prima, bis dann!', 'Great, see you then!'))] },
+      wanderer: { name: tr('Eine Wanderin', 'A hiker'), zeit: [9, 18], farbe: GF({ t: '#C86A2A', T: '#E88A4A', c: '#8A4A1A', p: '#4A5A3A', P: '#6A7A5A', q: '#2A3A1A', h: '#C8A04A', H: '#E8C06A' }),
+        tuer: () => [gs(tr('Grüß Gott! Hätten Sie ein Glas Wasser für mich?', 'Hello! Could I have a glass of water?')), ms(tr('Natürlich, hier bitte!', 'Of course, here you go!')), gs(tr('Danke! Schön ist es hier im Vogelsberg.', "Thanks! It's lovely here in the Vogelsberg."))] },
+      kinder: { name: tr('Die Nachbarskinder', 'The neighbours’ children'), zeit: [10, 19], klein: true, farbe: GF({ t: '#E8A020', T: '#FFC040', c: '#A87010', p: '#3A5AA8', P: '#5A7AC8', q: '#1A3A7A', h: '#D8A040', H: '#F8C060' }),
+        tuer: () => (FEST.halloween
+          ? [gs(tr('Süßes oder Saures!', 'Trick or treat!')), ms(tr('Hier, Süßes für euch!', 'Here, sweets for you!')), gs(tr('Danke!', 'Thank you!'))]
+          : [gs(tr('Unser Ball ist in deinen Garten geflogen!', 'Our ball flew into your garden!')), ms(tr('Kein Problem, holt ihn euch!', 'No problem, go and get it!')), gs(tr('Danke!', 'Thanks!'))]) },
+      schippen: { name: tr('Der Nachbar', 'The neighbour'), zeit: [7, 18], nurSchnee: true, farbe: null, tuer: () => [] },
     };
+    GAST.kaffee.farbe = GAST.nachbar.farbe; GAST.schippen.farbe = GAST.nachbar.farbe;
     const HFARBE = { h: '#8A5A30', w: '#F0E8D8', k: C.schwarz, n: C.schwarz, t: '#8A5A30' };
     const HUND = [
       '..............hh....', '..t..........hhhhh..', '..t..........hhkhhn.', '...t.........hhhhhh.', '...thhhhhhhhhhhhhh..',
@@ -944,33 +992,26 @@ const texte = de
     const HUND2 = [...HUND.slice(0, 7), '.....hh..hhhh..hh...', '.....ww..wwww..ww...'];
     let besuch = null;
     welt.naechsterBesuch = params.get('besuch') ? 3 : 25 + Math.random() * 35;
+    welt.letzteGaeste = [];
     const hundDrin = () => besuch && besuch.hund && besuch.drin;
-    function gespraechTuer(art, kaffee) {
-      const g = (t) => ['g', t], m = (t) => ['m', t];
-      if (art === 'post') return [g(tr('Post für dich!', 'Mail for you!')), m(tr('Danke schön!', 'Thank you!')), g(tr('Schönen Tag noch!', 'Have a nice day!'))];
-      if (art === 'feger') return [g(tr('Grüß dich! Ich kehre heute den Schornstein.', "Hello! I'm sweeping the chimney today.")), m(tr('Prima – und Glück bringst du auch noch mit!', 'Great – and you bring luck too!')), g(tr('So sagt man. Ich steige mal aufs Dach.', "So they say. I'll climb onto the roof."))];
-      if (kaffee) return [g(tr('Hallo! Hast du Zeit für einen Kaffee?', 'Hi! Got time for a coffee?')), m(tr('Klar, komm rein!', 'Sure, come in!'))];
-      const t = WETTER.temp;
-      const antwort = NASS ? tr('Bei dem Regen? Nimm einen Schirm mit!', 'In this rain? Take an umbrella!')
-        : t !== null && t <= 3 ? tr(`Bei ${t} Grad? Zieh dich warm an!`, `At ${t} degrees? Wrap up warm!`)
-          : tr('Viel Spaß, schönes Wetter dafür!', 'Have fun, nice weather for it!');
-      return [g(tr('Hallo! Ich gehe mit dem Hund spazieren.', "Hi! I'm taking the dog for a walk.")), m(antwort), g(tr('Bis bald!', 'See you soon!'))];
-    }
-    function gespraechKaffee() {
-      const g = (t) => ['g', t], m = (t) => ['m', t];
-      return [
-        g(tr('Der Kaffee ist gut!', 'The coffee is good!')), m(tr('Und der Kuchen ist selbst gebacken.', 'And the cake is home-made.')),
-        g(zufall(DE ? ['Wie geht es Minka?', 'Was machst du am Wochenende?', 'Dein Haus ist richtig gemütlich.'] : ["How's Minka?", 'What are you up to this weekend?', 'Your house is really cosy.'])),
-        m(zufall(DE ? ['Prima, sie schläft fast den ganzen Tag.', 'Vielleicht ein bisschen basteln.', 'Danke, ich fühle mich hier wohl.'] : ['Great, she sleeps nearly all day.', 'Maybe a bit of tinkering.', 'Thanks, I like it here.'])),
-        g(tr('So, ich muss dann mal los. Danke!', "Right, I'd better be off. Thanks!")), m(tr('Komm bald wieder!', 'Come again soon!')),
-      ];
+    const WEG_RAUS = [[34, 208], [24, 208], [17, 214], [-25, 214]];
+    function gastWaehlen() {
+      const h = stunde();
+      if (SCHNEE && Math.random() < 0.3 && !welt.letzteGaeste.includes('schippen')) return 'schippen';
+      let liste = Object.entries(GAST).filter(([k, g]) => !g.nurSchnee && h >= g.zeit[0] && h <= g.zeit[1]).map(([k]) => k);
+      if (FEST.halloween && h >= 17 && h <= 20) liste.push('kinder', 'kinder');
+      const frisch = liste.filter((k) => !welt.letzteGaeste.includes(k));
+      return zufall(frisch.length ? frisch : liste.length ? liste : ['nachbar']);
     }
     function besuchStarten(art) {
-      const h = stunde(), kaffee = art === 'kaffee' || (art === 'nachbar' && h >= 14 && h < 17.5 && Math.random() < 0.6);
-      if (art === 'kaffee') art = 'nachbar';
-      besuch = { art, x: -25, y: 214, dir: -1, schritt: 0, laeuft: false, wege: [[17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, schritt2: 0, kaffee, hund: art === 'nachbar' ? { x: -40, y: 214, dir: 1 } : null, drin: false };
-      if (art === 'schippen') { besuch.art = 'nachbar'; besuch.schippen = true; besuch.wege = [[21, 214], [-25, 214]]; besuch.phase = 'schippt'; besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: spielzeit + 4 }; log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.')); }
-      else log(tr(`${GAST[besuch.art].name} kommt.`, `${GAST[besuch.art].name} is coming.`));
+      const g = GAST[art] || GAST.nachbar;
+      welt.letzteGaeste.push(art); if (welt.letzteGaeste.length > 5) welt.letzteGaeste.shift();
+      besuch = { art, g, x: -25, y: 214, dir: 1, schritt: 0, laeuft: false, wege: [[17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, hund: g.hund ? { x: -40, y: 214, dir: 1 } : null, drin: false };
+      if (art === 'schippen') {
+        besuch.schippen = true; besuch.wege = [[21, 214], [-25, 214]]; besuch.phase = 'schippt';
+        besuch.blase = { text: tr('Morgen! Ich schippe mal den Weg frei.', "Morning! I'll clear the path."), bis: spielzeit + 4 };
+        log(tr('Der Nachbar schippt Schnee vor dem Haus.', 'The neighbour is shovelling snow in front of the house.'));
+      } else log(g.klein ? tr(`${g.name} kommen.`, `${g.name} are coming.`) : tr(`${g.name} kommt.`, `${g.name} is coming.`));
     }
     function besuchLaufe(dt, v = 24) {
       const b0 = besuch, z = b0.wege[0];
@@ -980,22 +1021,26 @@ const texte = de
       b0.schritt += dt * 8;
       return b0.wege.length === 0;
     }
+    function nachDerTuer(bs) { // was Herr Hausmann tut, nachdem der Gast gegangen ist
+      const d = bs.g.danach;
+      if (d === 'paket') { welt.paket = true; man.ziel = { f: 1, x: 47, o: null, tun: 'auspacken' }; }
+      if (d === 'kuchen' || d === 'pizza') { welt.teller = true; welt.gericht = d; man.tut = null; man.taetigkeit = null; geheZu(O.tisch, 'essen'); }
+    }
     function besuchUpdate(dt) {
       if (!besuch) {
         const h = stunde(), test = params.get('besuch');
-        if (!man.alarm && !RAFFER.an && welt.t > welt.naechsterBesuch && (test || (!schlafenszeit() && h >= 7.5 && h <= 20.5 && man.taetigkeit !== 'schlafen'))) {
-          welt.naechsterBesuch = welt.t + 80 + Math.random() * 90;
-          let art = test || (SCHNEE && Math.random() < 0.35 ? 'schippen' : zufall(h >= 9 && h <= 17 ? ['post', 'post', 'nachbar', 'nachbar', 'feger'] : ['nachbar', 'nachbar', 'feger']));
+        if (!man.alarm && !RAFFER.an && welt.t > welt.naechsterBesuch && (test || (!schlafenszeit() && h >= 7.5 && h <= 21 && man.taetigkeit !== 'schlafen'))) {
+          welt.naechsterBesuch = welt.t + 70 + Math.random() * 80;
+          const art = test && GAST[test] ? test : gastWaehlen();
           if (test) params.delete('besuch');
           besuchStarten(art);
         }
         return;
       }
-      const bs = besuch;
+      const bs = besuch, g = bs.g;
       bs.laeuft = false;
-      // Hund folgt mit Abstand
       if (bs.hund) {
-        const ziel = bs.phase === 'kaffee' ? { x: 132, y: FOOT[1] } : { x: bs.x - bs.dir * 9, y: bs.y };
+        const ziel = bs.phase === 'drin' ? { x: 132, y: FOOT[1] } : { x: bs.x - bs.dir * 9, y: bs.y };
         const dx = ziel.x - bs.hund.x, dy = ziel.y - bs.hund.y, d = Math.hypot(dx, dy);
         bs.hund.laeuft = d > 1; if (d > 1) { const s = Math.min(d, 30 * dt); bs.hund.x += dx / d * s; bs.hund.y += dy / d * s; if (Math.abs(dx) > 0.3) bs.hund.dir = Math.sign(dx); }
       }
@@ -1004,10 +1049,11 @@ const texte = de
         if (bs.zeit > 0) return false;
         const z = bs.gespraech.shift();
         if (!z) return true;
-        if (z[0] === 'g') { bs.blase = { text: z[1], bis: spielzeit + 3.2 }; log(DE ? `${GAST[bs.art].name}: „${z[1]}“` : `${GAST[bs.art].name}: “${z[1]}”`); } else sag(z[1], 3.2);
+        if (z[0] === 'g') { bs.blase = { text: z[1], bis: spielzeit + 3.2 }; log(DE ? `${g.name}: „${z[1]}“` : `${g.name}: “${z[1]}”`); } else sag(z[1], 3.2);
         bs.zeit = 3.4;
         return false;
       };
+      const manZiel = () => g.drin === 'keller' ? { f: 0, x: 48, o: null, tun: 'gast' } : { f: 1, x: O.tisch.sx, o: O.tisch, tun: 'kaffee' };
       switch (bs.phase) {
         case 'schippt':
           if (besuchLaufe(dt, 14)) besuch = null;
@@ -1029,36 +1075,42 @@ const texte = de
           bs.warte = (bs.warte || 0) + dt;
           if (bs.warte > 30 && man.taetigkeit !== 'besuch') { bs.blase = { text: tr('Hm, niemand da? Dann komme ich ein andermal.', "Hm, nobody home? I'll come back another time."), bis: spielzeit + 4 }; bs.phase = 'geht'; bs.wege = [[-25, 214]]; return; }
           if (!man.tut && (!man.ziel || man.ziel.tun !== 'besuch') && man.taetigkeit !== 'schlafen') man.ziel = { f: 1, x: 36, o: null, tun: 'besuch' };
-          if (man.taetigkeit === 'besuch') { bs.phase = 'tuer'; bs.gespraech = gespraechTuer(bs.art, bs.kaffee); bs.zeit = 0.6; welt.tuerAuf = 999; }
+          if (man.taetigkeit === 'besuch') { bs.phase = 'tuer'; bs.gespraech = g.tuer(); bs.zeit = 0.6; welt.tuerAuf = 999; }
           return;
         case 'tuer':
           if (!sprich()) return;
-          if (bs.kaffee) {
-            bs.phase = 'rein'; bs.drin = true; bs.wege = [[24, 208], [34, 208], [147, 208]];
-            man.tut = null; man.taetigkeit = null; man.ziel = { f: 1, x: O.tisch.sx, o: O.tisch, tun: 'kaffee' };
-            log(tr('Der Nachbar kommt auf einen Kaffee herein.', 'The neighbour comes in for a coffee.'));
+          if (g.drin) {
+            bs.phase = 'rein'; bs.drin = true;
+            bs.wege = g.drin === 'keller' ? [[24, 208], [34, 208], [151, 208], [169, 239], [72, 239]] : [[24, 208], [34, 208], [147, 208]];
+            man.tut = null; man.taetigkeit = null; man.ziel = manZiel();
+            log(g.drin === 'keller' ? tr(`${g.name} geht mit in den Keller.`, `${g.name} goes down to the cellar.`) : tr(`${g.name} kommt herein.`, `${g.name} comes in.`));
             if (bs.hund && katze.f === 1 && !katze.sprung) { kSag(tr('Fauch!', 'Hiss!')); katze.tun = null; katze.ziel = null; katzeRunter(); katze.ziel = { f: 2, x: 66, h: 9, tun: 'schlafen' }; }
-          } else { bs.phase = 'geht'; bs.wege = [[-25, 214]]; welt.tuerAuf = 0.6; man.zeit = 0; if (bs.art === 'feger') bs.wege = [[-25, 214]]; }
+          } else {
+            bs.phase = 'geht'; bs.wege = [[-25, 214]]; welt.tuerAuf = 0.6; man.zeit = 0;
+            setTimeout(() => nachDerTuer(bs), 400);
+          }
           return;
         case 'rein':
-          if (besuchLaufe(dt, 22)) { bs.phase = 'kaffee'; bs.dir = -1; welt.tuerAuf = 0.3; bs.gespraech = gespraechKaffee(); bs.zeit = 2.5; }
+          if (besuchLaufe(dt, 22)) { bs.phase = 'drin'; bs.dir = g.drin === 'keller' ? -1 : -1; welt.tuerAuf = 0.3; bs.gespraech = g.drinnen(); bs.zeit = 2.5; }
           return;
-        case 'kaffee':
-          if (man.taetigkeit !== 'kaffee') { // wartet, bis das Männchen sitzt
-            if (!man.tut && (!man.ziel || man.ziel.tun !== 'kaffee')) man.ziel = { f: 1, x: O.tisch.sx, o: O.tisch, tun: 'kaffee' };
+        case 'drin': {
+          const tun = g.drin === 'keller' ? 'gast' : 'kaffee';
+          if (man.taetigkeit !== tun) { // wartet, bis Herr Hausmann da ist
+            if (!man.tut && (!man.ziel || man.ziel.tun !== tun)) man.ziel = manZiel();
             return;
           }
           if (!sprich()) return;
-          bs.phase = 'raus'; bs.wege = [[34, 208], [24, 208], [17, 214], [-25, 214]]; man.zeit = 0;
-          welt.tuerAuf = 4;
+          bs.phase = 'raus'; man.zeit = 0; welt.tuerAuf = 6;
+          bs.wege = g.drin === 'keller' ? [[169, 239], [151, 208], ...WEG_RAUS] : WEG_RAUS.map((p) => [...p]);
           return;
+        }
         case 'raus':
-          if (bs.x < 30) bs.drin = false;
+          if (bs.x < 30 && bs.y >= 208) bs.drin = false;
           if (besuchLaufe(dt, 22)) besuch = null;
           return;
         case 'geht':
           if (besuchLaufe(dt)) {
-            if (bs.art === 'feger') { bs.phase = 'dach'; bs.x = 214; bs.y = 42; bs.zeit = 9; bs.dir = 1; log(tr('Der Schornsteinfeger kehrt auf dem Dach.', 'The chimney sweep is at work on the roof.')); }
+            if (g.danach === 'dach') { bs.phase = 'dach'; bs.x = 214; bs.y = 42; bs.zeit = 9; bs.dir = 1; log(tr('Der Schornsteinfeger kehrt auf dem Dach.', 'The chimney sweep is at work on the roof.')); }
             else besuch = null;
           }
           return;
@@ -1069,32 +1121,52 @@ const texte = de
       }
     }
     function zeichneBesuch() {
+      if (welt.paket) { const px = 50, py = FOOT[1]; K(px, py - 5, 7, 5, '#B08850', '#D0A870', '#7A5A30'); R(px + 3, py - 5, 1, 5, '#8A6A3A'); R(px, py - 3, 7, 0.75, '#E8E0C8'); }
       const bs = besuch;
       if (!bs) return;
-      const fa = GAST[bs.art].farbe;
-      if (bs.hund) { const hd = bs.hund, hz = bs.phase === 'kaffee' && !hd.laeuft; sprite(groesser(hz ? HUND.slice(0, 7) : hd.laeuft && Math.floor(bs.schritt) % 2 ? HUND2 : HUND, 1.4), hd.x, hd.y, hd.dir, HFARBE); }
-      if (bs.phase === 'kaffee') {
-        // zweiter Stuhl, Tassen und Kuchen
+      const g = bs.g, fa = g.farbe;
+      if (bs.hund) { const hd = bs.hund, hz = bs.phase === 'drin' && !hd.laeuft; sprite(groesser(hz ? HUND.slice(0, 7) : hd.laeuft && Math.floor(bs.schritt) % 2 ? HUND2 : HUND, 1.4), hd.x, hd.y, hd.dir, HFARBE); }
+      if (bs.phase === 'drin' && g.drin === 'tisch') {
         const tx = O.tisch.x, ty = FOOT[1] - O.tisch.h;
         K(tx + O.tisch.w + 1, ty + 4, 6, 1.5, HOLZ[0], HOLZ[1], HOLZ[2]); R(tx + O.tisch.w + 6, ty - 4, 1.5, 9, HOLZ[0]); R(tx + O.tisch.w + 1, ty + 5.5, 1, 5.5, HOLZ[2]); R(tx + O.tisch.w + 6, ty + 5.5, 1, 5.5, HOLZ[2]);
-        [tx + 4, tx + O.tisch.w - 6].forEach((cx) => { R(cx, ty - 2, 2.5, 2, C.weiss); R(cx + 2.5, ty - 1.5, 0.5, 1, C.weiss); R(cx + 0.5, ty - 2, 1.5, 0.5, '#6A3A1A'); });
-        R(tx + 10, ty - 1.5, 5, 1.5, '#C88A4A'); R(tx + 10, ty - 1.5, 5, 0.5, '#F0E0C0');
+        if (g.mahl === 'kaffee') {
+          [tx + 4, tx + O.tisch.w - 6].forEach((cx) => { R(cx, ty - 2, 2.5, 2, C.weiss); R(cx + 2.5, ty - 1.5, 0.5, 1, C.weiss); R(cx + 0.5, ty - 2, 1.5, 0.5, '#6A3A1A'); });
+          R(tx + 10, ty - 1.5, 5, 1.5, '#C88A4A'); R(tx + 10, ty - 1.5, 5, 0.5, '#F0E0C0');
+        } else {
+          [tx + 2, tx + O.tisch.w - 9].forEach((cx) => { R(cx, ty, 7, 0.5, '#B8B8C0'); R(cx + 0.5, ty - 0.5, 6, 0.5, C.weiss); R(cx + 1.5, ty - 1.5, 4, 1, '#C87A3A'); Q(cx + 2, ty - 2, '#5AAA4A'); });
+          R(tx + 11, ty - 3.5, 1.5, 3.5, '#9AC8E8'); R(tx + 11, ty - 3.5, 1.5, 0.5, C.weiss); // Wasserkaraffe
+        }
       }
-      const sitzt = bs.phase === 'kaffee' && !bs.laeuft;
+      const sitzt = bs.phase === 'drin' && g.drin === 'tisch' && !bs.laeuft;
       const beine = sitzt ? BEINE_SITZ : bs.laeuft && Math.floor(bs.schritt) % 2 ? BEINE_SCHRITT : BEINE;
       const x = bs.x, fy = bs.y - (sitzt ? 3 : 0);
+      if (g.klein) { // zwei Kinder, kleiner
+        const kids = [[x, fa], [x - 8 * (bs.dir || 1), { ...fa, t: '#5AA84A', T: '#7AC86A', c: '#3A7A2A', h: '#5A3A1A', H: '#7A5A3A' }]];
+        if (FEST.halloween) { kids[0][1] = { ...fa, t: '#E87A1A', T: '#FF9A3A', c: '#A84A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; kids[1][1] = { ...fa, t: '#1A1A1A', T: '#3A3A3A', c: '#0A0A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; }
+        kids.forEach(([kx, kf]) => sprite(groesser([...KOPF, ...RUMPF, ...beine], 0.7), kx, fy, bs.dir, kf));
+        if (FEST.halloween) { K(x + 3 * bs.dir, fy - 6, 3, 2.5, C.orange, '#FFA050', '#A85A20'); R(x - 8 * bs.dir - 2, fy - 19, 4, 2, C.schwarz); poly([[x - 8 * bs.dir - 1.5, fy - 19], [x - 8 * bs.dir, fy - 23], [x - 8 * bs.dir + 1.5, fy - 19]], C.schwarz); }
+        else { b.fillStyle = '#E84A4A'; b.beginPath(); b.arc(x + 4 * bs.dir, fy - 1.2, 1.2, 0, Math.PI * 2); b.fill(); }
+        return;
+      }
       sprite([...KOPF, ...RUMPF, ...beine], x, fy, bs.dir, fa);
-      const kopfY = fy - (sitzt ? 16 : 19);
-      if (bs.art === 'post') { R(x - 3.5, kopfY, 7, 1.5, '#2A3A8A'); R(x + (bs.dir > 0 ? 1 : -5), kopfY + 1, 4, 0.5, '#1A2050'); K(x + (bs.dir > 0 ? -5 : 3), fy - 10, 3, 4, '#7A4A2A', '#9A6A3A', '#4A2A10'); }
+      const kopfY = fy - (sitzt ? 16 : 19), d = bs.dir || 1;
+      if (bs.art === 'post') { R(x - 3.5, kopfY, 7, 1.5, '#2A3A8A'); R(x + (d > 0 ? 1 : -5), kopfY + 1, 4, 0.5, '#1A2050'); K(x + (d > 0 ? -5 : 3), fy - 10, 3, 4, '#7A4A2A', '#9A6A3A', '#4A2A10'); }
+      if (bs.art === 'paket' && ['kommt', 'klingelt', 'wartet', 'tuer'].includes(bs.phase)) { K(x + 2 * d - 2, fy - 12, 5, 4, '#B08850', '#D0A870', '#7A5A30'); R(x - 3.5, kopfY, 7, 1.2, '#5A3A1A'); }
+      if (bs.art === 'paket') R(x - 4.5, kopfY + 2, 1.5, 5, '#C8782A'); // Zopf
+      if (bs.art === 'nachbarin') { R(x - 2, kopfY - 1.5, 4, 2, '#D8D8D8'); if (['kommt', 'klingelt', 'wartet', 'tuer'].includes(bs.phase)) { R(x + 2 * d - 2, fy - 10, 5, 1, '#B8B8C0'); R(x + 2 * d - 1.5, fy - 11.5, 4, 1.5, '#C8904A'); } }
+      if (bs.art === 'pizza') { R(x - 3.5, kopfY, 7, 1.5, '#C83A2A'); if (['kommt', 'klingelt', 'wartet', 'tuer'].includes(bs.phase)) K(x + 2 * d - 3, fy - 11, 7, 1.5, '#E8D8B0', '#FFF0D0', '#A89870'); }
+      if (bs.art === 'klempner') { K(x + (d > 0 ? -6 : 3), fy - 7, 4, 3, '#C83A2A', '#E85A4A', '#8A2018'); R(x + (d > 0 ? -5 : 4), fy - 8, 2, 1, C.dunkelgrau); }
+      if (bs.art === 'kamerad') { R(x - 3.5, kopfY, 7, 1.5, '#C8202A'); R(x + (d > 0 ? 1 : -5), kopfY + 1, 4, 0.5, '#8A1018'); R(x - 4, fy - 12, 8, 0.6, '#E8E040'); }
+      if (bs.art === 'wanderer') { K(x + (d > 0 ? -6 : 2.5), fy - 15, 4, 7, '#3A6A3A', '#5A8A5A', '#1A4A1A'); R(x + 4 * d, fy - 14, 0.5, 14, HOLZ[2]); R(x - 3.5, kopfY - 0.5, 7, 1.5, '#5A7A3A'); }
       if (bs.art === 'feger') {
         R(x - 3, kopfY - 4, 6, 4.5, '#101014'); R(x - 4, kopfY, 8, 0.5, '#101014'); for (let i = 0; i < 3; i++) Q(x - 0.25, fy - 13 + i * 1.5, C.gelb);
         if (bs.phase === 'dach') { const s = Math.sin(welt.t * 5) * 2; R(x + 4, kopfY - 6 + s, 0.5, 12, C.dunkelgrau); R(x + 2.5, kopfY - 7 + s, 3.5, 1.5, '#101014'); }
       }
-      if (bs.art === 'nachbar' && !bs.schippen) R(x - 3.5, kopfY + 0.5, 7, 1, '#6A4A2A');
+      if ((bs.art === 'nachbar' || bs.art === 'kaffee') && !bs.schippen) R(x - 3.5, kopfY + 0.5, 7, 1, '#6A4A2A');
       if (bs.schippen) {
         const s = Math.floor(welt.t * 3) % 2;
-        R(x - 6 * bs.dir, fy - 9, 0.5, 9, HOLZ[0]); R(x - 8 * bs.dir - 1, fy - 1, 4, 1, METALL[0]);
-        if (s) for (let i = 0; i < 4; i++) Q(x - 8 * bs.dir + i * 1.2 * -bs.dir, fy - 3 - i, C.weiss);
+        R(x - 6 * d, fy - 9, 0.5, 9, HOLZ[0]); R(x - 8 * d - 1, fy - 1, 4, 1, METALL[0]);
+        if (s) for (let i = 0; i < 4; i++) Q(x - 8 * d + i * 1.2 * -d, fy - 3 - i, C.weiss);
         for (let xx = 0; xx < Math.min(21, x - 2); xx += 3) Q(xx, 215, '#C8D0DA');
       }
     }
@@ -1689,7 +1761,9 @@ const texte = de
           if (welt.teller) {
             R(x + 3, y + 0.5, 9, 0.5, '#B8B8C0'); R(x + 3.5, y, 8, 0.5, C.weiss);
             const leer = an === 'essen' && man.zeit < 2;
-            if (!leer) { R(x + 5, y - 1.5, 5, 1.5, C.orange); Q(x + 6, y - 2, '#7ACA6A'); Q(x + 8, y - 2, '#C84A3A'); for (let i = 0; i < 2; i++) { const t = (welt.t * 0.7 + i / 2) % 1; Q(x + 6 + i * 2, y - 3 - t * 6, `rgba(255,255,255,${0.8 - t * 0.8})`); } }
+            if (!leer && welt.gericht === 'pizza') { b.fillStyle = '#E8B050'; b.beginPath(); b.ellipse(x + 7.5, y - 1, 4, 1.3, 0, 0, Math.PI * 2); b.fill(); [[6, -1.2], [8.5, -0.8], [7.5, -1.6]].forEach(([dx, dy2]) => Q(x + dx, y + dy2, '#C83A2A')); Q(x + 9.5, y - 1.3, '#5AAA4A'); }
+            else if (!leer && welt.gericht === 'kuchen') { poly([[x + 5, y - 0.5], [x + 10, y - 0.5], [x + 10, y - 3]], '#D8A050'); R(x + 5, y - 1.2, 5, 0.5, '#F0D8A0'); R(x + 9.5, y - 3, 0.5, 2.5, '#A86A2A'); }
+            else if (!leer) { R(x + 5, y - 1.5, 5, 1.5, C.orange); Q(x + 6, y - 2, '#7ACA6A'); Q(x + 8, y - 2, '#C84A3A'); for (let i = 0; i < 2; i++) { const t = (welt.t * 0.7 + i / 2) % 1; Q(x + 6 + i * 2, y - 3 - t * 6, `rgba(255,255,255,${0.8 - t * 0.8})`); } }
             R(x + 12.5, y - 1, 0.5, 2, METALL[1]); // Gabel
           }
           break;
@@ -1784,11 +1858,16 @@ const texte = de
           K(x - 2, y - 1, w + 4, 3, '#6A5A4A', '#8A7A6A', '#3A2A1A');
           R(x + 6, y + 8, w - 12, h - 8, C.schwarz); R(x + 5, y + 7, w - 10, 1, '#5A5A5A');
           R(x + 2, y - 4, 2, 3, '#E8E0F0'); R(x + w - 6, y - 5, 3, 4, '#C8A060'); R(x + 10, y - 3, 6, 2, '#8A6A3A'); // Kaminsims-Deko
+          // Holzkorb neben dem Kamin
+          K(x + w + 1, fuss - 5, 4, 5, '#8A6A3A', '#AA8A5A', '#5A4A2A'); R(x + w + 1.5, fuss - 6, 3, 1, '#7A4A2A'); R(x + w + 2, fuss - 6.8, 2.5, 0.8, '#9A6A3A');
           if (welt.feuer) {
-            R(x + 7, fuss - 2, w - 14, 2, C.dunkelbraun); R(x + 8, fuss - 3, w - 16, 1, '#7A4A2A');
-            for (let i = 0; i < 12; i++) { const fh = 2 + ((Math.floor(welt.t * 10) + i * 3) % 6) * 0.8; R(x + 7.5 + i * 1.1, fuss - 2.5 - fh, 1, fh, i % 3 === 0 ? '#FFE070' : i % 2 ? C.orange : C.gelb); }
-            const gr = b.createRadialGradient(x + w / 2, fuss - 5, 1, x + w / 2, fuss - 5, 30); gr.addColorStop(0, 'rgba(255,150,50,0.25)'); gr.addColorStop(1, 'rgba(255,150,50,0)'); b.fillStyle = gr; b.fillRect(x - 20, fuss - 35, w + 40, 35);
-          } else { R(x + 8, fuss - 3, w - 16, 2, C.dunkelbraun); R(x + 9, fuss - 3, 3, 0.5, '#7A4A2A'); }
+            const staerke = Math.max(0.15, Math.min(1, welt.glut / 60)); // Flammen werden kleiner, wenn das Holz herunterbrennt
+            const scheite = welt.glut > 30 ? 2 : 1;
+            R(x + 7, fuss - 2, w - 14, 2, C.dunkelbraun); if (scheite > 1) R(x + 8, fuss - 3, w - 16, 1, '#7A4A2A');
+            for (let i = 0; i < 12; i++) { const fh = (2 + ((Math.floor(welt.t * 10) + i * 3) % 6) * 0.8) * staerke; R(x + 7.5 + i * 1.1, fuss - 2.5 - fh, 1, fh, i % 3 === 0 ? '#FFE070' : i % 2 ? C.orange : C.gelb); }
+            for (let i = 0; i < 5; i++) if (Math.floor(welt.t * 3 + i) % 3) Q(x + 8 + i * 3, fuss - 2, '#FF6A2A'); // Glut
+            const gr = b.createRadialGradient(x + w / 2, fuss - 5, 1, x + w / 2, fuss - 5, 30); gr.addColorStop(0, `rgba(255,150,50,${0.25 * staerke})`); gr.addColorStop(1, 'rgba(255,150,50,0)'); b.fillStyle = gr; b.fillRect(x - 20, fuss - 35, w + 40, 35);
+          } else { R(x + 8, fuss - 3, w - 16, 2, '#3A3A3A'); for (let i = 0; i < 4; i++) Q(x + 9 + i * 3, fuss - 3.5, '#5A5A5A'); } // nur Asche
           break;
       }
     }
@@ -1924,7 +2003,7 @@ const texte = de
       });
       zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, z.x * S, z.y * S); });
       if (blase && spielzeit < blase.bis) sprechblase(blase.text, man.x * S, (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S, bp);
-      if (besuch && besuch.blase && spielzeit < besuch.blase.bis) sprechblase(besuch.blase.text, besuch.x * S, (besuch.y - (besuch.phase === 'kaffee' ? 20 : 24)) * S, bp);
+      if (besuch && besuch.blase && spielzeit < besuch.blase.bis) sprechblase(besuch.blase.text, besuch.x * S, (besuch.y - (besuch.phase === 'drin' && besuch.g.drin === 'tisch' ? 20 : besuch.g.klein ? 17 : 24)) * S, bp);
       if (katze.blase && spielzeit < katze.blase.bis) sprechblase(katze.blase.text, katze.x * S, (katze.y - katze.hoch - 10) * S, Math.round(bp * 0.85));
     }
     function sprechblase(text, kx, ky, bp) {
@@ -2031,7 +2110,7 @@ const texte = de
     function plaudern() {
       if (welt.t < naechstesPlaudern) return;
       naechstesPlaudern = welt.t + 25 + Math.random() * 20;
-      if (man.alarm || schlafenszeit() || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'kaffee'].includes(besuch.phase))) return;
+      if (man.alarm || schlafenszeit() || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'drin'].includes(besuch.phase))) return;
       const t = neu(plauderSatz); if (t) sag(t);
     }
 
@@ -2250,7 +2329,7 @@ const texte = de
       man.ziel = { f: 1, x: 36, o: null, tun: 'alarmTuer' };
       sag(tr('Einsatz! Ich muss los!', "Call-out! I've got to go!"), 3);
       if (besuch && !besuch.drin) { besuch.blase = { text: tr('Oh, ein Einsatz! Viel Erfolg!', 'Oh, a call-out! Good luck!'), bis: spielzeit + 3 }; besuch.phase = 'geht'; besuch.wege = [[-25, 214]]; besuch.gespraech = null; }
-      if (besuch && besuch.drin) { besuch.phase = 'raus'; besuch.wege = [[34, 208], [24, 208], [17, 214], [-25, 214]]; besuch.blase = { text: tr('Ich gehe dann mal. Viel Erfolg!', "I'll be off then. Good luck!"), bis: spielzeit + 3 }; welt.tuerAuf = 4; }
+      if (besuch && besuch.drin) { besuch.phase = 'raus'; besuch.wege = [...(besuch.y > 212 ? [[169, 239], [151, 208]] : []), [34, 208], [24, 208], [17, 214], [-25, 214]]; besuch.blase = { text: tr('Ich gehe dann mal. Viel Erfolg!', "I'll be off then. Good luck!"), bis: spielzeit + 3 }; welt.tuerAuf = 4; }
     }
     // gibt true zurück, solange der Alarm die Bewegung übernimmt (draußen, weg, zurück)
     function alarmUpdate(dt) {
@@ -2306,6 +2385,7 @@ const texte = de
       const vorbei = (x) => alt < x && h >= x;
       if (vorbei(10) && !besuch && !man.alarm) besuchStarten('post');
       if (vorbei(15) && !besuch && !man.alarm) besuchStarten('kaffee');
+      if (vorbei(18.5) && !besuch && !man.alarm) besuchStarten('freund');
       if (Math.floor(h) !== Math.floor(alt)) wpAktualisieren();
       RAFFER.letzte = h;
     }
