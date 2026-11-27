@@ -74,6 +74,12 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Abendessen (17–20:30, Teller am Tisch), Pizzabote (18–21), Heizungsbauer (geht mit in den Keller zu den Wärmepumpen,
   nennt die Werte von gestern), Schornsteinfeger (danach auf dem Dach), Feuerwehrkamerad, Wanderin, Nachbarskinder
   (Halloween: verkleidet, „Süßes oder Saures!“), bei Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
+  Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
+  Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
+  Spüle), abends gegen 22 Uhr Zähneputzen.
+  Brummi zu Besuch (Drohne von der Startseite, gleiches Aussehen; tagsüber alle 5–9 Min. oder Knopf „Brummi rufen“):
+  fliegt durchs Rundfenster in den Dachboden, lädt auf der Werkbank (Ladeanzeige), Herr Hausmann grüßt, Minka springt
+  nach ihr, danach fliegt Brummi wieder hinaus (`brummiUpdate`, Summen bei Ton an).
   Kaminfeuer brennt herunter (`welt.glut`, ca. 3 Min.), Flammen werden kleiner; Herr Hausmann legt rechtzeitig nach
   oder zündet es später neu an (abends oder unter 6 °C); daneben ein Holzkorb, ohne Feuer nur Asche.
   Keller (Geschoss 0, Treppe vom Erdgeschoss): zwei Wärmepumpen, Warmwasserspeicher, Stromspeicher, Wechselrichter,
