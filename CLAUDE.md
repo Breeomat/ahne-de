@@ -101,6 +101,19 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Tischdecke, Hängeschrank mit Glastür. Klickflächen über dem Boden mit `ab` (Höhe) in `OBJ`. Hund des Nachbarn
   (`hundBild`, steht/läuft/liegt, wedelt) und Brummi (`brummiZeichnen`, Ringschutz, Rotoren, Kamera, Kufen) in Viertelpixeln.
   Test: `?tun=baden|spieluhr|gymnastik|umziehen|rasieren|drucken|globus|backen|kaffeemaschine|…` (startet nach 2 s).
+  Flur, Keller, Außen (neu, Viertelpixel): Flur mit Holzrahmen-Spiegel, Schlüsselbrett, Schuhbank, Kleiderständer,
+  Napf mit Pfote; Haustür mit Glas, Briefschlitz, Klinke, Lampe unterm Vordach, Stufen zum Weg. Keller: Wärmepumpen mit
+  Schutzgitter und Anzeige, Speicher mit Manometer, Ausdehnungsgefäß, Akku-Module mit Ladebalken, Wechselrichter mit
+  Kühlrippen, Waschmaschine mit Bedienleiste, Metallregal mit Einmachgläsern, neue Gefriertruhe (Aktion `eis`, Deckel
+  auf, kalter Dampf, Eis in der Hand; öfter bei Hitze). Mauer in vier Ziegeltönen, Efeu, Regenrinnen und Fallrohr links,
+  Dachziegel mit Moos, Ortgang, Schornstein mit Ruß, Holztreppen mit Stäben und Pfosten. Landschaft: Sonne mit Strahlen,
+  Wolken aus Bällchen, Vögel, ferne Berge, Wald auf den Hügeln, Dorfbäume, Häuser mit Fachwerk/Fenstern/Türen, Kirche mit
+  Uhr, Straße mit Mittellinie, feinere Fahrzeuge (Bus, Bäckerwagen, Löschfahrzeug, Traktor). Garten: Apfelbaum mit Rinde,
+  Büscheln, Äpfeln (ab August), Lattenzaun, Briefkasten mit Fähnchen, Blumenbeet, Erde mit Steinen und Regenwurm, Igel.
+  Leistung: Unbewegtes der Landschaft liegt in `LANDSTATISCH` (neu nur bei Wechsel von Tageszeit, Wetter, Jahreszeit oder
+  alle 5 Spielminuten wegen der Dorflichter), Bewegtes zeichnet `landMalen` je Ausschnitt; Garten in `GARTEN`
+  (`gartenMalen`). Kopiert werden nur die sichtbaren Ränder ums Haus. Alte Zeichen-Sprites (`sprite`, `KOPF`, `BEINE`,
+  `HUND`, `KATZE_*`) entfernt.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
