@@ -138,6 +138,13 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Gewitter mit Blitzen, Wind mit Blättern/Papier, Nebel). Herr Hausmann wacht ggf. auf, nimmt den Regenschirm, läuft in
   den Keller und haut auf den Aus-Knopf (`maschine`); Minka flüchtet auf die Truhe im Dachboden. Spätestens nach 45 s
   schaltet sich die Maschine selbst ab (z. B. wenn er außer Haus ist). Töne: Sirene, Summen, Regen, Donner.
+  Konfetti-Falle (Knopf): macht die Kanone über der Haustür scharf (`konfettiScharfMachen`, holt den nächsten Besuch
+  näher heran); beim Türöffnen Knall, Konfettiregen, der bleibt eine Weile liegen, Konfetti auf der Kleidung, je Gast ein
+  eigener Satz (`konfettiZuenden`), der Schornsteinfeger wird bunt (`BUNT`). Schwerkraft aus (Knopf, `schwerkraftAus`):
+  20 s schweben Herr Hausmann, Minka, Besuch und Krempel (Bücher, Kissen, Teller, Socken, Fisch in Wasserblase) mit
+  Drehung (`schwebend`, `krempelZeichnen`), dann plumpst alles, „Autsch!“, er räumt auf (`aufraeumen`). Disco im Keller
+  (Knopf an/aus, 45 s, `discoAn`/`discoAus`): Discokugel, bunte Lichtkegel, Nebel, Wärmepumpen-Ventilatoren und
+  Waschmaschine laufen mit, Herr Hausmann tanzt (`disco`), Minka kommt zuschauen, Disco-Musik bei Ton an.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
