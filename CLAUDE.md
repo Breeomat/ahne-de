@@ -132,6 +132,12 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Riesen-Minka, Tor in letzter Minute, Kühlschrank auf Beinen kommt zu Besuch, Schweben im Weltall, Riesenkuchen,
   Löschfahrzeug fahren, Tauchen mit den Fischen. Blase hell über der nächtlichen Abdunklung, im Schlaf „hihi“/„mmh …“;
   nach dem Aufwachen erzählt er oft vom letzten Traum. Test: `?zeit=nacht&traum=flug|katze|tor|kuehl|weltall|kuchen|feuerwehr|fische`.
+  Wetterchaos (roter Knopf „Nicht drücken!“ / „Do not press!“, `chaosStarten`, `chaosZeichnen`, `welt.chaos`): die
+  Wettermaschine im Keller (`wettermaschine`, Oszilloskop, Zeiger, Lämpchen, roter Knopf, Antenne mit Funken) rattert los,
+  vier zufällige Räume bekommen eigenes Wetter (Regen mit Pfütze, Schnee mit Schneeschicht, Sonne mit Sonnenbrille,
+  Gewitter mit Blitzen, Wind mit Blättern/Papier, Nebel). Herr Hausmann wacht ggf. auf, nimmt den Regenschirm, läuft in
+  den Keller und haut auf den Aus-Knopf (`maschine`); Minka flüchtet auf die Truhe im Dachboden. Spätestens nach 45 s
+  schaltet sich die Maschine selbst ab (z. B. wenn er außer Haus ist). Töne: Sirene, Summen, Regen, Donner.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.

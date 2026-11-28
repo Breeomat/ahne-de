@@ -35,7 +35,7 @@ const texte = de
       besuchTitel: 'Besuch einladen',
       gaeste: [['post', 'Postbote'], ['paket', 'Paketbotin'], ['nachbar', 'Nachbar mit Hund'], ['kaffee', 'Kaffeebesuch'], ['nachbarin', 'Nachbarin mit Kuchen'], ['freund', 'Freund zum Essen'], ['pizza', 'Pizzabote'], ['klempner', 'Heizungsbauer'], ['feger', 'Schornsteinfeger'], ['kamerad', 'Feuerwehrkamerad'], ['wanderer', 'Wanderin'], ['kinder', 'Nachbarskinder']], schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
-      einkaufen: 'Einkaufen schicken', zoom: 'Heranzoomen', zoomAus: 'Ganzes Haus',
+      chaos: 'Nicht drücken!', einkaufen: 'Einkaufen schicken', zoom: 'Heranzoomen', zoomAus: 'Ganzes Haus',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
       briefPlatz: 'Was möchtest du Herrn Hausmann schreiben?', senden: 'Einwerfen',
@@ -56,7 +56,7 @@ const texte = de
       besuchTitel: 'Invite a visitor',
       gaeste: [['post', 'Postman'], ['paket', 'Parcel courier'], ['nachbar', 'Neighbour with dog'], ['kaffee', 'Coffee visit'], ['nachbarin', 'Neighbour with cake'], ['freund', 'Friend for dinner'], ['pizza', 'Pizza courier'], ['klempner', 'Heating engineer'], ['feger', 'Chimney sweep'], ['kamerad', 'Fellow firefighter'], ['wanderer', 'Hiker'], ['kinder', 'Neighbours’ children']], schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
-      einkaufen: 'Send shopping', zoom: 'Zoom in', zoomAus: 'Whole house',
+      chaos: 'Do not press!', einkaufen: 'Send shopping', zoom: 'Zoom in', zoomAus: 'Whole house',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
       briefPlatz: 'What would you like to write to Mr Hausmann?', senden: 'Post it',
@@ -114,6 +114,7 @@ const texte = de
           <button type="button" data-aktion="raffer" data-an={texte.raffer} data-aus={texte.rafferAus} aria-pressed="false">{texte.raffer}</button>
           <button type="button" data-aktion="brummi">{texte.brummi}</button>
           <button type="button" data-aktion="foto">{texte.foto}</button>
+          <button type="button" data-aktion="chaos" class="haus__verboten">{texte.chaos}</button>
           <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
         </div>
       </div>
@@ -440,6 +441,7 @@ const texte = de
       { id: 'wp2', n: tr('Wärmepumpe 2', 'Heat pump 2'), f: 0, x: 53, w: 15, h: 18, act: 'pruefen', sx: 61 },
       { id: 'wwspeicher', n: tr('Warmwasserspeicher', 'Hot water tank'), f: 0, x: 74, w: 11, h: 19 },
       { id: 'akku', n: tr('Stromspeicher', 'Battery'), f: 0, x: 196, w: 20, h: 16, act: 'akkupruefen', sx: 206 },
+      { id: 'wettermaschine', n: tr('Wettermaschine', 'Weather machine'), f: 0, x: 128, w: 16, h: 17, act: 'maschine', sx: 125 },
       { id: 'fahrrad', n: tr('Fahrrad', 'Bicycle'), f: 0, x: 104, w: 18, h: 11, act: 'fahrrad', sx: 100 },
       { id: 'gefrier', n: tr('Gefriertruhe', 'Chest freezer'), f: 0, x: 172, w: 20, h: 10, act: 'eis', sx: 182 },
       { id: 'wr', n: tr('Wechselrichter', 'Inverter'), f: 0, x: 222, w: 11, h: 19 },
@@ -450,7 +452,7 @@ const texte = de
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
     // Dauer der Tätigkeiten in Sekunden (auf Wunsch doppelt so lang wie anfangs, damit weniger los ist)
-    const DAUER = { tee: 6, einraeumen: 5, fahrrad: 14, eis: 6, spieluhr: 10, gymnastik: 14, umziehen: 6, baden: 24, rasieren: 8, drucken: 8, globus: 6, backen: 20, kaffeemaschine: 6, fische: 6, sessellesen: 22, puzzle: 18, eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { maschine: 3, tee: 6, einraeumen: 5, fahrrad: 14, eis: 6, spieluhr: 10, gymnastik: 14, umziehen: 6, baden: 24, rasieren: 8, drucken: 8, globus: 6, backen: 20, kaffeemaschine: 6, fische: 6, sessellesen: 22, puzzle: 18, eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -460,7 +462,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
-      tee: (n) => { n.fun = Math.min(100, n.fun + 5); }, einraeumen: (n) => { n.fun = Math.min(100, n.fun + 5); }, fahrrad: (n) => { n.fun = Math.min(100, n.fun + 25); },
+      maschine: () => {}, tee: (n) => { n.fun = Math.min(100, n.fun + 5); }, einraeumen: (n) => { n.fun = Math.min(100, n.fun + 5); }, fahrrad: (n) => { n.fun = Math.min(100, n.fun + 25); },
       eis: (n) => { n.hunger = Math.min(100, n.hunger + 20); n.fun = Math.min(100, n.fun + 10); }, spieluhr: (n) => { n.fun = Math.min(100, n.fun + 20); }, gymnastik: (n) => { n.fun = Math.min(100, n.fun + 15); n.hygiene = Math.max(0, n.hygiene - 10); },
       umziehen: (n) => { n.hygiene = Math.min(100, n.hygiene + 15); }, baden: (n) => { n.hygiene = 100; n.energy = Math.min(100, n.energy + 15); }, rasieren: (n) => { n.hygiene = Math.min(100, n.hygiene + 25); },
       drucken: (n) => { n.fun = Math.min(100, n.fun + 15); }, globus: (n) => { n.fun = Math.min(100, n.fun + 15); }, backen: () => {}, kaffeemaschine: (n) => { n.energy = Math.min(100, n.energy + 20); },
@@ -477,13 +479,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', fische: 'füttert die Fische im Aquarium.', spieluhr: 'zieht die Spieluhr auf.', eis: 'holt sich ein Eis aus der Gefriertruhe.', tee: 'kocht sich einen Kräutertee.', einraeumen: 'räumt die Einkäufe in den Kühlschrank.', fahrrad: 'repariert sein Fahrrad.', gymnastik: 'macht Morgengymnastik.', umziehen: 'zieht ein frisches Hemd an.', baden: 'nimmt ein Schaumbad.', rasieren: 'rasiert sich.', drucken: 'druckt Fotos aus.', globus: 'dreht am Globus.', backen: 'backt einen Kuchen.', kaffeemaschine: 'macht sich einen Kaffee.', sessellesen: 'liest im Ohrensessel.', puzzle: 'puzzelt am Couchtisch.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', fische: 'füttert die Fische im Aquarium.', spieluhr: 'zieht die Spieluhr auf.', eis: 'holt sich ein Eis aus der Gefriertruhe.', tee: 'kocht sich einen Kräutertee.', maschine: 'macht sich an der Wettermaschine zu schaffen.', einraeumen: 'räumt die Einkäufe in den Kühlschrank.', fahrrad: 'repariert sein Fahrrad.', gymnastik: 'macht Morgengymnastik.', umziehen: 'zieht ein frisches Hemd an.', baden: 'nimmt ein Schaumbad.', rasieren: 'rasiert sich.', drucken: 'druckt Fotos aus.', globus: 'dreht am Globus.', backen: 'backt einen Kuchen.', kaffeemaschine: 'macht sich einen Kaffee.', sessellesen: 'liest im Ohrensessel.', puzzle: 'puzzelt am Couchtisch.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', fische: 'feeds the fish in the aquarium.', spieluhr: 'winds up the music box.', eis: 'gets an ice cream from the freezer.', tee: 'makes himself some herbal tea.', einraeumen: 'puts the shopping in the fridge.', fahrrad: 'fixes his bicycle.', gymnastik: 'does his morning exercises.', umziehen: 'puts on a fresh shirt.', baden: 'takes a bubble bath.', rasieren: 'has a shave.', drucken: 'prints some photos.', globus: 'spins the globe.', backen: 'bakes a cake.', kaffeemaschine: 'makes himself a coffee.', sessellesen: 'reads in the armchair.', puzzle: 'does a jigsaw at the coffee table.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', fische: 'feeds the fish in the aquarium.', spieluhr: 'winds up the music box.', eis: 'gets an ice cream from the freezer.', tee: 'makes himself some herbal tea.', maschine: 'fiddles with the weather machine.', einraeumen: 'puts the shopping in the fridge.', fahrrad: 'fixes his bicycle.', gymnastik: 'does his morning exercises.', umziehen: 'puts on a fresh shirt.', baden: 'takes a bubble bath.', rasieren: 'has a shave.', drucken: 'prints some photos.', globus: 'spins the globe.', backen: 'bakes a cake.', kaffeemaschine: 'makes himself a coffee.', sessellesen: 'reads in the armchair.', puzzle: 'does a jigsaw at the coffee table.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -746,6 +748,7 @@ const texte = de
         backen: [['Zeit für einen Kuchen!', 'Ich backe einen Rührkuchen.'], ['Time for a cake!', "I'm baking a sponge cake."]],
         kaffeemaschine: [['Erst mal einen Kaffee.', 'Ohne Kaffee geht nichts.'], ['Coffee first.', 'Nothing works without coffee.']] }[z.tun];
       if (zs) sag(zufall(zs[DE ? 0 : 1]), 3);
+      if (z.tun === 'maschine') sag(welt.chaos && !welt.chaos.ende ? tr('Wo ist der Aus-Knopf … DA!', 'Where is the off switch … THERE!') : tr('Die Wettermaschine. Bloß nicht anfassen!', 'The weather machine. Better not touch it!'), 2.5);
       if (z.tun === 'tee') sag(zufall(DE ? ['Ein heißer Tee hilft.', 'Kamille mit Honig, das tut gut.'] : ['A hot tea helps.', 'Camomile with honey, just the thing.']), 3);
       if (z.tun === 'fahrrad') sag(zufall(DE ? ['Die Kette braucht etwas Öl.', 'Der Reifen hat zu wenig Luft.'] : ['The chain needs some oil.', 'The tyre needs a bit more air.']), 3);
       if (z.tun === 'einraeumen') welt.kuehlAuf = DAUER.einraeumen;
@@ -784,6 +787,7 @@ const texte = de
       if (t === 'essen') { welt.teller = false; welt.gericht = null; welt.geschirr = true; }
       if (t === 'abwaschen') welt.geschirr = false;
       if (t === 'eisenbahn') welt.zugNachlauf = 10;
+      if (t === 'maschine' && welt.chaos && !welt.chaos.ende) { welt.chaos.ende = welt.t; man.schirm = false; if (ton.an()) ton.klack(); sag(tr('Puh! Wer hat da schon wieder auf den Knopf gedrückt?', 'Phew! Who pressed that button again?'), 4); log(tr('Herr Hausmann schaltet die Wettermaschine ab.', 'Mr Hausmann switches off the weather machine.')); }
       if (t === 'tee') { welt.krank = Math.max(0, (welt.krank || 0) - 0.12); sag(tr('Ah, der Tee tut gut.', 'Ah, that tea is lovely.'), 3); }
       if (t === 'fahrrad') sag(tr('Läuft wieder wie geschmiert!', 'Runs like clockwork again!'), 3);
       if (t === 'einraeumen') { man.tueten = false; man.n.hunger = Math.min(100, man.n.hunger + 10); sag(tr('So, alles verstaut.', 'There, all put away.'), 3); }
@@ -1206,7 +1210,7 @@ const texte = de
       else if (tanzt) { hopp = Math.floor(welt.t * 4) % 2; dir = Math.floor(welt.t * 2) % 2 ? 1 : -1; arme = hopp === 1; dx = Math.floor(welt.t * 2) % 2 ? 1.5 : -1.5; }
       if (t === 'gymnastik' && !man.laeuft) { arme = Math.floor(welt.t * 2.5) % 2 === 0; hopp = arme ? 1 : 0; } // Hampelmann
       const geht = man.laeuft || schrittBein, schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      const haende = ['tee', 'fahrrad', 'einraeumen', 'eis', 'backen', 'kaffeemaschine', 'drucken', 'globus', 'umziehen', 'spieluhr', 'sessellesen', 'puzzle', 'fische', 'lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
+      const haende = t === 'maschine' ? 'hoch' : ['tee', 'fahrrad', 'einraeumen', 'eis', 'backen', 'kaffeemaschine', 'drucken', 'globus', 'umziehen', 'spieluhr', 'sessellesen', 'puzzle', 'fische', 'lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
       figur(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, { pose: sitzt ? 'sitz' : geht ? 'geh' : 'steh', schritt: Math.floor(man.schritt) % 2, arme: haende, mimik: mannMimik(), f: farben });
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
       if (welt.krank > 0.15) { // rote Nase und Schal
@@ -2506,6 +2510,20 @@ const texte = de
           b.strokeStyle = 'rgba(255,255,255,0.7)'; b.lineWidth = 0.3; b.beginPath(); b.arc(x + w / 2, y + 8.5, 2.4, 3.6, 4.6); b.stroke();
           R(x + w / 2 - 4.75, y + 7.5, 0.5, 2, '#A8A8B0'); R(x + 1, y + h - 0.5, 1.5, 0.5, '#5A5A62'); R(x + w - 2.5, y + h - 0.5, 1.5, 0.5, '#5A5A62');
           break;
+        case 'wettermaschine': { // Wettermaschine: Schaltkasten mit Oszilloskop, Zeigern, Lämpchen, Hebel, rotem Knopf und Antenne
+          const laeuft = !!welt.chaos && !welt.chaos.ende, xx = x + (laeuft ? halb(Math.sin(welt.t * 30) * 0.3) : 0);
+          K(xx, y + 3, w, h - 3, '#5A6A7A', '#7A8A9A', '#3A4A5A'); [[1, 4], [w - 1.5, 4], [1, h - 2.5], [w - 1.5, h - 2.5]].forEach(([dx, dy]) => R(xx + dx, y + dy, 0.5, 0.5, '#A8B8C8'));
+          R(xx + 1.5, y + 5, 6, 4, '#1A2A1A'); for (let i = 0; i < 11; i++) R(xx + 1.75 + i * 0.5, y + 6.75 + Math.sin(welt.t * (laeuft ? 14 : 2) + i * 0.8) * (laeuft ? 1.3 : 0.4), 0.4, 0.4, '#7AF07A');
+          [[11, 6.5], [13.75, 9]].forEach(([dx, dy], i) => { b.fillStyle = '#F4F0E0'; b.beginPath(); b.arc(xx + dx, y + dy, 1.4, 0, Math.PI * 2); b.fill(); const wk = laeuft ? welt.t * (7 + i * 5) : -2 + i; b.strokeStyle = '#C83A3A'; b.lineWidth = 0.25; b.beginPath(); b.moveTo(xx + dx, y + dy); b.lineTo(xx + dx + Math.cos(wk) * 1.1, y + dy + Math.sin(wk) * 1.1); b.stroke(); });
+          R(xx + 2.25, y + 10.25, 0.75, 0.75, '#FFE060'); R(xx + 5, y + 10.4, 1.25, 0.5, '#C8C8D0'); R(xx + 8.25, y + 10.25, 0.5, 0.75, '#5AA8E8'); R(xx + 11, y + 10.25, 0.75, 0.75, '#FFFFFF'); // Sonne, Wolke, Tropfen, Flocke
+          ['#FFE060', '#C8C8D0', '#5AA8E8', '#FFFFFF'].forEach((c, i) => R(xx + 2 + i * 3, y + 11.5, 1.5, 1, laeuft && Math.floor(welt.t * 8 + i) % 2 ? c : '#2A3A4A'));
+          R(xx + w - 2, y + 11, 0.75, 3.5, METALL[1]); R(xx + w - 2.4, y + (laeuft ? 13.5 : 10.5), 1.5, 1, '#1A1A1A');
+          R(xx + w / 2 - 3, y + 3, 6, 0.5, '#2A2A30'); R(xx + w / 2 - 2, y + 1.25, 4, 1.75, laeuft ? '#FF4A3A' : '#C83A3A'); R(xx + w / 2 - 1.5, y + 1.25, 1.5, 0.5, '#FF8A7A');
+          R(xx + 2, y - 3, 0.3, 6, METALL[1]); R(xx + 1.75, y - 3.5, 0.8, 0.8, laeuft ? '#FFE070' : '#8A8A92');
+          if (laeuft) for (let i = 0; i < 3; i++) if (Math.floor(welt.t * 10 + i) % 3 === 0) R(xx + 1 + i * 0.8, y - 4.5 - i * 0.5, 0.25, 1, '#FFF080');
+          for (let i = 0; i < w; i += 2) R(xx + i, fuss - 1.25, 1, 1.25, (i / 2) % 2 ? '#E8C040' : '#1A1A1A'); // Warnstreifen
+          break;
+        }
         case 'fahrrad': { // Fahrrad im Keller: beim Reparieren dreht sich das Hinterrad, Werkzeug liegt daneben
           const rep = an === 'fahrrad', r0 = 3.6, h1 = x + 4, h2 = x + 14, ry = fuss - r0 - 0.25;
           [h1, h2].forEach((hx, i) => { b.strokeStyle = '#1A1A1A'; b.lineWidth = 0.7; b.beginPath(); b.arc(hx, ry, r0, 0, Math.PI * 2); b.stroke(); b.strokeStyle = '#A8A8B0'; b.lineWidth = 0.15; const dr = rep && i === 0 ? welt.t * 6 : 0.4; for (let k = 0; k < 8; k++) { const wk = dr + k * Math.PI / 4; b.beginPath(); b.moveTo(hx, ry); b.lineTo(hx + Math.cos(wk) * (r0 - 0.4), ry + Math.sin(wk) * (r0 - 0.4)); b.stroke(); } R(hx - 0.4, ry - 0.4, 0.8, 0.8, '#5A5A62'); });
@@ -2745,6 +2763,7 @@ const texte = de
       zeichneBrief();
       zeichneMann();
       zeichneHerzen();
+      chaosZeichnen();
       lampenLicht();
       // Licht aus (nachts): Räume dunkel, Fenster bleiben hell vom Mond
       const dunkel = nacht && !welt.licht ? 'rgba(4,4,24,0.72)' : nacht ? 'rgba(255,200,90,0.06)' : !welt.licht ? 'rgba(10,10,30,0.28)' : null;
@@ -2864,7 +2883,8 @@ const texte = de
     const briefForm = document.getElementById('haus-brief'), zeitung = document.getElementById('haus-zeitung');
     document.querySelectorAll('[data-aktion]').forEach((k) => k.addEventListener('click', () => {
       const a = k.dataset.aktion;
-      if (a === 'einkaufen') einkaufStarten(true);
+      if (a === 'chaos') chaosStarten();
+      else if (a === 'einkaufen') einkaufStarten(true);
       else if (a === 'zoom') { ZOOM.an = !ZOOM.an; k.textContent = ZOOM.an ? k.dataset.aus : k.dataset.an; k.setAttribute('aria-pressed', String(ZOOM.an)); log(ZOOM.an ? tr('Die Kamera folgt Herrn Hausmann.', 'The camera follows Mr Hausmann.') : tr('Wieder das ganze Haus.', 'Back to the whole house.')); }
       else if (a === 'essen') {
         welt.teller = true; welt.gast = true;
@@ -2991,6 +3011,8 @@ const texte = de
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
         blubb: () => { piep(420, 0.08, 'sine', 0.02, 0, 700); piep(520, 0.06, 'sine', 0.015, 0.12, 820); },
         tick: () => rauschen(0.015, 0.05, 3000, 0, 'highpass'),
+        summ: () => piep(110, 0.5, 'square', 0.012),
+        chaos: () => { piep(200, 0.6, 'sawtooth', 0.04, 0, 900); piep(900, 0.6, 'sawtooth', 0.03, 0.6, 200); piep(200, 0.6, 'sawtooth', 0.03, 1.2, 900); },
         niesen: () => { piep(520, 0.12, 'triangle', 0.03, 0, 760); rauschen(0.28, 0.09, 2400, 0.14, 'highpass'); },
         spieluhr: () => [1047, 1319, 1568, 1319, 1175, 1397, 1760, 1397].forEach((n, i) => piep(n, 0.28, 'triangle', 0.03, i * 0.3)),
         drucker: () => { rauschen(0.5, 0.03, 900, 0, 'bandpass'); piep(220, 0.4, 'sawtooth', 0.01, 0.05); },
@@ -3308,6 +3330,76 @@ const texte = de
         man.ziel = { f: 2, x: 105, o: null, tun: 'vollmond' };
       }
     }
+    // ---------------------------------------------------------------- Wetterchaos: Knopf „Nicht drücken!“ startet die Wettermaschine im Keller
+    const mischen = (liste) => liste.map((v) => [Math.random(), v]).sort((a, c) => a[0] - c[0]).map((p) => p[1]);
+    welt.chaos = null;
+    function chaosStarten() {
+      if (welt.chaos) { log(tr('Das Wetterchaos läuft doch schon!', 'The weather chaos is already going!')); return; }
+      const raeume = mischen(ROOMS.filter((r) => r.n)).slice(0, 4), arten = mischen(['regen', 'schnee', 'sonne', 'gewitter', 'wind', 'nebel']), fx = {};
+      raeume.forEach((r, i) => { fx[r.id] = arten[i]; });
+      welt.chaos = { t0: welt.t, ende: null, fx };
+      ton.chaos();
+      log(tr('Du drückst den Knopf, den man nicht drücken soll … Im Keller rattert die Wettermaschine!', 'You press the button you should not press … The weather machine in the cellar starts rattling!'));
+      if (!man.alarm) {
+        if (!aufwecken(tr('Huch! Was ist denn hier los?!', "Whoa! What's going on here?!"))) sag(tr('Huch! Was ist denn hier los?!', "Whoa! What's going on here?!"), 3);
+        man.tut = null; man.taetigkeit = null; man.folge = null; man.warte = 1.5; man.schirm = true;
+        man.ziel = { f: 0, x: O.wettermaschine.sx, o: O.wettermaschine, tun: 'maschine' };
+        setTimeout(() => { if (welt.chaos && !welt.chaos.ende && man.taetigkeit !== 'maschine') sag(zufall(DE ? ['Die Wettermaschine! Ich muss in den Keller!', 'Schnell, der Regenschirm!', 'Wer hat den Knopf gedrückt?!'] : ['The weather machine! I must get to the cellar!', 'Quick, the umbrella!', 'Who pressed the button?!']), 3); }, 4000);
+      }
+      if (!katze.sprung && !katze.klettern) { kSag(tr('Fauch!', 'Hiss!')); katze.tun = null; katzeRunter(); katze.ziel = { f: 3, x: 64, h: 8, tun: 'schlafen' }; }
+    }
+    function chaosZeichnen() {
+      const c = welt.chaos;
+      if (!c) return;
+      const t = welt.t - c.t0;
+      if (!c.ende && t > 45) c.ende = welt.t; // spätestens nach 45 s schaltet sie sich selbst ab
+      if (c.ende && welt.t - c.ende > 2) { welt.chaos = null; man.schirm = false; return; }
+      const a = Math.max(0, Math.min(1, t / 1.5, c.ende ? 1 - (welt.t - c.ende) / 2 : 1));
+      ROOMS.forEach((r) => {
+        const art = c.fx[r.id]; if (!art) return;
+        const top = r.f === 3 ? 44 : TOP[r.f], foot = FOOT[r.f] - 2, x1 = r.f === 3 ? 76 : r.x1, x2 = r.f === 3 ? 244 : r.x2, w = x2 - x1, cx = (x1 + x2) / 2;
+        b.save(); b.globalAlpha = a; b.beginPath();
+        if (r.f === 3) { b.moveTo(34, 88); b.lineTo(160, 26); b.lineTo(286, 88); b.closePath(); } else b.rect(r.x1, TOP[r.f], r.x2 - r.x1, FOOT[r.f] - TOP[r.f]);
+        b.clip();
+        const wolken = (wc, wl, ws) => { for (let x = x1 + 4; x < x2 - 12; x += 15) wolke(x + Math.sin(welt.t * 0.5 + x) * 1.5, top + 4 + (Math.round(x) % 3), 0.42, wc, wl, ws); };
+        if (art === 'regen') {
+          wolken('#8A8A98', '#A8A8B4', '#6A6A78');
+          for (let i = 0; i < w / 1.5; i++) R(x1 + ((i * 37.3) % w), top + 7 + ((welt.t * 60 + i * 13) % (foot - top - 8)), 0.25, 1.5, 'rgba(140,180,240,0.9)');
+          b.fillStyle = 'rgba(120,170,230,0.7)'; b.beginPath(); b.ellipse(cx, foot - 0.5, Math.min(w * 0.4, 2 + t * 1.5), 0.8, 0, 0, Math.PI * 2); b.fill();
+        } else if (art === 'schnee') {
+          wolken('#E8E8F0', '#FFFFFF', '#C0C4D0');
+          for (let i = 0; i < w / 2; i++) R(x1 + (((i * 29.7 + Math.sin(welt.t + i) * 3) % w) + w) % w, top + 7 + ((welt.t * 10 + i * 11) % (foot - top - 8)), 0.75, 0.75, '#FFFFFF');
+          const sh = Math.min(2.5, t * 0.15); R(x1, foot - sh, w, sh, '#F4F6FA'); R(x1, foot - sh, w, 0.25, '#FFFFFF');
+        } else if (art === 'sonne') {
+          b.fillStyle = 'rgba(255,230,120,0.22)'; b.fillRect(x1, top - 4, w, foot - top + 6);
+          const gl = b.createRadialGradient(cx, top + 7, 1, cx, top + 7, 16); gl.addColorStop(0, 'rgba(255,240,150,0.6)'); gl.addColorStop(1, 'rgba(255,240,150,0)'); b.fillStyle = gl; b.fillRect(cx - 16, top - 9, 32, 32);
+          b.strokeStyle = 'rgba(255,220,100,0.9)'; b.lineWidth = 0.5; for (let i = 0; i < 10; i++) { const wk = i / 10 * Math.PI * 2 + welt.t * 0.8; b.beginPath(); b.moveTo(cx + Math.cos(wk) * 4.5, top + 7 + Math.sin(wk) * 4.5); b.lineTo(cx + Math.cos(wk) * 7, top + 7 + Math.sin(wk) * 7); b.stroke(); }
+          b.fillStyle = '#FFE060'; b.beginPath(); b.arc(cx, top + 7, 3.5, 0, Math.PI * 2); b.fill(); R(cx - 1.5, top + 6, 1.25, 0.6, '#1A1A1A'); R(cx + 0.25, top + 6, 1.25, 0.6, '#1A1A1A'); R(cx - 0.25, top + 6.2, 0.5, 0.2, '#1A1A1A'); // Sonne mit Sonnenbrille
+        } else if (art === 'gewitter') {
+          b.fillStyle = 'rgba(20,20,50,0.35)'; b.fillRect(x1, top - 4, w, foot - top + 6);
+          wolken('#3A3A48', '#4A4A5A', '#2A2A34');
+          if ((welt.t * 0.7 + r.x1 * 0.01) % 2.2 < 0.14) {
+            b.fillStyle = 'rgba(255,255,255,0.45)'; b.fillRect(x1, top - 4, w, foot - top + 6);
+            const bxx = x1 + ((Math.floor(welt.t * 0.7) * 17) % Math.max(1, w - 8)) + 4; b.strokeStyle = '#FFF080'; b.lineWidth = 0.6; b.beginPath(); b.moveTo(bxx, top + 8);
+            for (let y = top + 8, k = 0; y < foot; y += 3, k++) b.lineTo(bxx + (k % 2 ? 2 : -1.5), y + 3); b.stroke();
+          }
+          for (let i = 0; i < w / 3; i++) R(x1 + ((i * 41.7) % w), top + 7 + ((welt.t * 70 + i * 17) % (foot - top - 8)), 0.25, 1.75, 'rgba(160,190,240,0.8)');
+        } else if (art === 'wind') {
+          for (let i = 0; i < 16; i++) { const px = x1 + ((welt.t * 45 + i * 23) % (w + 10)) - 5, py = top + 6 + ((i * 7.7) % (foot - top - 10)) + Math.sin(welt.t * 4 + i) * 2; R(px - 4, py + 0.3, 3, 0.15, 'rgba(255,255,255,0.45)'); R(px, py, i % 3 ? 1.25 : 2, i % 3 ? 0.75 : 1.5, i % 3 ? ['#D8843A', '#C84A2A', '#E8C040'][i % 3] : '#F8F8F0'); }
+        } else if (art === 'nebel') {
+          b.fillStyle = 'rgba(225,225,235,0.45)'; b.fillRect(x1, top - 4, w, foot - top + 6);
+          for (let i = 0; i < 5; i++) { b.fillStyle = 'rgba(240,240,248,0.35)'; b.fillRect(x1 + ((welt.t * (3 + i)) % (w + 30)) - 30, top + 6 + i * ((foot - top) / 5), 30, 2.5); }
+        }
+        b.restore();
+      });
+      if (man.schirm && man.taetigkeit !== 'schlafen' && !(man.alarm && man.alarm.phase === 'weg')) { // Regenschirm über dem Kopf
+        const sx = man.x + man.dir * 2.5, sy = man.y - 22;
+        b.fillStyle = '#C83A3A'; b.beginPath(); b.arc(sx, sy, 5, Math.PI, 0); b.fill();
+        b.fillStyle = '#E85A5A'; b.beginPath(); b.arc(sx - 1.5, sy - 1, 2, Math.PI, 0); b.fill();
+        for (let i = -4; i <= 4; i += 2) { b.fillStyle = '#C83A3A'; b.beginPath(); b.arc(sx + i, sy, 1, 0, Math.PI); b.fill(); }
+        R(sx - 0.15, sy - 6, 0.3, 1, '#2A2A30'); R(sx - 0.15, sy, 0.3, 9, '#2A2A30'); R(sx - 0.9, sy + 8.75, 0.9, 0.3, '#2A2A30');
+      }
+    }
     // ---------------------------------------------------------------- Träume: Traumblase über dem Bett, jede Runde eine andere kleine Szene
     const TRAEUME = {
       flug: [tr('vom Fliegen mit Brummi', 'about flying with Brummi'), tr('Ich habe geträumt, ich fliege mit Brummi über den Vogelsberg!', 'I dreamt I was flying over the Vogelsberg with Brummi!')],
@@ -3554,6 +3646,7 @@ const texte = de
       if (t === 'baden' && alle('baden', 3, dt)) ton.wasser();
       if (t === 'rasieren' && alle('rasieren', 0.4, dt)) ton.tick();
       if (welt.wecker > 0 && alle('wecker', 0.8, dt)) ton.wecker();
+      if (welt.chaos && !welt.chaos.ende) { const fx = Object.values(welt.chaos.fx); if (alle('chaosSumm', 0.9, dt)) ton.summ(); if ((fx.includes('regen') || fx.includes('gewitter')) && alle('chaosRegen', 0.3, dt)) ton.wasser(); if (fx.includes('gewitter') && alle('chaosDonner', 3.2, dt)) ton.donner(); }
       if ((t === 'pferd' || (katze.f === 3 && Math.abs(katze.x - 255) < 3 && katze.hoch > 0)) && alle('pferd', 1.05, dt)) ton.quietschen();
     }
 
@@ -3642,6 +3735,8 @@ const texte = de
     .haus__panel canvas { display: block; width: min(100%, 480px); height: auto; image-rendering: pixelated; } /* kein touch-action: none – sonst lässt sich über der Sternkarte auf dem Handy nicht wischen */
     .haus__panel p { color: #A8C8D8; margin: .5rem 0 0; }
     .haus__aktionen button.an { background: #6C5EB5; }
+    .haus__aktionen button.haus__verboten { background: #A8201A; border-color: #FF6A5A; color: #FFFFFF; font-weight: 700; }
+    .haus__aktionen button.haus__verboten:hover { background: #D8302A; }
     .haus__aktionen button[hidden] { display: none; }
     .haus__tagebuch { margin-top: .75rem; font-size: .9rem; line-height: 1.5; max-height: 220px; overflow: auto; background: #352879; color: #A8C8D8; font-family: ui-monospace, monospace; padding: .5rem .75rem; }
     .haus__tagebuch div { border-bottom: 1px solid #6C5EB5; padding: 2px 0; }
