@@ -1289,17 +1289,22 @@ const texte = de
     if (params.get('tun')) setTimeout(() => { const t = params.get('tun'), o = t === 'baden' ? O.wanne : OBJ.find((o2) => o2.act === t); if (t === 'einkaufen') einkaufStarten(true); else if (o) geheZu(o, t); }, 2000);
     const hundDrin = () => besuch && besuch.hund && besuch.drin;
     const WEG_RAUS = [[34, 208], [24, 208], [17, 214], [-25, 214]];
+    const EINMAL_AM_TAG = ['post', 'paket', 'kaffee', 'freund', 'pizza', 'klempner', 'feger'];
     function gastWaehlen() {
       const h = stunde();
       if (SCHNEE && Math.random() < 0.3 && !welt.letzteGaeste.includes('schippen')) return 'schippen';
       let liste = Object.entries(GAST).filter(([k, g]) => !g.nurSchnee && h >= g.zeit[0] && h <= g.zeit[1]).map(([k]) => k);
       if (FEST.halloween && h >= 17 && h <= 20) liste.push('kinder', 'kinder');
+      // höchstens einmal am Tag: Post, Paket, Kaffeebesuch, Freund zum Essen, Pizza, Heizungsbauer, Schornsteinfeger
+      const heute = welt.heuteTag === MD ? welt.heuteDa : new Set();
+      liste = liste.filter((k) => !(EINMAL_AM_TAG.includes(k) && heute.has(k)));
       const frisch = liste.filter((k) => !welt.letzteGaeste.includes(k));
-      return zufall(frisch.length ? frisch : liste.length ? liste : ['nachbar']);
+      return frisch.length ? zufall(frisch) : null; // passt gerade niemand, bleibt es ruhig (kein Dauer-Pizzabote am Abend)
     }
     function besuchStarten(art) {
       const g = GAST[art] || GAST.nachbar;
       welt.letzteGaeste.push(art); if (welt.letzteGaeste.length > 5) welt.letzteGaeste.shift();
+      if (welt.heuteTag !== MD) { welt.heuteTag = MD; welt.heuteDa = new Set(); } welt.heuteDa.add(art);
       besuch = { art, g, x: -25, y: 214, dir: 1, schritt: 0, laeuft: false, wege: [[17, 214]], phase: 'kommt', zeit: 0, blase: null, gespraech: null, hund: g.hund ? { x: -40, y: 214, dir: 1 } : null, drin: false };
       if (art === 'schippen') {
         besuch.schippen = true; besuch.wege = [[21, 214], [-25, 214]]; besuch.phase = 'schippt';
@@ -1327,7 +1332,7 @@ const texte = de
           welt.naechsterBesuch = welt.t + 140 + Math.random() * 160;
           const art = test && GAST[test] ? test : gastWaehlen();
           if (test) params.delete('besuch');
-          besuchStarten(art);
+          if (art) besuchStarten(art);
         }
         return;
       }

@@ -72,7 +72,8 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   frisst am Napf im Flur (wartet miauend, wenn er leer ist – dann füttert sie das Männchen), wird vom Männchen gestreichelt.
   Knöpfe „Katze füttern“, „Wollknäuel werfen“; Klick auf die Katze streichelt sie (Herzchen).
   Besuch (7:30–21 Uhr alle 2,5–5 Minuten, `besuchUpdate`, Liste `GAST` mit Uhrzeitfenster, Kleidung, Sätzen; dieselben
-  Gäste nicht kurz hintereinander): Postbote, Paketbotin (Paket im Flur → Herr Hausmann packt aus), Nachbar mit Hund,
+  Gäste nicht kurz hintereinander; Post, Paket, Kaffeebesuch, Freund, Pizza, Heizungsbauer und Schornsteinfeger höchstens einmal
+  am Tag – `EINMAL_AM_TAG`; passt zur Uhrzeit niemand, kommt keiner): Postbote, Paketbotin (Paket im Flur → Herr Hausmann packt aus), Nachbar mit Hund,
   Kaffeebesuch (14–17:30, Esstisch, Hund unter dem Tisch, Minka flüchtet), Nachbarin mit Apfelkuchen, Freund zum
   Abendessen (17–20:30, Teller am Tisch), Pizzabote (18–21), Heizungsbauer (geht mit in den Keller zu den Wärmepumpen,
   nennt die Werte von gestern), Schornsteinfeger (danach auf dem Dach), Feuerwehrkamerad, Wanderin, Nachbarskinder
