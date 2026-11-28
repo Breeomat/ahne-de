@@ -416,10 +416,14 @@ const texte = de
       { id: 'herd', n: tr('Herd', 'Stove'), f: 1, x: 86, w: 16, h: 16, act: 'kochen', sx: 94 },
       { id: 'spuele', n: tr('Spüle', 'Sink'), f: 1, x: 102, w: 12, h: 16, act: 'abwaschen', sx: 108 },
       { id: 'tisch', n: tr('Esstisch', 'Table'), f: 1, x: 120, w: 24, h: 11, act: 'zeitung', sx: 117, pose: 'sitz' },
-      { id: 'tv', n: tr('Fernseher', 'TV'), f: 1, x: 178, w: 18, h: 17, act: 'fernsehen', sx: 222, pose: 'sitz', links: true },
+      { id: 'tv', n: tr('Fernseher', 'TV'), f: 1, x: 174, w: 14, h: 18, act: 'fernsehen', sx: 222, pose: 'sitz', links: true },
+      { id: 'aquarium', n: tr('Aquarium', 'Aquarium'), f: 1, x: 189, w: 8, h: 13, act: 'fische', sx: 186 },
+      { id: 'wanduhr', n: tr('Pendeluhr', 'Pendulum clock'), f: 1, x: 199, w: 6, h: 0 },
       { id: 'sofa', n: tr('Sofa', 'Sofa'), f: 1, x: 206, w: 32, h: 12, act: 'ausruhen', sx: 222, pose: 'sitz', links: true },
-      { id: 'lampe', n: tr('Stehlampe', 'Floor lamp'), f: 1, x: 242, w: 7, h: 30 },
-      { id: 'kamin', n: tr('Kamin', 'Fireplace'), f: 1, x: 256, w: 28, h: 22, act: 'feuer', sx: 252 },
+      { id: 'couchtisch', n: tr('Couchtisch', 'Coffee table'), f: 1, x: 213, w: 18, h: 5, act: 'puzzle', sx: 222, pose: 'sitz', links: true },
+      { id: 'sessel', n: tr('Ohrensessel', 'Armchair'), f: 1, x: 240, w: 13, h: 12, act: 'sessellesen', sx: 246, pose: 'sitz', links: true },
+      { id: 'lampe', n: tr('Stehlampe', 'Floor lamp'), f: 1, x: 254, w: 6, h: 30 },
+      { id: 'kamin', n: tr('Kamin', 'Fireplace'), f: 1, x: 262, w: 23, h: 22, act: 'feuer', sx: 258 },
       { id: 'wp1', n: tr('Wärmepumpe 1', 'Heat pump 1'), f: 0, x: 34, w: 15, h: 18, act: 'pruefen', sx: 42 },
       { id: 'wp2', n: tr('Wärmepumpe 2', 'Heat pump 2'), f: 0, x: 53, w: 15, h: 18, act: 'pruefen', sx: 61 },
       { id: 'wwspeicher', n: tr('Warmwasserspeicher', 'Hot water tank'), f: 0, x: 74, w: 11, h: 19 },
@@ -427,12 +431,12 @@ const texte = de
       { id: 'wr', n: tr('Wechselrichter', 'Inverter'), f: 0, x: 222, w: 11, h: 19 },
       { id: 'waschm', n: tr('Waschmaschine', 'Washing machine'), f: 0, x: 248, w: 14, h: 14, act: 'waesche', sx: 244 },
       { id: 'kregal', n: tr('Kellerregal', 'Shelf'), f: 0, x: 268, w: 18, h: 19 },
-      { id: 'pflanze', n: tr('Zimmerpflanze', 'Houseplant'), f: 1, x: 197, w: 8, h: 12, act: 'giessen', sx: 207 },
+      { id: 'pflanze', n: tr('Zimmerpflanze', 'Houseplant'), f: 1, x: 198, w: 8, h: 12, act: 'giessen', sx: 204 },
       { id: 'sauger', n: tr('Staubsauger', 'Vacuum cleaner'), f: 1, x: 56, w: 5, h: 9, act: 'saugen', sx: 222 },
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
     // Dauer der Tätigkeiten in Sekunden (auf Wunsch doppelt so lang wie anfangs, damit weniger los ist)
-    const DAUER = { eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { fische: 6, sessellesen: 22, puzzle: 18, eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -442,6 +446,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
+      fische: (n) => { n.fun = Math.min(100, n.fun + 15); }, sessellesen: (n) => { n.fun = Math.min(100, n.fun + 30); n.energy = Math.min(100, n.energy + 8); }, puzzle: (n) => { n.fun = Math.min(100, n.fun + 30); },
       eisenbahn: (n) => { n.fun = Math.min(100, n.fun + 35); }, truhe: (n) => { n.fun = Math.min(100, n.fun + 25); }, pferd: (n) => { n.fun = Math.min(100, n.fun + 15); },
       giessen: (n) => { n.fun = Math.min(100, n.fun + 8); }, saugen: (n) => { n.fun = Math.min(100, n.fun + 4); }, waesche: (n) => { n.hygiene = Math.min(100, n.hygiene + 10); },
       abwaschen: (n) => { n.hygiene = Math.min(100, n.hygiene + 5); }, zaehne: (n) => { n.hygiene = Math.min(100, n.hygiene + 20); }, brummi: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -454,13 +459,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', fische: 'füttert die Fische im Aquarium.', sessellesen: 'liest im Ohrensessel.', puzzle: 'puzzelt am Couchtisch.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', fische: 'feeds the fish in the aquarium.', sessellesen: 'reads in the armchair.', puzzle: 'does a jigsaw at the coffee table.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -487,7 +492,8 @@ const texte = de
       { id: 'fenster2', f: 2, x: 100, h: FOOT[2] - 123, tun: 'sitzen' },
       { id: 'truhe', f: 3, x: 64, h: 8, tun: 'schlafen' },
       { id: 'pferd', f: 3, x: 255, h: 7, tun: 'sitzen' },
-      { id: 'kamin', f: 1, x: 248, h: 0, tun: 'schlafen', nur: () => welt.feuer },
+      { id: 'kamin', f: 1, x: 258, h: 0, tun: 'schlafen', nur: () => welt.feuer },
+      { id: 'sessel', f: 1, x: 246, h: 6, tun: 'schlafen', nur: () => man.taetigkeit !== 'sessellesen' },
       { id: 'teppich', f: 1, x: 190, h: 0, tun: 'putzen' },
       { id: 'flur', f: 1, x: 46, h: 0, tun: 'sitzen' },
     ];
@@ -674,7 +680,7 @@ const texte = de
         if (k[0] === 'hunger') return Math.random() < 0.6 ? O.herd : O.kuehl;
         if (k[0] === 'energy') return zufall([O.sofa, O.schaukel]);
         if (k[0] === 'hygiene') return Math.random() < 0.75 ? O.wanne : O.waschbecken;
-        return zufall(tz === 'nacht' || tz === 'abend' ? [O.teleskop, O.tv, O.stereo, O.regal, O.eisenbahn, O.truhe] : [O.tv, O.stereo, O.werkbank, O.regal, O.tisch, O.eisenbahn, O.truhe, O.pferd]);
+        return zufall(tz === 'nacht' || tz === 'abend' ? [O.teleskop, O.tv, O.stereo, O.regal, O.eisenbahn, O.truhe, O.sessel, O.couchtisch] : [O.tv, O.stereo, O.werkbank, O.regal, O.tisch, O.eisenbahn, O.truhe, O.pferd, O.aquarium, O.sessel, O.couchtisch]);
       }
       if (welt.teller) return O.tisch;
       if (welt.geschirr && Math.random() < 0.45) return O.spuele;
@@ -723,6 +729,9 @@ const texte = de
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
       if (z.tun === 'saugen') man.saugBasis = man.x;
+      if (z.tun === 'fische') { welt.flocken = 6; sag(zufall(DE ? ['Futterzeit, ihr Fische!', 'Na, ihr Hungrigen?'] : ['Feeding time, fishies!', 'Hungry, are we?']), 3); }
+      if (z.tun === 'sessellesen') sag(zufall(DE ? ['Jetzt gemütlich lesen.', 'Wo war ich stehen geblieben?'] : ['Time for a cosy read.', 'Now, where was I?']), 3);
+      if (z.tun === 'puzzle') { if ((welt.puzzle || 0) >= 1) welt.puzzle = 0; sag(zufall(DE ? ['Wo passt denn dieses Teil?', 'Noch ein paar Teile …'] : ['Where does this piece go?', 'Just a few more pieces …']), 3); }
       if (z.tun === 'eisenbahn') { sag(zufall(DE ? ['Alles einsteigen, bitte!', 'Tschu-tschu! Der Zug fährt ab.'] : ['All aboard!', 'Choo choo! The train is leaving.']), 3); setTimeout(() => ton.pfeife(), 400); }
       if (z.tun === 'truhe') { ton.knarren(); setTimeout(() => sag(zufall(DE ? ['Ach, die alten Urlaubsfotos!', 'Mein erster Teddy – den hab ich ja noch!', 'Briefe von früher … schön.', 'Meine alten Schulhefte!'] : ['Oh, the old holiday photos!', 'My first teddy – I still have it!', 'Letters from long ago … lovely.', 'My old school exercise books!']), 4), 900); }
       if (z.tun === 'pferd') { sag(tr('Damit habe ich als Kind gespielt.', 'I used to play with this as a child.'), 3); }
@@ -752,6 +761,8 @@ const texte = de
       if (t === 'essen') { welt.teller = false; welt.gericht = null; welt.geschirr = true; }
       if (t === 'abwaschen') welt.geschirr = false;
       if (t === 'eisenbahn') welt.zugNachlauf = 10;
+      if (t === 'puzzle') { welt.puzzle = Math.min(1, (welt.puzzle || 0) + 0.25); if (welt.puzzle >= 1) sag(tr('Geschafft! Das Puzzle ist fertig.', 'Done! The jigsaw is finished.'), 4); }
+      if (t === 'sessellesen' && Math.random() < 0.4) sag(tr('Huch, fast eingeschlafen …', 'Oops, nearly dozed off …'), 3);
       if (t === 'auspacken') welt.paket = false;
       if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(tr('Ausgeschlafen!', 'Well rested!')); }
       if (t === 'brief' && welt.brief) {
@@ -779,6 +790,10 @@ const texte = de
       }
       nachtUpdate(dt);
       brummiUpdate(dt);
+      // Fische schwimmen im Aquarium; bei Futter kommen sie nach oben
+      welt.fische = welt.fische || [{ x: 2, y: 3, dir: 1, c: '#FF8A2A', v: 1.2 }, { x: 5, y: 4.5, dir: -1, c: '#E8D040', v: 0.9 }, { x: 4, y: 2.5, dir: 1, c: '#4AA8FF', v: 1.5 }];
+      if (welt.flocken > 0) welt.flocken -= dt;
+      welt.fische.forEach((fi) => { fi.x += fi.dir * fi.v * dt; if (fi.x < 1.2 || fi.x > 6.8) { fi.dir *= -1; fi.x = Math.max(1.2, Math.min(6.8, fi.x)); } const zielY = welt.flocken > 0 ? 1.8 : 2.5 + (fi.v * 7 % 3); fi.y += (zielY - fi.y) * dt * 1.5; });
       // Modelleisenbahn: fährt beim Spielen, läuft danach noch kurz nach
       welt.zug = welt.zug || { pos: 0, v: 0 };
       if (welt.zugNachlauf > 0) welt.zugNachlauf -= dt;
@@ -1033,7 +1048,8 @@ const texte = de
       if (man.alarm && man.alarm.t0 !== undefined && spielzeit - man.alarm.t0 < 3) return 'schreck';
       if (redet(blase)) return 'offen';
       const t = man.taetigkeit, n = man.n;
-      if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast', 'eisenbahn', 'truhe', 'pferd'].includes(t)) return 'froh';
+      if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast', 'eisenbahn', 'truhe', 'pferd', 'fische', 'puzzle'].includes(t)) return 'froh';
+      if (t === 'sessellesen' && man.zeit < 9) return 'zu'; // nickt im Sessel ein
       if (n.energy < 30) return 'muede';
       if (n.hunger < 30) return 'hungrig';
       if (n.fun < 25) return 'traurig';
@@ -1136,12 +1152,13 @@ const texte = de
       else if (tanzt && stil === 'walzer') { dx = halb(Math.sin(welt.t * 2.2) * 3); dir = Math.cos(welt.t * 2.2) > 0 ? 1 : -1; schrittBein = Math.floor(welt.t * 2.2) % 2 === 0; }
       else if (tanzt) { hopp = Math.floor(welt.t * 4) % 2; dir = Math.floor(welt.t * 2) % 2 ? 1 : -1; arme = hopp === 1; dx = Math.floor(welt.t * 2) % 2 ? 1.5 : -1.5; }
       const geht = man.laeuft || schrittBein, schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      const haende = ['lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
+      const haende = ['sessellesen', 'puzzle', 'fische', 'lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
       figur(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, { pose: sitzt ? 'sitz' : geht ? 'geh' : 'steh', schritt: Math.floor(man.schritt) % 2, arme: haende, mimik: mannMimik(), f: farben });
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
       // Gegenstände in der Hand
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
-      if (t === 'lesen' || t === 'zeitung' || t === 'lesebrief') R(hx, hy - 3, 4, 5, t === 'lesen' ? C.blau : C.weiss);
+      if (t === 'sessellesen' && man.zeit < 9) zText.push({ t: 'z', x: x - 2 - ((welt.t * 0.4) % 1) * 4, y: fy - 22 - ((welt.t * 0.4) % 1) * 8, a: 1 - ((welt.t * 0.4) % 1), gross: 6 });
+      if (t === 'lesen' || t === 'zeitung' || t === 'lesebrief' || t === 'sessellesen') R(hx, hy - 3, 4, 5, t === 'lesen' ? C.blau : C.weiss);
       if (t === 'naschen') R(hx, hy - 1, 3, 3, C.orange);
       if (t === 'truhe' && man.zeit < DAUER.truhe - 1) { R(hx - 0.5, hy - 2.5, 4, 3, '#8A3A2A'); R(hx, hy - 2.25, 1.5, 2.5, '#F4F0E0'); R(hx + 1.75, hy - 2.25, 1.5, 2.5, '#F4F0E0'); R(hx + 0.25, hy - 1.75, 1, 1, '#5A8AE8'); }
       if (t === 'milch') { R(hx, hy - 2.5, 2, 3, '#F4F4F4'); R(hx, hy - 2.5, 2, 0.5, '#C8D8E8'); }
@@ -1694,7 +1711,12 @@ const texte = de
       }
       // Einrichtung an den Wänden
       bild2(40, 104, 14, 10, 'see');             // Schlafzimmer
-      bild2(180, 160, 14, 10, 'landschaft');     // Wohnzimmer über dem Fernseher
+      bild2(241, 159, 11, 8, 'landschaft');      // Wohnzimmer über dem Sessel
+      // Wandregal über dem Lowboard mit Büchern, Foto und Vase
+      K(175, 172, 21, 1, '#6A4A2A', '#8A6A4A', '#3A2A1A'); R(176, 173, 1, 1.5, '#3A2A1A'); R(194, 173, 1, 1.5, '#3A2A1A');
+      [[176, '#C83A3A', 4], [177.5, '#2A5AA8', 3.5], [179, '#E8C040', 4.5], [180.5, '#3E8A36', 3]].forEach(([bx2, c, hh]) => { R(bx2, 172 - hh, 1.25, hh, c); R(bx2 + 0.25, 172 - hh + 0.5, 0.75, 0.25, 'rgba(255,255,255,0.4)'); });
+      K(184, 168.5, 3, 3.5, '#C8A060', '#E8C080', '#8A6A30'); R(184.5, 169, 2, 2.5, '#9AC8E8');
+      R(190, 169, 2, 3, '#E8E0F0'); R(190.5, 167.5, 1, 1.5, '#5AAA4A'); R(190.25, 167, 0.75, 0.75, '#E85A8A');
       bild2(256, 122, 8, 8, 'blumen');           // Arbeitszimmer
       K(34, 160, 8, 14, '#C8D8E0', '#F0F8FF', '#8A9AA8'); R(35, 161, 6, 12, '#A8C0D0'); Q(36, 162, C.weiss); Q(36.5, 162.5, C.weiss); // Flurspiegel
       K(110, 156, 32, 9, '#C8B890', '#E8D8B0', '#8A7A58'); R(125.75, 157, 0.5, 7, '#8A7A58'); Q(123, 160, C.dunkelgrau); Q(128, 160, C.dunkelgrau); // Hängeschrank Küche
@@ -1702,9 +1724,9 @@ const texte = de
       for (let i = 0; i < 3; i++) R(68 + i * 5, 156, 0.5, 3 + i, C.dunkelgrau); // Haken über dem Kühlschrank
       R(67, 159, 3, 2, C.grau); R(72, 160, 3, 2, '#C8A060'); // Pfannen
       // Pflanzen
-      pflanze(201, 208, false); pflanze(222, 148, false); pflanze(56, 208, true); pflanze(284, 148, false);
+      pflanze(222, 148, false); pflanze(56, 208, true); pflanze(284, 148, false);
       // Teppich im Wohnzimmer
-      R(200, 206, 44, 1.5, '#A05A3A'); for (let x = 201; x < 243; x += 2) Q(x, 206.5, '#E8C070');
+      R(200, 206.25, 52, 1.5, '#A05A3A'); for (let x = 201; x < 251; x += 1) R(x, 206.5, 0.5, 0.25, x % 2 ? '#E8C070' : '#C87A4A'); R(200, 207.5, 52, 0.25, '#7A3A2A'); // Teppich mit Fransenmuster
       // Hängelampen
       haengelampe(90, 92, 6); haengelampe(250, 92, 6); haengelampe(100, 152, 4); haengelampe(232, 152, 4); haengelampe(46, 152, 5); haengelampe(110, 218, 1); haengelampe(236, 218, 1);
       // Rohre im Keller von den Wärmepumpen zur Decke
@@ -2051,38 +2073,6 @@ const texte = de
           }
           break;
         }
-        case 'tv': {
-          KK(x, y + 11, w, 6, HOLZ2); R(x + 1, y + 13.5, w - 2, 0.5, HOLZ2[2]); Q(x + w / 2, y + 15, C.gelb);
-          K(x + 1, y, w - 2, 11, '#4A4A50', '#6A6A70', '#2A2A2E'); R(x + 2.5, y + 1.5, w - 7, 8, C.schwarz);
-          if (an === 'fernsehen') {
-            const f = [C.blau, C.gruen, C.cyan, C.rot, C.gelb], z = Math.floor(welt.t * 1.5);
-            R(x + 2.5, y + 1.5, w - 7, 8, f[z % 5]); R(x + 2.5, y + 6.5, w - 7, 3, f[(z + 2) % 5]);
-            R(x + 5 + (z % 3), y + 3, 2, 3.5, C.weiss); Q(x + 5.5 + (z % 3), y + 2.5, C.haut);
-            R(x + 2.5, y + 1.5 + ((welt.t * 20) % 8), w - 7, 0.5, 'rgba(255,255,255,0.25)');
-            const gr = b.createRadialGradient(x + w / 2, y + 5, 1, x + w / 2, y + 5, 22); gr.addColorStop(0, 'rgba(140,180,255,0.25)'); gr.addColorStop(1, 'rgba(140,180,255,0)'); b.fillStyle = gr; b.fillRect(x - 15, y - 15, w + 30, 40);
-          } else Q(x + 3.5, y + 2.5, '#3A3A48');
-          R(x + w - 4, y + 2, 2, 1, C.grau); R(x + w - 4, y + 4.5, 2, 1, C.grau); Q(x + w - 3, y + 8, an === 'fernsehen' ? C.gruen : C.rot);
-          R(x + 6, y - 3, 0.5, 3, METALL[1]); R(x + 11, y - 4, 0.5, 4, METALL[1]);
-          break;
-        }
-        case 'sofa': {
-          const s0 = ['#7A3A6A', '#9A5A8A', '#4A1A3A'], s1 = ['#9A4A88', '#BA6AA8', '#6A2A58'];
-          KK(x + w - 9, y - 4, 7, 10, s0); KK(x + 3, y + 4.5, w - 6, 5.5, s1);
-          R(x + 3 + (w - 6) / 2, y + 4.5, 0.5, 5.5, s1[2]);
-          KK(x, y + 1.5, 4, 10.5, s0); KK(x + w - 4, y + 1.5, 4, 10.5, s0);
-          R(x + 2, y + 12, 1.5, 0.5, HOLZ2[2]); R(x + w - 3.5, y + 12, 1.5, 0.5, HOLZ2[2]);
-          K(x + 5, y + 2.5, 6, 2.5, C.gelb, '#FFF08A', '#A89020'); // Kissen
-          R(x + 14, y + 2, 9, 3, '#4A8A9A'); for (let i = 0; i < 4; i++) Q(x + 15 + i * 2, y + 3, '#7ABACA'); // Decke
-          break;
-        }
-        case 'lampe': {
-          if (FEST.weihnachten) break;
-          const leuchtet = welt.licht && tageszeit() !== 'tag';
-          R(x + 3, y + 6, 1, h - 7, C.dunkelgrau); R(x + 3.5, y + 6, 0.5, h - 7, '#2A2A2E'); K(x, y + h - 1.5, 7, 1.5, C.dunkelgrau, C.grau, '#2A2A2E');
-          poly([[x - 0.5, y + 6], [x + 1, y], [x + 6, y], [x + 7.5, y + 6]], leuchtet ? '#FFF0A0' : '#C8B870'); R(x - 0.5, y + 5.5, 8, 0.5, leuchtet ? '#E8C860' : '#A89850');
-          if (leuchtet) { b.fillStyle = 'rgba(255,240,150,0.13)'; b.beginPath(); b.moveTo(x, y + 6); b.lineTo(x - 14, fuss); b.lineTo(x + 21, fuss); b.lineTo(x + 7, y + 6); b.fill(); }
-          break;
-        }
         case 'wp1': case 'wp2': {
           const z = wpJetzt[o.id === 'wp1' ? 'Master' : 'Slave'], laeuft = !!(z && z.vd), art = z ? wpArt(z) : null;
           K(x, y, w, h, '#E8E8E4', '#FFFFFF', '#A8A8A4'); R(x, y + h - 2, w, 2, '#9A9A96');
@@ -2136,7 +2126,6 @@ const texte = de
           b.fillStyle = '#9AC8E8'; b.beginPath(); b.arc(x + w / 2, y + 8.5, 3, 0, Math.PI * 2); b.fill();
           if (welt.waschLauf > 0) { for (let i = 0; i < 4; i++) { const wk = welt.t * 8 + i * 1.57; R(x + w / 2 + Math.cos(wk) * 1.8 - 0.5, y + 8.5 + Math.sin(wk) * 1.8 - 0.5, 1, 1, ['#E85A5A', '#F0F0F0', '#5A8AE8', '#E8C040'][i]); } Q(x + 2, y + 1, Math.floor(welt.t * 3) % 2 ? C.gruen : '#2A5A2A'); }
           break;
-        case 'pflanze': break; // wird bei der Einrichtung gezeichnet
         case 'sauger':
           if (man.taetigkeit === 'saugen') break;
           R(x + 1, y, 3, 5, '#C83A3A'); R(x + 1, y, 3, 0.5, '#E85A5A'); R(x + 2, y + 5, 0.5, 4, C.dunkelgrau); R(x, y + 8.5, 4, 0.5, C.dunkelgrau); Q(x + 3, y + 2, C.dunkelgrau);
@@ -2146,23 +2135,129 @@ const texte = de
           R(x, y, 1, h, HOLZ[2]); R(x + w - 1, y, 1, h, HOLZ[2]);
           [[2, 0, '#C84A3A'], [5, 0, '#E8C040'], [9, 0, '#7ACA6A'], [13, 0, '#C84A3A'], [2, 1, '#8A5A30'], [7, 1, '#8A5A30'], [11, 1, '#E8E0D0'], [3, 2, '#5A7AC8'], [9, 2, '#8A8A8A']].forEach(([dx, j, c]) => { R(x + dx, y + 1.5 + j * 6.5, 2.5, 3.5, c); Q(x + dx + 0.5, y + 2 + j * 6.5, 'rgba(255,255,255,0.5)'); });
           break;
-        case 'kamin':
-          R(x, y, w, h, '#8A8A8A');
-          for (let j = 0; j < h; j += 2.5) { R(x, y + j, w, 0.5, '#6A6A6A'); for (let i = ((j / 2.5) % 2) * 2.5; i < w; i += 5) { R(x + i, y + j + 0.5, 0.5, 2, '#6A6A6A'); R(x + i + 0.5, y + j + 0.5, 4, 0.5, '#A8A8A8'); } }
-          K(x - 2, y - 1, w + 4, 3, '#6A5A4A', '#8A7A6A', '#3A2A1A');
-          R(x + 6, y + 8, w - 12, h - 8, C.schwarz); R(x + 5, y + 7, w - 10, 1, '#5A5A5A');
-          R(x + 2, y - 4, 2, 3, '#E8E0F0'); R(x + w - 6, y - 5, 3, 4, '#C8A060'); R(x + 10, y - 3, 6, 2, '#8A6A3A'); // Kaminsims-Deko
-          // Holzkorb neben dem Kamin
-          K(x + w + 1, fuss - 5, 4, 5, '#8A6A3A', '#AA8A5A', '#5A4A2A'); R(x + w + 1.5, fuss - 6, 3, 1, '#7A4A2A'); R(x + w + 2, fuss - 6.8, 2.5, 0.8, '#9A6A3A');
-          if (welt.feuer) {
-            const staerke = Math.max(0.15, Math.min(1, welt.glut / 60)); // Flammen werden kleiner, wenn das Holz herunterbrennt
-            const scheite = welt.glut > 30 ? 2 : 1;
-            R(x + 7, fuss - 2, w - 14, 2, C.dunkelbraun); if (scheite > 1) R(x + 8, fuss - 3, w - 16, 1, '#7A4A2A');
-            for (let i = 0; i < 12; i++) { const fh = (2 + ((Math.floor(welt.t * 10) + i * 3) % 6) * 0.8) * staerke; R(x + 7.5 + i * 1.1, fuss - 2.5 - fh, 1, fh, i % 3 === 0 ? '#FFE070' : i % 2 ? C.orange : C.gelb); }
-            for (let i = 0; i < 5; i++) if (Math.floor(welt.t * 3 + i) % 3) Q(x + 8 + i * 3, fuss - 2, '#FF6A2A'); // Glut
-            const gr = b.createRadialGradient(x + w / 2, fuss - 5, 1, x + w / 2, fuss - 5, 30); gr.addColorStop(0, `rgba(255,150,50,${0.25 * staerke})`); gr.addColorStop(1, 'rgba(255,150,50,0)'); b.fillStyle = gr; b.fillRect(x - 20, fuss - 35, w + 40, 35);
-          } else { R(x + 8, fuss - 3, w - 16, 2, '#3A3A3A'); for (let i = 0; i < 4; i++) Q(x + 9 + i * 3, fuss - 3.5, '#5A5A5A'); } // nur Asche
+        case 'tv': { // Lowboard mit Schubladen, Flachbildfernseher auf Fuß, Soundbar
+          const lx = 173, lw = 25, ly = fuss - 6;
+          KK(lx, ly, lw, 6, ['#5A3A22', '#7A5A3A', '#3A2412']); R(lx + 0.5, ly + 2.75, lw - 1, 0.25, '#3A2412');
+          for (const dx of [3, 11, 19]) { R(lx + dx, ly + 1.25, 3, 0.25, '#C8A060'); R(lx + dx, ly + 4, 3, 0.25, '#C8A060'); }
+          R(lx + 1, fuss, 1, 0.25, '#2A1A0A'); R(lx + lw - 2, fuss, 1, 0.25, '#2A1A0A');
+          const tx = x, ty = ly - 11.5, tw = 14, th = 9;
+          R(tx + 6, ly - 2.5, 2, 2.5, '#2A2A30'); R(tx + 4, ly - 0.5, 6, 0.5, '#3A3A42'); // Fuß
+          K(tx, ty, tw, th, '#1A1A20', '#3A3A42', '#0A0A10'); R(tx + 0.75, ty + 0.75, tw - 1.5, th - 1.75, '#0E0E14');
+          const sx0 = tx + 0.75, sy0 = ty + 0.75, sw = tw - 1.5, sh = th - 1.75;
+          if (an === 'fernsehen') {
+            const prog = Math.floor(welt.t / 6) % 3;
+            if (prog === 0) { // Naturfilm: Hügel, Sonne, Vogel
+              R(sx0, sy0, sw, sh, '#6AA8E8'); R(sx0, sy0 + sh * 0.6, sw, sh * 0.4, '#4E9A44'); R(sx0 + sw - 3, sy0 + 1, 1.5, 1.5, '#FFE070');
+              const vx = sx0 + ((welt.t * 2) % sw); R(vx, sy0 + 2, 1, 0.25, '#1A1A1A'); R(vx + 0.25, sy0 + 1.75, 0.5, 0.25, '#1A1A1A');
+            } else if (prog === 1) { // Nachrichten: Sprecher vor blauem Studio
+              R(sx0, sy0, sw, sh, '#2A4A8A'); R(sx0, sy0 + sh - 1.5, sw, 1.5, '#C83A2A'); R(sx0 + 1, sy0 + sh - 1.25, sw - 6, 0.5, C.weiss);
+              R(sx0 + 4.5, sy0 + 1.5, 2.5, 2.5, C.haut); R(sx0 + 4.5, sy0 + 1.25, 2.5, 0.75, '#3A2A1A'); R(sx0 + 3.5, sy0 + 4, 4.5, 2.25, '#2A2A30');
+              R(sx0 + 5.25, sy0 + 3.25 + (Math.floor(welt.t * 6) % 2) * 0.25, 1, 0.25, '#A04030');
+            } else { // Fußball: Rasen mit Linien, Ball rollt
+              R(sx0, sy0, sw, sh, '#3E8A36'); for (let i = 0; i < sw; i += 2) R(sx0 + i, sy0, 1, sh, '#4E9A44');
+              R(sx0 + sw / 2, sy0, 0.25, sh, C.weiss); b.strokeStyle = C.weiss; b.lineWidth = 0.2; b.beginPath(); b.arc(sx0 + sw / 2, sy0 + sh / 2, 1.5, 0, Math.PI * 2); b.stroke();
+              R(sx0 + sw / 2 + Math.sin(welt.t * 1.5) * 4, sy0 + sh / 2 + Math.cos(welt.t * 2.1) * 1.5, 0.75, 0.75, C.weiss);
+            }
+            R(sx0, sy0 + ((welt.t * 10) % sh), sw, 0.25, 'rgba(255,255,255,0.08)');
+            const gr = b.createRadialGradient(tx + tw / 2, ty + th / 2, 1, tx + tw / 2, ty + th / 2, 22); gr.addColorStop(0, 'rgba(140,180,255,0.22)'); gr.addColorStop(1, 'rgba(140,180,255,0)'); b.fillStyle = gr; b.fillRect(tx - 15, ty - 12, tw + 30, 38);
+          } else { b.fillStyle = 'rgba(255,255,255,0.08)'; b.beginPath(); b.moveTo(sx0 + 1, sy0); b.lineTo(sx0 + 4, sy0); b.lineTo(sx0 + 1, sy0 + 3); b.fill(); }
+          R(tx + tw - 1.25, ty + th - 0.75, 0.5, 0.25, an === 'fernsehen' ? '#5AD86A' : '#C83A3A');
+          K(tx + 1, ly - 1.25, 12, 1.25, '#2A2A30', '#4A4A52', '#101014'); for (let i = 0; i < 10; i += 1) R(tx + 1.75 + i * 1.1, ly - 0.75, 0.5, 0.25, '#4A4A52'); // Soundbar
           break;
+        }
+        case 'aquarium': { // Aquarium auf dem Lowboard: Kies, Pflanzen, Blasen, Fische
+          const ax = x, ay = fuss - 6 - 7, aw = w, ah = 7;
+          K(ax - 0.25, ay - 0.75, aw + 0.5, 0.75, '#2A2A30', '#4A4A52', '#101014'); // Deckel mit Licht
+          R(ax, ay, aw, ah, '#3A7AB8'); R(ax, ay, aw, 1, '#5A9AD8');
+          R(ax, ay + ah - 1, aw, 1, '#C8B890'); for (let i = 0; i < aw; i += 0.75) R(ax + i, ay + ah - 1 + ((i * 4) % 1) * 0.5, 0.25, 0.25, '#8A7A5A');
+          [[ax + 1, '#3E9A44', 4], [ax + aw - 2, '#2E7A34', 5]].forEach(([px, c, hh]) => { for (let j = 0; j < hh; j++) R(px + Math.sin(welt.t * 1.5 + j) * 0.25, ay + ah - 1 - j, 0.5, 1, c); });
+          for (let i = 0; i < 3; i++) { const t = (welt.t * 0.6 + i / 3) % 1; R(ax + aw - 2.5 + Math.sin(t * 9) * 0.25, ay + ah - 1.5 - t * (ah - 1.5), 0.25, 0.25, 'rgba(220,240,255,0.9)'); }
+          (welt.fische || []).forEach((fi) => { const fx = ax + fi.x, fy2 = ay + fi.y, d = fi.dir; R(fx - 0.75, fy2 - 0.25, 1.5, 0.75, fi.c); R(fx - 0.75 - d * 0.5, fy2 - 0.5 + (Math.floor(welt.t * 6 + fi.x) % 2) * 0.25, 0.5, 0.75, fi.c); R(fx + d * 0.5, fy2 - 0.25, 0.25, 0.25, '#101014'); });
+          if (welt.flocken > 0) for (let i = 0; i < 6; i++) R(ax + 1.5 + i * 1.1, ay + 0.5 + ((spielzeit * 1.5 + i * 0.4) % 3), 0.25, 0.25, '#E8B060');
+          b.fillStyle = 'rgba(255,255,255,0.18)'; b.fillRect(ax + 0.5, ay + 0.5, 0.5, ah - 2); // Glasreflex
+          break;
+        }
+        case 'wanduhr': { // Pendeluhr an der Wand, zeigt die Uhrzeit, Pendel schwingt
+          const ux = x, uy = TOP[1] + 7;
+          KK(ux, uy, 6, 14, ['#6A3A1A', '#8A5A2A', '#3A1A0A']); poly([[ux - 0.5, uy], [ux + 3, uy - 2], [ux + 6.5, uy]], '#6A3A1A');
+          b.fillStyle = '#F4ECD8'; b.beginPath(); b.arc(ux + 3, uy + 3, 2.2, 0, Math.PI * 2); b.fill();
+          for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; R(ux + 3 + Math.sin(a) * 1.8 - 0.12, uy + 3 - Math.cos(a) * 1.8 - 0.12, 0.25, 0.25, '#3A2A1A'); }
+          const sh2 = stunde(), hw = ((sh2 % 12) / 12) * Math.PI * 2, mw = ((sh2 % 1)) * Math.PI * 2;
+          b.strokeStyle = '#1A1A1A'; b.lineWidth = 0.35; b.beginPath(); b.moveTo(ux + 3, uy + 3); b.lineTo(ux + 3 + Math.sin(hw) * 1.1, uy + 3 - Math.cos(hw) * 1.1); b.stroke();
+          b.lineWidth = 0.22; b.beginPath(); b.moveTo(ux + 3, uy + 3); b.lineTo(ux + 3 + Math.sin(mw) * 1.7, uy + 3 - Math.cos(mw) * 1.7); b.stroke();
+          R(ux + 1, uy + 6, 4, 7, '#2A1A0A'); const pw = Math.sin(spielzeit * Math.PI) * 0.35;
+          b.strokeStyle = '#C8A040'; b.lineWidth = 0.25; b.beginPath(); b.moveTo(ux + 3, uy + 6.5); b.lineTo(ux + 3 + Math.sin(pw) * 5, uy + 6.5 + Math.cos(pw) * 5); b.stroke();
+          b.fillStyle = '#E8C060'; b.beginPath(); b.arc(ux + 3 + Math.sin(pw) * 5, uy + 6.5 + Math.cos(pw) * 5, 0.8, 0, Math.PI * 2); b.fill();
+          break;
+        }
+        case 'sofa': {
+          const s0 = ['#7A3A6A', '#9A5A8A', '#4A1A3A'], s1 = ['#9A4A88', '#BA6AA8', '#6A2A58'];
+          KK(x + w - 9, y - 4, 7, 10, s0); for (let i = 0; i < 3; i++) R(x + w - 7.5 + i * 2, y - 3 + (i % 2), 0.5, 0.5, '#5A2A4A'); // Knöpfe in der Lehne
+          KK(x + 3, y + 4.5, w - 6, 5.5, s1); R(x + 3 + (w - 6) / 2, y + 4.5, 0.25, 5.5, s1[2]);
+          for (let i = 0; i < w - 6; i += 1.5) R(x + 3.5 + i, y + 9.5, 0.75, 0.25, '#5A2A4A'); // Fransen
+          KK(x, y + 1.5, 4, 10.5, s0); KK(x + w - 4, y + 1.5, 4, 10.5, s0); R(x + 0.5, y + 2, 3, 0.5, s0[1]); R(x + w - 3.5, y + 2, 3, 0.5, s0[1]);
+          R(x + 1.5, y + 12, 1, 0.75, '#3A2412'); R(x + w - 2.5, y + 12, 1, 0.75, '#3A2412');
+          K(x + 5, y + 2.5, 6, 2.5, C.gelb, '#FFF08A', '#A89020'); for (let i = 0; i < 3; i++) R(x + 6 + i * 1.5, y + 3.5, 0.5, 0.5, '#C8A020');
+          R(x + 14, y + 2, 9, 3, '#4A8A9A'); for (let i = 0; i < 9; i += 1) R(x + 14 + i, y + 2 + (i % 2) * 2, 0.5, 0.5, '#7ABACA'); R(x + 14, y + 5, 9, 0.5, '#2A6A7A'); // Wolldecke
+          break;
+        }
+        case 'couchtisch': { // Couchtisch mit Puzzle, Tasse, Fernbedienung und Zeitschrift
+          KK(x, y, w, 1.5, ['#8A5A30', '#AA7A4A', '#5A3A1A']); R(x + 1, y + 1.5, 1, h - 1.5, '#5A3A1A'); R(x + w - 2, y + 1.5, 1, h - 1.5, '#5A3A1A'); R(x + 1, y + 3.5, w - 2, 0.5, '#5A3A1A');
+          R(x + 2, y + 2.5, 5, 1, '#C83A3A'); R(x + 2.5, y + 2.5, 4, 0.25, C.weiss); // Zeitschriften unten
+          const fertigAnteil = welt.puzzle || 0;
+          K(x + 6, y - 0.5, 7, 0.75, '#E8E0C8', '#FFFFFF', '#A8A090');
+          for (let i = 0; i < 8; i++) if (i < fertigAnteil * 8) R(x + 6.25 + (i % 4) * 1.6, y - 0.75 - (i < 4 ? 0 : 0.25), 1.5, 0.5, ['#5A8AE8', '#4E9A44', '#E8C040', '#C83A3A'][i % 4]);
+          if (fertigAnteil < 1) for (let i = 0; i < 3; i++) R(x + 14 + i * 0.75, y - 0.5, 0.5, 0.5, ['#5A8AE8', '#4E9A44', '#E8C040'][i]);
+          R(x + 1.5, y - 1.5, 1.5, 1.5, C.weiss); R(x + 3, y - 1.25, 0.5, 0.75, C.weiss); R(x + 1.75, y - 1.5, 1, 0.25, '#6A3A1A'); // Tasse
+          R(x + w - 3.5, y - 0.5, 2.5, 0.5, '#2A2A30'); R(x + w - 3, y - 0.5, 0.25, 0.25, '#C83A3A'); // Fernbedienung
+          break;
+        }
+        case 'sessel': { // Ohrensessel (Blick nach links), Leselampe gehört zur Stehlampe daneben
+          const c0 = ['#2E6E4A', '#4E8E6A', '#1A4A2E'];
+          KK(x + w - 4, y - 5, 4, 15, c0); R(x + w - 3.5, y - 4.5, 0.5, 13, c0[1]); // Rückenlehne mit Ohr
+          KK(x + 1, y + 4, w - 4, 5, c0); for (let i = 0; i < 3; i++) R(x + 3 + i * 2.5, y + 5.5, 0.5, 0.5, '#1A4A2E');
+          KK(x, y + 1.5, 3, 8, c0); R(x, y + 1.5, 3, 0.5, c0[1]);
+          R(x + 1, y + 9, 1, 3, '#3A2412'); R(x + w - 2, y + 9, 1, 3, '#3A2412');
+          R(x + 4, y + 3, 4, 1.5, '#E8D8B0'); for (let i = 0; i < 4; i++) R(x + 4.25 + i, y + 3.25, 0.5, 0.5, '#C84A5A'); // Kissen
+          break;
+        }
+        case 'pflanze': {
+          if (FEST.weihnachten) break; // dort steht dann der Weihnachtsbaum
+          K(x + 1.5, fuss - 4, 4.5, 4, '#B0603A', '#D08050', '#7A3A20'); R(x + 1.5, fuss - 4, 4.5, 0.5, '#D08050');
+          const blaetter = [[-3, -7], [-2, -10], [0, -12], [2, -9], [3, -6], [-1, -8], [1, -5]];
+          blaetter.forEach(([dx, dy], i) => { const sw = an === 'giessen' ? Math.sin(welt.t * 4 + i) * 0.3 : Math.sin(welt.t * 0.8 + i) * 0.1; R(x + 3.75 + dx - 1 + sw, fuss - 4 + dy * 0.9, 2, 2.5, i % 2 ? C.gruen : C.dunkelgruen); R(x + 3.75 + dx - 0.5 + sw, fuss - 4 + dy * 0.9, 0.5, 2, '#7ACA6A'); });
+          break;
+        }
+        case 'lampe': {
+          if (FEST.weihnachten) break;
+          const leuchtet = (welt.licht && tageszeit() !== 'tag') || man.taetigkeit === 'sessellesen';
+          R(x + 3, y + 6, 0.75, h - 7, C.dunkelgrau); R(x + 3.5, y + 6, 0.25, h - 7, '#2A2A2E'); K(x + 0.5, y + h - 1.5, 6, 1.5, C.dunkelgrau, C.grau, '#2A2A2E');
+          poly([[x - 0.5, y + 6], [x + 1, y], [x + 6, y], [x + 7.5, y + 6]], leuchtet ? '#FFF0A0' : '#C8B870');
+          for (let i = 0; i < 4; i++) R(x + 0.5 + i * 1.75, y + 1, 0.25, 4.5, leuchtet ? 'rgba(200,170,80,0.5)' : 'rgba(120,100,40,0.4)'); // Stoffbahnen
+          R(x - 0.5, y + 5.5, 8, 0.5, leuchtet ? '#E8C860' : '#A89850');
+          if (leuchtet) { b.fillStyle = 'rgba(255,240,150,0.15)'; b.beginPath(); b.moveTo(x, y + 6); b.lineTo(x - 14, fuss); b.lineTo(x + 21, fuss); b.lineTo(x + 7, y + 6); b.fill(); }
+          break;
+        }
+        case 'kamin': { // Kamin aus Naturstein mit Holzsims, Uhr, Fotos und Kerze; Feuer brennt herunter (welt.glut)
+          for (let j = 0; j < h; j += 2.5) for (let i = ((j / 2.5) % 2) * 2; i < w; i += 4) { const g = 0x7A + ((i * 13 + j * 7) % 5) * 8; K(x + i, y + j, Math.min(3.75, w - i), 2.25, `rgb(${g},${g},${g - 6})`, `rgb(${g + 25},${g + 25},${g + 20})`, `rgb(${g - 30},${g - 30},${g - 34})`); }
+          KK(x - 2, y - 1.5, w + 4, 3, ['#6A4A2A', '#8A6A4A', '#3A2A1A']); R(x - 2, y + 1.5, w + 4, 0.5, 'rgba(0,0,0,0.3)');
+          K(x + 2, y - 5, 3, 3.5, '#E8D8B0', '#FFF0D0', '#A89870'); R(x + 2.5, y - 4.5, 2, 2.5, '#5A8AE8'); // Foto
+          K(x + 7, y - 4.5, 2.5, 3, '#C8A060', '#E8C080', '#8A6A30'); R(x + 7.5, y - 4, 1.5, 2, '#E8A0A0'); // Foto
+          b.fillStyle = '#3A2A1A'; b.fillRect(x + w - 8, y - 4, 4, 2.5); b.fillStyle = '#F4ECD8'; b.beginPath(); b.arc(x + w - 6, y - 2.75, 1, 0, Math.PI * 2); b.fill(); // kleine Uhr
+          R(x + w - 2.5, y - 4, 1, 2.5, '#F0F0E8'); flamme(x + w - 2.25, y - 4); // Kerze
+          R(x + 5, y + 7, w - 10, h - 7, '#151515'); R(x + 4, y + 6, w - 8, 1, '#5A5A5A'); R(x + 5, y + 7, w - 10, 1, 'rgba(0,0,0,0.6)');
+          K(x + w + 1, fuss - 5, 4, 5, '#8A6A3A', '#AA8A5A', '#5A4A2A'); R(x + w + 1.5, fuss - 6, 3, 1, '#7A4A2A'); R(x + w + 2, fuss - 6.8, 2.5, 0.8, '#9A6A3A'); // Holzkorb
+          K(x + 4, fuss - 0.75, w - 8, 0.75, '#5A5A5A', '#7A7A7A', '#3A3A3A'); // Kaminplatte
+          if (welt.feuer) {
+            const staerke = Math.max(0.15, Math.min(1, welt.glut / 60)), scheite = welt.glut > 30 ? 2 : 1;
+            R(x + 6, fuss - 2.5, w - 12, 1.75, C.dunkelbraun); R(x + 6.5, fuss - 2.5, w - 13, 0.5, '#7A4A2A'); if (scheite > 1) { R(x + 7.5, fuss - 3.75, w - 15, 1.25, '#6A3A1A'); R(x + 8, fuss - 3.75, 2, 0.5, '#9A6A3A'); }
+            for (let i = 0; i < 14; i++) { const fh = (2 + ((Math.floor(welt.t * 10) + i * 3) % 6) * 0.8) * staerke; R(x + 6.5 + i * 0.85, fuss - 2.75 - fh, 0.75, fh, i % 3 === 0 ? '#FFE070' : i % 2 ? C.orange : C.gelb); R(x + 6.6 + i * 0.85, fuss - 2.75 - fh * 0.5, 0.5, fh * 0.5, '#FFF4C0'); }
+            for (let i = 0; i < 6; i++) if (Math.floor(welt.t * 3 + i) % 3) R(x + 7 + i * 2, fuss - 1, 0.5, 0.5, '#FF6A2A');
+            for (let i = 0; i < 3; i++) { const t = (welt.t * 0.8 + i / 3) % 1; R(x + w / 2 + Math.sin(t * 7 + i) * 2, fuss - 6 - t * 8 * staerke, 0.25, 0.25, `rgba(255,200,80,${1 - t})`); } // Funken
+            const gr = b.createRadialGradient(x + w / 2, fuss - 5, 1, x + w / 2, fuss - 5, 30); gr.addColorStop(0, `rgba(255,150,50,${0.25 * staerke})`); gr.addColorStop(1, 'rgba(255,150,50,0)'); b.fillStyle = gr; b.fillRect(x - 20, fuss - 35, w + 40, 35);
+          } else { R(x + 6, fuss - 2, w - 12, 1.5, '#3A3A3A'); for (let i = 0; i < 6; i++) R(x + 7 + i * 2, fuss - 2.5, 1, 0.5, '#5A5A5A'); }
+          break;
+        }
       }
     }
 
@@ -2194,7 +2289,7 @@ const texte = de
       }
       // Weihnachtsbaum im Wohnzimmer (statt der Stehlampe) mit Geschenken
       if (FEST.weihnachten) {
-        const bx = 247, fuss = FOOT[1];
+        const bx = 202, fuss = FOOT[1];
         K(bx - 3, fuss - 4, 6, 4, '#B04A34', '#D06A4A', '#6E2A1E'); R(bx - 0.75, fuss - 6, 1.5, 2, C.braun);
         for (let j = 0; j < 4; j++) { const yb = fuss - 6 - j * 6, br = 12 - j * 2.6; poly([[bx - br / 2, yb], [bx, yb - 9], [bx + br / 2, yb]], j % 2 ? '#2E6E2A' : '#245A22'); R(bx - br / 2, yb - 0.5, br, 0.5, '#1A4A1A'); }
         poly([[bx, fuss - 34.5], [bx + 1.2, fuss - 32], [bx - 1.2, fuss - 32]], C.gelb); R(bx - 1.5, fuss - 33, 3, 0.5, C.gelb);
@@ -2343,7 +2438,7 @@ const texte = de
         log(tr(`Du streichelst ${KNAME}.`, `You stroke ${KNAME}.`));
         return;
       }
-      const o = OBJ.filter((o) => o.act).find((o) => sx >= o.x - 2 && sx <= o.x + o.w + 2 && sy >= FOOT[o.f] - o.h - 4 && sy <= FOOT[o.f] + 1);
+      const o = OBJ.filter((o) => o.act && sx >= o.x - 2 && sx <= o.x + o.w + 2 && sy >= FOOT[o.f] - o.h - 4 && sy <= FOOT[o.f] + 1).sort((a, b) => a.w * a.h - b.w * b.h)[0]; // kleinstes Objekt zuerst (Couchtisch vor Sofa)
       if (!o) return;
       const panel = { teleskop: sternePanel, stereo: musikPanel }[o.id];
       if (panel) { panel.hidden = false; if (panel === sternePanel) sterneZeichnen(); panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
@@ -2475,6 +2570,8 @@ const texte = de
         miau: () => { piep(620, 0.45, 'sawtooth', 0.05, 0, 900); piep(900, 0.25, 'sawtooth', 0.04, 0.2, 520); },
         fauch: () => rauschen(0.5, 0.15, 3000, 0, 'highpass'),
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
+        blubb: () => { piep(420, 0.08, 'sine', 0.02, 0, 700); piep(520, 0.06, 'sine', 0.015, 0.12, 820); },
+        tick: () => rauschen(0.015, 0.05, 3000, 0, 'highpass'),
         pfeife: () => { piep(880, 0.35, 'sine', 0.06); piep(1046, 0.35, 'sine', 0.05, 0.02); piep(880, 0.25, 'sine', 0.05, 0.45); },
         zug: () => { rauschen(0.04, 0.06, 1800, 0, 'highpass'); rauschen(0.04, 0.05, 1800, 0.12, 'highpass'); },
         knarren: () => { piep(140, 0.5, 'sawtooth', 0.03, 0, 95); },
@@ -2888,6 +2985,10 @@ const texte = de
       if (welt.igel && alle('igel', 0.6, dt)) ton.rascheln();
       if (welt.kuehlAuf > 2.9 && alle('kuehl', 1, dt)) ton.klack();
       if (feldarbeit() && alle('traktor', 0.28, dt)) ton.traktor();
+      const imWohnzimmer = man.f === 1 && man.x > 172 && !man.alarm;
+      if (imWohnzimmer && alle('blub', 2.6, dt)) ton.blubb();
+      if (imWohnzimmer && alle('ticktack', 1, dt)) ton.tick();
+      if (t === 'puzzle' && alle('puzzle', 1.6, dt)) ton.klack();
       if ((t === 'pferd' || (katze.f === 3 && Math.abs(katze.x - 255) < 3 && katze.hoch > 0)) && alle('pferd', 1.05, dt)) ton.quietschen();
     }
 

@@ -84,6 +84,12 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Drohne (Brummi lädt hier), Fernrohr mit Sternkarte, Schaukelstuhl mit Häkeldecke, Modelleisenbahn (Gleisoval, Häuschen,
   Bäume, Zug mit Dampf; fährt beim Spielen und läuft nach, `welt.zug`), Schaukelpferd (wippt, auch wenn Minka darauf
   sitzt). Töne: Pfeife, Rattern, Knarren, Quietschen.
+  Wohnzimmer (neu, Viertelpixel): Lowboard mit Flachbildfernseher (Programme: Naturfilm, Nachrichten, Fußball) und
+  Soundbar, Aquarium mit Fischen, Pflanzen und Blasen (Aktion „Fische füttern“: Futterflocken, Fische kommen hoch),
+  Wandregal mit Büchern, Pendeluhr (zeigt die Uhrzeit, Pendel schwingt, Ticken bei Ton an), Sofa mit Wolldecke,
+  Couchtisch mit Puzzle (Aktion „puzzeln“, je Runde ein Viertel fertig, `welt.puzzle`), grüner Ohrensessel (Aktion
+  „im Sessel lesen“, Stehlampe geht an, nickt am Ende ein; Minka schläft dort auch), Natursteinkamin mit Sims (Fotos,
+  Uhr, Kerze), Funken. Weihnachtsbaum steht an der Stelle der Zimmerpflanze. Klick wählt bei Überlappung das kleinste Objekt.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
