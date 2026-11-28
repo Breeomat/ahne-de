@@ -90,6 +90,17 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Couchtisch mit Puzzle (Aktion „puzzeln“, je Runde ein Viertel fertig, `welt.puzzle`), grüner Ohrensessel (Aktion
   „im Sessel lesen“, Stehlampe geht an, nickt am Ende ein; Minka schläft dort auch), Natursteinkamin mit Sims (Fotos,
   Uhr, Kerze), Funken. Weihnachtsbaum steht an der Stelle der Zimmerpflanze. Klick wählt bei Überlappung das kleinste Objekt.
+  Schlafzimmer, Bad, Arbeitszimmer, Küche (neu, Viertelpixel; Keller bleibt vorerst): Schlafzimmer mit Patchworkdecke,
+  Nachttisch mit Wecker (klingelt nach dem Aufstehen, `welt.wecker`), Kommode mit Spieluhr (Aktion `spieluhr`, Tänzerin,
+  Melodie), Hanteln/Matte (`gymnastik`, Hampelmann, einmal morgens 7–9:30), Kleiderschrank (`umziehen`: Türen auf,
+  danach anderes Hemd, `HEMDEN`/`welt.hemd`). Bad: Badewanne mit Löwenfüßen und Vorhang (Duschen per Klick, Schaumbad
+  `baden` zufällig bei Hygiene), Spiegelschrank (`rasieren`, Schaum im Gesicht, einmal morgens). Arbeitszimmer: Pinnwand
+  (Fotos `welt.fotos`), Schreibtischlampe, Fotodrucker (`drucken` → neues Foto an der Pinnwand), Globus auf dem Regal
+  (`globus`, dreht sich, Reiseziel-Spruch), feineres Bücherregal. Küche: Kühlschrank mit Kinderbild/Zettel, Herd mit
+  Backofen (`backen`: Kuchen geht auf, dann wird gegessen), Spüle, Kaffeemaschine (`kaffeemaschine`), karierte
+  Tischdecke, Hängeschrank mit Glastür. Klickflächen über dem Boden mit `ab` (Höhe) in `OBJ`. Hund des Nachbarn
+  (`hundBild`, steht/läuft/liegt, wedelt) und Brummi (`brummiZeichnen`, Ringschutz, Rotoren, Kamera, Kufen) in Viertelpixeln.
+  Test: `?tun=baden|spieluhr|gymnastik|umziehen|rasieren|drucken|globus|backen|kaffeemaschine|…` (startet nach 2 s).
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
