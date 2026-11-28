@@ -127,6 +127,11 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Zoom (Knopf „Heranzoomen“/„Ganzes Haus“): zeigt den Raum, in dem Herr Hausmann ist, doppelt so groß und folgt ihm weich
   (`ZOOM`, `ansicht()`, `ANS`); Schrift, Sprechblasen, Computer-Video und Klicks werden über `ANS` umgerechnet. Ist er
   außer Haus, zeigt die Kamera das ganze Haus.
+  Träume (`traumZeichnen`, `TRAEUME`): schläft er im Bett, erscheint über dem Bett eine Gedankenblase mit einer kleinen
+  Szene (je ca. 22 s, dann 15–35 s Pause, nie zweimal dieselbe hintereinander): mit Brummi über den Vogelsberg fliegen,
+  Riesen-Minka, Tor in letzter Minute, Kühlschrank auf Beinen kommt zu Besuch, Schweben im Weltall, Riesenkuchen,
+  Löschfahrzeug fahren, Tauchen mit den Fischen. Blase hell über der nächtlichen Abdunklung, im Schlaf „hihi“/„mmh …“;
+  nach dem Aufwachen erzählt er oft vom letzten Traum. Test: `?zeit=nacht&traum=flug|katze|tor|kuehl|weltall|kuchen|feuerwehr|fische`.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.

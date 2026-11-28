@@ -796,7 +796,7 @@ const texte = de
       if (t === 'puzzle') { welt.puzzle = Math.min(1, (welt.puzzle || 0) + 0.25); if (welt.puzzle >= 1) sag(tr('Geschafft! Das Puzzle ist fertig.', 'Done! The jigsaw is finished.'), 4); }
       if (t === 'sessellesen' && Math.random() < 0.4) sag(tr('Huch, fast eingeschlafen …', 'Oops, nearly dozed off …'), 3);
       if (t === 'auspacken') welt.paket = false;
-      if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(tr('Ausgeschlafen!', 'Well rested!')); }
+      if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(welt.letzterTraum && Math.random() < 0.6 ? TRAEUME[welt.letzterTraum][1] : tr('Ausgeschlafen!', 'Well rested!')); }
       if (t === 'brief' && welt.brief) {
         const brief = welt.brief; welt.brief = null;
         man.folge = () => { man.tut = O.tisch; man.taetigkeit = 'lesebrief'; man.zeit = 4; man.dir = 1; man.antwort = antwortAufBrief(brief); };
@@ -2754,6 +2754,7 @@ const texte = de
         if (nacht && !welt.licht) FENSTER.forEach((f) => { b.fillStyle = 'rgba(120,130,200,0.18)'; b.beginPath(); b.moveTo(f.x, f.y + f.h); b.lineTo(f.x + f.w, f.y + f.h); b.lineTo(f.x + f.w + 8, FOOT[f.y < 150 ? 2 : 1]); b.lineTo(f.x - 8, FOOT[f.y < 150 ? 2 : 1]); b.fill(); });
         if (welt.feuer && nacht) { b.fillStyle = 'rgba(255,140,40,0.18)'; b.fillRect(240, 160, 50, 48); }
       }
+      traumZeichnen(); // Traumblase hell über der nächtlichen Abdunklung
       if (welt.blitz > 0) { b.fillStyle = 'rgba(255,255,255,0.18)'; b.fillRect(0, 0, W, H); }
       if (welt.fotoBlitz > 0) { b.fillStyle = `rgba(255,255,255,${Math.min(0.85, welt.fotoBlitz * 2)})`; b.fillRect(0, 0, W, H); }
       if (welt.feuerwehr && welt.t - welt.feuerwehr.t0 > 0 && welt.t - welt.feuerwehr.t0 < 28 && Math.floor(welt.t * 6) % 2) { b.fillStyle = 'rgba(60,100,255,0.08)'; b.fillRect(0, 0, W, H); } // Blaulicht-Schein
@@ -3307,6 +3308,98 @@ const texte = de
         man.ziel = { f: 2, x: 105, o: null, tun: 'vollmond' };
       }
     }
+    // ---------------------------------------------------------------- Träume: Traumblase über dem Bett, jede Runde eine andere kleine Szene
+    const TRAEUME = {
+      flug: [tr('vom Fliegen mit Brummi', 'about flying with Brummi'), tr('Ich habe geträumt, ich fliege mit Brummi über den Vogelsberg!', 'I dreamt I was flying over the Vogelsberg with Brummi!')],
+      katze: [tr('von einer riesigen Minka', 'about a giant Minka'), tr('Ich habe geträumt, Minka war so groß wie das Haus!', 'I dreamt Minka was as big as the house!')],
+      tor: [tr('von einem Tor in letzter Minute', 'about a last-minute goal'), tr('Was für ein Traum – Tor in letzter Minute!', 'What a dream – a goal in the last minute!')],
+      kuehl: [tr('von einem Kühlschrank, der zu Besuch kommt', 'about a fridge coming to visit'), tr('Ich habe geträumt, mein Kühlschrank kam zu Besuch. Komisch …', 'I dreamt my fridge came to visit. Odd …')],
+      weltall: [tr('vom Schweben im Weltall', 'about floating in space'), tr('Ich bin im Traum durchs Weltall geschwebt!', 'I floated through space in my dream!')],
+      kuchen: [tr('von einem Riesenkuchen', 'about a giant cake'), tr('Ich habe von einem Kuchen geträumt, so groß wie ein Schrank!', 'I dreamt of a cake as big as a wardrobe!')],
+      feuerwehr: [tr('vom Fahren mit dem großen Löschfahrzeug', 'about driving the big fire engine'), tr('Im Traum durfte ich das Löschfahrzeug fahren!', 'In my dream I got to drive the fire engine!')],
+      fische: [tr('vom Tauchen mit den Fischen', 'about diving with the fish'), tr('Ich bin im Traum mit den Fischen getaucht!', 'I went diving with the fish in my dream!')],
+    };
+    welt.traum = null; welt.naechsterTraum = 0; welt.letzterTraum = null;
+    function traumZeichnen() {
+      const schlaeft = man.taetigkeit === 'schlafen' && man.tut === O.bett;
+      if (!schlaeft) { welt.traum = null; welt.naechsterTraum = welt.t + 8; return; }
+      if (!welt.traum) {
+        if (welt.t < welt.naechsterTraum) return;
+        const arten = Object.keys(TRAEUME).filter((a) => a !== welt.letzterTraum);
+        const art = params.get('traum') && TRAEUME[params.get('traum')] ? params.get('traum') : zufall(arten);
+        welt.traum = { art, t0: welt.t, dauer: 22 }; welt.letzterTraum = art;
+        log(tr(`Herr Hausmann träumt ${TRAEUME[art][0]}.`, `Mr Hausmann is dreaming ${TRAEUME[art][0]}.`));
+      }
+      const tr0 = welt.traum, t = welt.t - tr0.t0;
+      if (t > tr0.dauer) { welt.traum = null; welt.naechsterTraum = welt.t + 15 + Math.random() * 20; return; }
+      const a = Math.min(1, t / 1.5, (tr0.dauer - t) / 1.5);
+      const bx = 44, by = 104, bw = 36, bh = 19, mx = bx + bw / 2, my = by + bh / 2;
+      b.save(); b.globalAlpha = a;
+      // Gedankenblase: Wolke mit Bläschen zum Kopf
+      b.fillStyle = 'rgba(40,40,80,0.35)'; [[mx, my + 1, 21, 13]].forEach(([x, y, rx, ry]) => { b.beginPath(); b.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); b.fill(); });
+      b.fillStyle = '#F8F8FF';
+      for (let i = 0; i < 12; i++) { const w = i / 12 * Math.PI * 2; b.beginPath(); b.arc(mx + Math.cos(w) * 19, my + Math.sin(w) * 10.5, 3.8, 0, Math.PI * 2); b.fill(); }
+      b.beginPath(); b.ellipse(mx, my, 20, 11.5, 0, 0, Math.PI * 2); b.fill();
+      [[43, 131.5, 0.7], [44.5, 129.5, 1]].forEach(([x, y, r]) => { b.beginPath(); b.arc(x + Math.sin(welt.t * 2 + x) * 0.2, y, r, 0, Math.PI * 2); b.fill(); });
+      // Szene im Inneren
+      b.beginPath(); b.roundRect(bx, by, bw, bh, 4); b.clip();
+      const fa = HEMD_FARBEN[welt.hemd || 0], art = tr0.art;
+      const mini = (x, fuss, dir, o, sk = 0.45) => figur(x, fuss, dir, { pose: 'steh', mimik: 'froh', f: fa, ...o }, sk);
+      if (art === 'flug') {
+        R(bx, by, bw, bh, '#8AC8F0'); for (let i = 0; i < 3; i++) { const cx = bx + ((i * 15 - t * 4) % 50 + 50) % 50 - 6; b.fillStyle = '#FFFFFF'; b.beginPath(); b.arc(cx, by + 4 + i * 2, 2, 0, Math.PI * 2); b.arc(cx + 2.5, by + 3.5 + i * 2, 2.5, 0, Math.PI * 2); b.fill(); }
+        b.fillStyle = '#4E8A3A'; b.beginPath(); b.moveTo(bx, by + bh); for (let x = 0; x <= bw; x += 2) b.lineTo(bx + x, by + bh - 4 - Math.sin((x + t * 8) / 5) * 1.5); b.lineTo(bx + bw, by + bh); b.fill();
+        const dy = Math.sin(t * 3) * 1, dx = mx + Math.sin(t * 0.8) * 4;
+        R(dx - 6, by + 11 + dy, 12, 0.5, '#3A3A42'); [-5.5, 5.5].forEach((o) => R(dx + o - (Math.floor(t * 20) % 2 ? 2 : 0.75), by + 10.5 + dy, Math.floor(t * 20) % 2 ? 4 : 1.5, 0.3, '#E8ECF4'));
+        R(dx - 2, by + 11.5 + dy, 4, 3.5, '#FFD76A'); R(dx - 1.5, by + 12 + dy, 3, 2, '#1A1D26'); R(dx - 1, by + 12.5 + dy, 0.5, 0.75, '#9FF5DC'); R(dx + 0.5, by + 12.5 + dy, 0.5, 0.75, '#9FF5DC');
+        mini(dx, by + 11.5 + dy, 1, { pose: 'sitz', arme: Math.floor(t * 2) % 2 ? 'hoch' : 'normal' });
+      } else if (art === 'katze') {
+        R(bx, by, bw, bh, '#C8B8E8'); for (let i = 0; i < 6; i++) R(bx + (i * 7) % bw, by + (i * 5) % bh, 0.5, 0.5, '#FFFFFF');
+        b.save(); b.translate(mx + 5, by + bh + 1); b.scale(2.1, 2.1); katzeBild(0, 0, -1, 'sitz', 0, Math.floor(t * 2) % 3 === 0); b.restore();
+        mini(bx + 8, by + bh - 1, 1, { arme: Math.floor(t * 3) % 2 ? 'hoch' : 'normal', mimik: 'schreck' }, 0.4);
+        const hz = (t * 0.6) % 1; R(mx + 2 + Math.sin(hz * 6), by + 6 - hz * 6, 1, 0.75, '#FF5A7A');
+      } else if (art === 'tor') {
+        R(bx, by, bw, bh, '#3E8A36'); for (let i = 0; i < bw; i += 4) R(bx + i, by, 2, bh, '#4E9A44'); R(bx, by + bh - 4, bw, 0.25, '#FFFFFF');
+        R(bx + bw - 8, by + 6, 6, 0.5, '#FFFFFF'); R(bx + bw - 8, by + 6, 0.5, 11, '#FFFFFF'); for (let i = 0; i < 5; i++) R(bx + bw - 7.5 + i * 1.2, by + 6.5, 0.15, 10.5, 'rgba(255,255,255,0.5)');
+        const ph = (t % 5) / 5, ballX = bx + 10 + Math.min(1, ph * 1.6) * 16, ballY = by + bh - 5 - Math.sin(Math.min(1, ph * 1.6) * Math.PI) * 6;
+        b.fillStyle = '#FFFFFF'; b.beginPath(); b.arc(ballX, ballY, 1.1, 0, Math.PI * 2); b.fill(); R(ballX - 0.3, ballY - 0.3, 0.6, 0.6, '#1A1A1A');
+        const jubel = ph > 0.62; mini(bx + 7, by + bh - 3 - (jubel && Math.floor(t * 6) % 2 ? 1 : 0), 1, { arme: jubel ? 'hoch' : 'normal', pose: jubel ? 'steh' : 'geh', schritt: Math.floor(t * 6) % 2 });
+        if (jubel) for (let i = 0; i < 10; i++) R(bx + (i * 11 + t * 9) % bw, by + ((i * 7 + t * 14) % bh), 0.75, 0.5, ['#E8C040', '#C83A3A', '#5A8AE8', '#FFFFFF'][i % 4]);
+      } else if (art === 'kuehl') {
+        R(bx, by, bw, bh, '#E8E0B8'); for (let i = 0; i < bw; i += 3) R(bx + i, by, 0.25, bh, 'rgba(0,0,0,0.08)');
+        const kx = bx + 18 + Math.sin(t * 0.9) * 6, hop = Math.abs(Math.sin(t * 4)) * 1;
+        R(kx + 1, by + bh - 2.5, 0.75, 2.5 - hop, '#3A3A42'); R(kx + 5.25, by + bh - 2.5 + hop, 0.75, 2.5 - hop, '#3A3A42');
+        K(kx, by + 4 - hop, 7, 13, '#F4F4F8', '#FFFFFF', '#A8A8B4'); R(kx, by + 8.5 - hop, 7, 0.25, '#8A8A94'); R(kx + 5.5, by + 6 - hop, 0.5, 2, '#A8A8B0');
+        R(kx + 1.5, by + 10 - hop, 1, 1, '#1A1A1A'); R(kx + 4, by + 10 - hop, 1, 1, '#1A1A1A'); R(kx + 2, by + 13 - hop, 2.5, 0.5, '#C83A3A'); R(kx + 1.5, by + 12.5 - hop, 0.5, 0.5, '#C83A3A'); R(kx + 4.5, by + 12.5 - hop, 0.5, 0.5, '#C83A3A');
+        R(kx - 1.5, by + 9 - hop + (Math.floor(t * 3) % 2 ? -1 : 0), 1.5, 0.5, '#E8E8F0'); // winkender Arm
+        mini(bx + 6, by + bh - 1, 1, { mimik: 'offen' }, 0.42);
+      } else if (art === 'weltall') {
+        R(bx, by, bw, bh, '#0A0A28'); for (let i = 0; i < 22; i++) R(bx + (i * 13.7) % bw, by + (i * 7.3) % bh, 0.4, 0.4, Math.floor(t * 3 + i) % 4 ? '#FFFFFF' : '#8A8AFF');
+        b.fillStyle = '#E8A050'; b.beginPath(); b.arc(bx + 27, by + 6, 3.5, 0, Math.PI * 2); b.fill(); b.strokeStyle = '#F8D8A0'; b.lineWidth = 0.5; b.beginPath(); b.ellipse(bx + 27, by + 6, 6, 1.4, -0.3, 0, Math.PI * 2); b.stroke();
+        b.fillStyle = '#E8E8D8'; b.beginPath(); b.arc(bx + 6, by + 16, 2.5, 0, Math.PI * 2); b.fill();
+        b.save(); b.translate(mx - 2, by + 11 + Math.sin(t) * 2); b.rotate(t * 0.6); mini(0, 4.5, 1, { arme: 'hoch' }, 0.45); b.restore();
+      } else if (art === 'kuchen') {
+        R(bx, by, bw, bh, '#F8C8D8'); R(bx, by + bh - 3, bw, 3, '#E8A0B8');
+        K(bx + 15, by + 9, 16, 10, '#E8B060', '#F8D090', '#A87830'); R(bx + 15, by + 9, 16, 2, '#FFF4F8'); R(bx + 15, by + 13.5, 16, 1, '#C8507A');
+        for (let i = 0; i < 4; i++) { R(bx + 17 + i * 3.8, by + 6, 0.75, 3, ['#5A8AE8', '#E8C040', '#C83A3A', '#5AAA4A'][i]); R(bx + 17.1 + i * 3.8, by + 4.8 + (Math.floor(t * 8 + i) % 2) * 0.25, 0.6, 1.1, '#FFC040'); }
+        mini(bx + 10, by + bh - 2, 1, { arme: 'vorn', mimik: Math.floor(t * 3) % 2 ? 'offen' : 'froh' }, 0.45);
+        for (let i = 0; i < 3; i++) R(bx + 13 + i, by + 14 + ((t * 4 + i * 3) % 4), 0.5, 0.5, '#C88A3A');
+      } else if (art === 'feuerwehr') {
+        R(bx, by, bw, bh, '#9AC8F0'); R(bx, by + bh - 5, bw, 5, '#5A5A62'); for (let i = 0; i < 6; i++) R(bx + ((i * 8 - t * 20) % 44 + 44) % 44 - 4, by + bh - 2.75, 3, 0.4, '#E8E8E0');
+        const fx = bx + 7, fy = by + bh - 4, bl = Math.floor(t * 6) % 2;
+        R(fx, fy - 6, 15, 5, '#C8202A'); R(fx + 15, fy - 5, 5, 4, '#C8202A'); R(fx + 16, fy - 4.5, 3, 1.75, '#9AD8F0'); R(fx + 1, fy - 7, 12, 0.5, '#C8C8D0');
+        R(fx + 15.5, fy - 5.75, 1.25, 0.75, bl ? '#4A7AFF' : '#1A2A6A'); R(fx + 18, fy - 5.75, 1.25, 0.75, bl ? '#1A2A6A' : '#4A7AFF');
+        R(fx + 16.6, fy - 4.6, 1.6, 1.5, '#E8B890'); R(fx + 16.5, fy - 5.4, 1.8, 0.8, '#E8E8E0'); R(fx + 17.7, fy - 4.2, 0.3, 0.3, '#1A1A1A'); // Kopf mit Helm in der Kabine
+        for (const rx of [3, 16]) { b.fillStyle = '#1A1A1A'; b.beginPath(); b.arc(fx + rx, fy - 0.5, 1.3, 0, Math.PI * 2); b.fill(); }
+      } else if (art === 'fische') {
+        R(bx, by, bw, bh, '#2A6AA8'); R(bx, by, bw, 3, '#4A8AC8'); R(bx, by + bh - 2, bw, 2, '#C8B890');
+        for (let i = 0; i < 6; i++) { const ty = (t * 0.8 + i / 6) % 1; R(bx + 5 + i * 5 + Math.sin(ty * 8) * 0.5, by + bh - 3 - ty * (bh - 4), 0.5, 0.5, 'rgba(220,240,255,0.9)'); }
+        [[0, '#FF8A2A', 1], [1, '#E8D040', -1], [2, '#4AA8FF', 1]].forEach(([i, c, d]) => { const fx = bx + ((t * (5 + i * 2) * d + i * 13) % 44 + 44) % 44 - 4, fy = by + 5 + i * 4.5; R(fx - 2, fy - 0.75, 4, 1.75, c); R(fx - 2 - d * 1.25, fy - 1 + (Math.floor(t * 6) % 2) * 0.5, 1.25, 2, c); R(fx + d * 1.2, fy - 0.5, 0.5, 0.5, '#101014'); });
+        b.save(); b.translate(mx, by + 9 + Math.sin(t * 1.5)); mini(0, 4.5, 1, { arme: 'vorn', pose: 'geh', schritt: Math.floor(t * 3) % 2 }, 0.45); R(0.5, -2.6, 2, 0.75, '#3A3A42'); R(2.25, -4.2, 0.4, 2, '#E8C040'); b.restore();
+      }
+      b.restore();
+      if (Math.floor(t) % 8 === 3) zText.push({ t: art === 'tor' ? tr('Tooor …', 'Goal …') : zufallFest(['hihi', 'mmh …', 'hehe'], Math.floor(t / 8)), x: 50, y: 135, a: 0.9 * a, gross: 4 });
+    }
+    const zufallFest = (liste, n) => liste[n % liste.length];
     function nachtZeichnen() {
       if (welt.igel) { // Igel mit Stacheln, Schnauze und trippelnden Füßen
         const ix = welt.igel.x, iy = 214, d = welt.igel.dir, schritt = welt.igel.pause > 0 ? 0 : Math.floor(welt.t * 6) % 2, kx = ix - 0.5 * d;
