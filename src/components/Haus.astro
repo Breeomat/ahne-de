@@ -164,8 +164,8 @@ const texte = de
     const tr = (d, e) => (DE ? d : e);
     const cv = document.getElementById('haus-canvas');
     const g = cv.getContext('2d');
-    // Spielkoordinaten 320×240, gezeichnet wird doppelt so fein (640×480, halbe Pixel), angezeigt 4×
-    const W = 320, H = 240, F = 2, S = 4;
+    // Spielkoordinaten 320×240, gezeichnet wird viermal so fein (1280×960, Viertelpixel), angezeigt 1:1
+    const W = 320, H = 240, F = 4, S = 4;
     const buf = document.createElement('canvas');
     buf.width = W * F; buf.height = H * F;
     let b = buf.getContext('2d');
@@ -893,6 +893,184 @@ const texte = de
       const h = Math.round(zeilen.length * f), w = Math.round(zeilen[0].length * f);
       return Array.from({ length: h }, (_, j) => Array.from({ length: w }, (_, i) => zeilen[Math.min(zeilen.length - 1, Math.floor(j / f))][Math.min(zeilen[0].length - 1, Math.floor(i / f))]).join(''));
     };
+    // ---------------------------------------------------------------- Figuren in Viertelpixeln (A light): Herr Hausmann, Gäste, Minka
+    // Jede Figur wird einmal je Haltung/Mimik/Farben auf eine kleine Leinwand gemalt (1 Punkt = ¼ Spielpixel) und dann
+    // nur noch eingesetzt – so bleiben Gesicht und Kleidung fein, ohne dass jedes Bild alles neu zeichnet.
+    b.imageSmoothingEnabled = false;
+    const FIGUREN = new Map();
+    function bildAusCache(key, w, h, malen) {
+      let c = FIGUREN.get(key);
+      if (!c) {
+        if (FIGUREN.size > 600) FIGUREN.clear();
+        c = document.createElement('canvas'); c.width = w; c.height = h;
+        const g2 = c.getContext('2d'); malen(g2, (x, y, ww, hh, f) => { g2.fillStyle = f; g2.fillRect(x, y, ww, hh); });
+        FIGUREN.set(key, c);
+      }
+      return c;
+    }
+    // Ellipse zeilenweise füllen (für Kopf, Körper)
+    function ellipse(P, cx, cy, rx, ry, f, y0 = -1e9, y1 = 1e9) {
+      for (let y = Math.ceil(cy - ry); y <= Math.floor(cy + ry); y++) {
+        if (y < y0 || y > y1) continue;
+        const t = (y + 0.5 - cy) / ry; if (Math.abs(t) > 1) continue;
+        const hw = rx * Math.sqrt(1 - t * t); P(Math.round(cx - hw), y, Math.max(1, Math.round(hw * 2)), 1, f);
+      }
+    }
+    // o = { pose: 'steh'|'geh'|'sitz', schritt: 0|1, arme: 'normal'|'hoch'|'vorn', hinten, mimik, kopfNur, f: Farben }
+    function figurMalen(g2, P, o) {
+      const f = o.f, sitz = o.pose === 'sitz', geh = o.pose === 'geh';
+      const schritt = geh ? (o.schritt ? 4 : -4) : 0;
+      if (!o.kopfNur) {
+        // ---- Beine und Schuhe
+        if (sitz) {
+          P(14, 47, 20, 7, f.q); P(14, 47, 20, 6, f.p); P(15, 47, 18, 1, f.P);
+          P(29, 53, 5, 9, f.p); P(33, 53, 1, 9, f.q); P(29, 53, 1, 9, f.P);
+          P(29, 61, 9, 3, f.o); P(29, 63, 9, 1, f.O); P(30, 61, 3, 1, 'rgba(255,255,255,0.18)');
+        } else {
+          const bein = (x, dx, haupt, schatten) => {
+            for (let y = 48; y < 72; y++) { const xx = Math.round(x + dx * (y - 48) / 24); P(xx, y, 5, 1, haupt); P(xx + 4, y, 1, 1, schatten); }
+            const fx = Math.round(x + dx); P(fx - 1, 72, 8, 3, f.o); P(fx + 5, 73, 2, 2, f.o); P(fx - 1, 75, 9, 1, f.O); P(fx, 72, 3, 1, 'rgba(255,255,255,0.18)');
+          };
+          bein(15, -schritt, f.q, 'rgba(0,0,0,0.25)'); // hinteres Bein dunkler
+          bein(20, schritt, f.p, f.q);
+          P(21, 49, 1, 12, f.P); // Bügelfalte
+        }
+        // ---- hinterer Arm (hinter dem Körper)
+        const armSchwung = geh ? (o.schritt ? 3 : -3) : 0;
+        if (o.arme === 'hoch') { P(11, 16, 4, 15, f.c); P(11, 12, 4, 4, f.d); }
+        else { P(10, 31, 4, 12, f.c); P(10 - Math.round(armSchwung / 2), 43, 4, 3, f.d); }
+        // ---- Rumpf (Hemd mit Kragen, Knöpfen, Tasche, Gürtel)
+        P(14, 28, 14, 2, f.t); P(12, 30, 18, 18, f.t);
+        P(12, 30, 2, 18, f.c); P(28, 30, 2, 18, f.c); P(14, 31, 3, 9, f.T); // Licht und Schatten
+        P(18, 28, 2, 3, f.w); P(22, 28, 2, 3, f.w); P(20, 29, 2, 2, f.c); // Kragen
+        for (const yy of [32, 36, 40, 44]) P(21, yy, 1, 1, f.c); // Knöpfe
+        P(14, 34, 4, 1, f.c); P(14, 34, 1, 3, f.c); P(17, 34, 1, 3, f.c); // Brusttasche
+        P(12, 46, 18, 2, '#3A2A1A'); P(21, 46, 3, 2, '#C8A040'); P(22, 46, 1, 2, '#8A6A20'); // Gürtel mit Schnalle
+        // ---- vorderer Arm mit Hand und Fingern
+        if (o.arme === 'hoch') {
+          P(25, 14, 5, 17, f.t); P(29, 14, 1, 17, f.c); P(25, 10, 5, 4, f.s); P(25, 9, 1, 2, f.s); P(27, 9, 1, 1, f.s); P(29, 10, 1, 2, f.d);
+        } else if (o.arme === 'vorn' || sitz) {
+          P(24, 30, 5, 8, f.t); P(24, 37, 9, 4, f.t); P(24, 40, 9, 1, f.c); P(33, 37, 4, 4, f.s); P(36, 38, 1, 2, f.d); P(33, 40, 4, 1, f.d);
+        } else {
+          const ax = 24 + armSchwung;
+          P(24, 30, 5, 8, f.t); P(28, 30, 1, 8, f.c);
+          P(ax, 38, 5, 6, f.t); P(ax + 4, 38, 1, 6, f.c); P(ax, 43, 5, 1, f.c);
+          P(ax, 44, 5, 4, f.s); P(ax + 4, 44, 1, 2, f.d); P(ax + 1, 47, 3, 1, f.d); // Hand mit Daumen
+        }
+        P(18, 25, 6, 4, f.d); P(19, 25, 4, 2, f.s); // Hals
+      }
+      // ---- Kopf
+      const kopfY = o.kopfNur ? 0 : 0;
+      ellipse(P, 21, 15.5 + kopfY, 8.5, 10, f.s, 4 + kopfY, 25 + kopfY);
+      ellipse(P, 21, 15.5 + kopfY, 8.5, 10, f.d, 22 + kopfY, 25 + kopfY); // Kinn im Schatten
+      ellipse(P, 21, 15.5 + kopfY, 7.5, 9, f.s, 4 + kopfY, 24 + kopfY);
+      if (o.hinten) {
+        ellipse(P, 21, 13, 9.5, 11, f.h, 0, 22);
+        P(12, 13, 2, 5, f.s); P(30, 13, 2, 5, f.s); // beide Ohren
+        P(16, 3, 8, 1, f.H); P(14, 5, 3, 1, f.H);
+        return;
+      }
+      // Haare: Kappe, Hinterkopf, Koteletten, Strähne, Glanz
+      ellipse(P, 20, 9, 10, 8.5, f.h, 0, 9);
+      P(11, 9, 6, 9, f.h); P(12, 18, 3, 2, f.h); P(16, 9, 2, 6, f.h);
+      P(23, 5, 8, 3, f.h); P(28, 7, 3, 2, f.h);
+      P(15, 2, 7, 1, f.H); P(13, 3, 4, 1, f.H); P(24, 4, 4, 1, f.H);
+      // Ohr
+      P(13, 12, 3, 6, f.s); P(14, 13, 1, 4, f.d); P(13, 17, 2, 1, f.d);
+      // Nase, Wange
+      P(29, 14, 2, 4, f.s); P(30, 17, 1, 1, f.d); P(28, 18, 2, 1, f.d);
+      P(22, 18, 3, 2, 'rgba(240,140,140,0.55)');
+      // Augenbrauen und Augen je nach Mimik
+      const m = o.mimik || 'normal';
+      const brauenY = m === 'schreck' ? 9 : m === 'froh' ? 10 : 11;
+      if (m === 'traurig' || m === 'hungrig') { P(24, 11, 2, 1, f.h); P(26, 10, 2, 1, f.h); P(18, 10, 2, 1, f.h); P(20, 11, 1, 1, f.h); }
+      else { P(24, brauenY, 4, 1, f.h); P(18, brauenY, 3, 1, f.h); }
+      if (m === 'zu') { P(24, 14, 4, 1, f.e); P(18, 14, 3, 1, f.e); }
+      else if (m === 'muede') { P(25, 13, 3, 3, f.w); P(26, 14, 2, 2, f.e); P(24, 13, 4, 2, f.d); P(19, 13, 2, 3, f.w); P(20, 14, 1, 2, f.e); P(18, 13, 3, 2, f.d); }
+      else if (m === 'schreck') { P(24, 12, 4, 4, f.w); P(26, 13, 1, 2, f.e); P(18, 12, 3, 4, f.w); P(19, 13, 1, 2, f.e); }
+      else {
+        P(25, 13, 3, 3, f.w); P(26, 13, 2, 3, f.e); P(26, 13, 1, 1, '#FFFFFF'); // Glanzpunkt
+        P(19, 13, 2, 3, f.w); P(20, 13, 1, 3, f.e);
+        if (m === 'froh') { P(25, 15, 3, 1, f.s); P(19, 15, 2, 1, f.s); }
+      }
+      // Mund
+      const mund = f.m;
+      if (m === 'offen') { P(24, 19, 4, 3, '#5A1A1A'); P(24, 19, 4, 1, '#F4F4F0'); P(25, 21, 2, 1, '#E07070'); }
+      else if (m === 'schreck') { P(25, 19, 3, 3, '#5A1A1A'); P(25, 19, 3, 1, mund); }
+      else if (m === 'froh') { P(24, 20, 4, 1, mund); P(23, 19, 1, 1, mund); P(28, 19, 1, 1, mund); P(24, 21, 4, 1, 'rgba(255,255,255,0)'); }
+      else if (m === 'traurig' || m === 'hungrig') { P(24, 20, 4, 1, mund); P(23, 21, 1, 1, mund); P(28, 21, 1, 1, mund); }
+      else if (m === 'zu') { P(24, 20, 4, 1, mund); }
+      else { P(24, 20, 4, 1, mund); P(28, 19, 1, 1, mund); }
+    }
+    const farbSchluessel = (f) => [f.h, f.H, f.s, f.d, f.t, f.T, f.c, f.p, f.P, f.q, f.o, f.O, f.w, f.e, f.m].join('');
+    // Figur zeichnen: Füße bei (x, fuss), Blick nach rechts (dir > 0) oder links, skala für Kinder
+    function figur(x, fuss, dir, o, skala = 1) {
+      const key = `F|${o.pose}|${o.schritt ? 1 : 0}|${o.arme || ''}|${o.hinten ? 1 : 0}|${o.mimik || ''}|${o.kopfNur ? 1 : 0}|${farbSchluessel(o.f)}`;
+      const c = bildAusCache(key, 40, 80, (g2, P) => figurMalen(g2, P, o));
+      const w = 10 * skala, h = 20 * skala, top = o.kopfNur ? fuss - 6.5 : fuss - 19 * skala;
+      b.save(); b.translate(halb(x), halb(top)); if (dir < 0) b.scale(-1, 1);
+      if (o.kopfNur) b.drawImage(c, 0, 0, 40, 27, -5, 0, 10, 6.75); else b.drawImage(c, -w / 2, 0, w, h);
+      b.restore();
+    }
+    // Mimik: blinzeln, sprechen, Laune
+    const blinzelt = (versatz = 0) => ((spielzeit + versatz) % 4.3) < 0.14;
+    function mannMimik() {
+      if (blinzelt()) return 'zu';
+      if (man.alarm && man.alarm.t0 !== undefined && spielzeit - man.alarm.t0 < 3) return 'schreck';
+      if (redet(blase)) return 'offen';
+      const t = man.taetigkeit, n = man.n;
+      if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast'].includes(t)) return 'froh';
+      if (n.energy < 30) return 'muede';
+      if (n.hunger < 30) return 'hungrig';
+      if (n.fun < 25) return 'traurig';
+      return n.fun > 65 && n.hunger > 50 ? 'froh' : 'normal';
+    }
+    // ---- Minka in Viertelpixeln: Leinwand 64 × 40 (16 × 10 Spielpixel), Pfoten unten
+    const KF = { fell: '#A2A2AA', streifen: '#6E6E78', hell: '#D0D0D6', weiss: '#F6F6F2', auge: '#7AE07A', nase: '#E88A9A', ohr: '#E8A8B4' };
+    function katzeMalen(g2, P, pose, phase, putzen) {
+      const fell = KF.fell, str = KF.streifen;
+      const schwanz = (pts, dicke) => { pts.forEach(([x, y]) => ellipse(P, x, y, dicke, dicke, fell)); pts.forEach(([x, y], i) => { if (i % 3 === 1) P(Math.round(x) - 1, Math.round(y) - 1, 2, 2, str); }); };
+      const kopf = (cx, cy, augen) => {
+        ellipse(P, cx, cy, 6.5, 5.5, fell);
+        // Ohren
+        for (let i = 0; i < 5; i++) { P(cx - 5 + i * 0.4 | 0, cy - 5 - i, 4 - i * 0.7 | 0 || 1, 1, fell); P(cx + 1 + i * 0.4 | 0, cy - 5 - i, 4 - i * 0.7 | 0 || 1, 1, fell); }
+        P(cx - 4, cy - 6, 2, 2, KF.ohr); P(cx + 2, cy - 6, 2, 2, KF.ohr);
+        P(cx - 2, cy - 5, 1, 2, str); P(cx, cy - 5, 1, 2, str); P(cx + 2, cy - 5, 1, 2, str); // Stirnstreifen
+        ellipse(P, cx + 2.5, cy + 2, 3.2, 2.4, KF.hell); // Schnauze
+        if (augen === 'zu') { P(cx - 2, cy - 1, 3, 1, '#2A2A2A'); P(cx + 3, cy - 1, 3, 1, '#2A2A2A'); }
+        else { P(cx - 2, cy - 2, 3, 3, KF.auge); P(cx - 1, cy - 2, 1, 3, '#101010'); P(cx + 3, cy - 2, 3, 3, KF.auge); P(cx + 4, cy - 2, 1, 3, '#101010'); P(cx - 2, cy - 2, 1, 1, '#FFFFFF'); }
+        P(cx + 2, cy + 1, 2, 1, KF.nase); P(cx + 2, cy + 2, 1, 1, '#8A5A5A'); P(cx + 3, cy + 3, 1, 1, '#8A5A5A');
+        g2.fillStyle = 'rgba(255,255,255,0.7)'; [[cx + 5, cy + 1, 5], [cx + 5, cy + 3, 5]].forEach(([x, y, l]) => g2.fillRect(x, y, l, 0.6)); // Schnurrhaare
+      };
+      if (pose === 'schlaf') {
+        schwanz([[14, 34], [18, 36], [24, 37], [30, 37], [36, 37], [42, 36]], 2.2);
+        ellipse(P, 30, 31, 15, 7, fell); ellipse(P, 30, 33, 12, 4, KF.hell);
+        for (const x of [20, 25, 30, 35]) P(x, 25, 2, 4, str);
+        kopf(43, 29, 'zu');
+        return;
+      }
+      if (pose === 'sitz') {
+        schwanz([[22, 37], [27, 38], [33, 38], [39, 38], [44, 37]], 2);
+        ellipse(P, 30, 26, 9, 11, fell); ellipse(P, 33, 28, 4, 7, KF.weiss);
+        for (const y of [20, 25, 30]) P(22, y, 4, 2, str);
+        P(32, 30, 3, 7, fell); P(37, 30, 3, 7, fell); P(32, 36, 3, 1, KF.weiss); P(37, 36, 3, 1, KF.weiss);
+        if (putzen) { P(37, 17, 3, 6, fell); P(37, 16, 3, 2, KF.weiss); }
+        kopf(35, 12, 'auf');
+        return;
+      }
+      // laufen / fressen
+      const s = phase ? 2 : -2;
+      schwanz([[17, 21], [14, 17], [12, 13], [11, 9], [12, 6]], 1.8);
+      for (const [x, d] of [[19, s], [25, -s], [38, -s], [44, s]]) { P(x + d * 0.5 | 0, 24, 3, 11, x < 30 ? str : fell); P(x + d, 34, 4, 2, KF.weiss); }
+      ellipse(P, 31, 22, 15, 6.5, fell); ellipse(P, 32, 25, 11, 3, KF.hell);
+      for (const x of [22, 27, 32, 37]) P(x, 16, 2, 5, str);
+      if (pose === 'fressen') kopf(48, 26, 'auf'); else kopf(48, 14, 'auf');
+    }
+    function katzeBild(x, fuss, dir, pose, phase = 0, putzen = false) {
+      const c = bildAusCache(`K|${pose}|${phase}|${putzen ? 1 : 0}`, 64, 40, (g2, P) => katzeMalen(g2, P, pose, phase, putzen));
+      b.save(); b.translate(halb(x), halb(fuss - 10)); if (dir < 0) b.scale(-1, 1); b.drawImage(c, -8, 0, 16, 10); b.restore();
+    }
+
     function zeichneKatze() {
       const k = katze, fy = k.y - k.hoch, x = k.x;
       // Napf und Wasserschale
@@ -901,22 +1079,13 @@ const texte = de
       // Wollknäuel
       if (welt.knaeuel) { const kn = welt.knaeuel, ky = FOOT[kn.f] - 1.5; b.fillStyle = '#D84A6A'; b.beginPath(); b.arc(kn.x, ky, 1.6, 0, Math.PI * 2); b.fill(); b.strokeStyle = '#F88AA8'; b.lineWidth = 0.5; b.beginPath(); b.arc(kn.x, ky, 1, kn.dreh, kn.dreh + 2.5); b.stroke(); R(kn.x - kn.vx * 0.08, FOOT[kn.f] - 0.5, Math.abs(kn.vx) * 0.08 + 1, 0.5, '#D84A6A'); }
       if (k.tun === 'schlafen' && !k.sprung) {
-        sprite(groesser(KATZE_SCHLAF, KZ), x, fy, k.dir, KFARBE);
+        katzeBild(x, fy, k.dir, 'schlaf');
         const t = (welt.t * 0.35 + 0.5) % 1; zText.push({ t: 'z', x: x + 2 + t * 5, y: fy - 6 - t * 9, a: 1 - t, gross: 5 + t * 3 });
         return;
       }
       const sitzt = !k.laeuft && !k.klettern && !k.sprung && k.tun && k.tun !== 'fressen';
-      if (sitzt) {
-        const z = KATZE_SITZ.slice();
-        if (k.tun === 'putzen' && Math.floor(welt.t * 3) % 2) z[4] = '............oooow...';
-        if (Math.floor(welt.t * 1.5) % 2) { z[9] = '...t...ooooooooo....'; z[10] = '..tt..oooooooooo....'; }
-        sprite(groesser(z, KZ), x, fy, k.dir, KFARBE);
-      } else {
-        const lauf = k.laeuft && Math.floor(k.schritt) % 2 ? KATZE_LAUF2 : KATZE_LAUF;
-        const z = k.tun === 'fressen' ? [...lauf.slice(0, 8).map((l, i) => (i < 4 ? '....................' : l)), ...lauf.slice(8)] : lauf;
-        if (k.tun === 'fressen') { const kx = halb(x) + (k.dir > 0 ? 4 : -7.5); R(kx, fy - 4.5, 3.5, 2.5, KFARBE.o); R(kx + (k.dir > 0 ? 2.5 : 0), fy - 3.5, 1, 1, KFARBE.n); }
-        sprite(groesser(z, KZ), x, fy, k.dir, KFARBE);
-      }
+      if (sitzt) katzeBild(x, fy, k.dir, 'sitz', 0, k.tun === 'putzen' && Math.floor(welt.t * 3) % 2 === 1);
+      else katzeBild(x, fy, k.dir, k.tun === 'fressen' ? 'fressen' : 'lauf', k.laeuft && Math.floor(k.schritt) % 2 ? 1 : 0);
     }
     function zeichneHerzen() {
       for (let i = herzen.length - 1; i >= 0; i--) {
@@ -941,10 +1110,10 @@ const texte = de
       const t = man.taetigkeit, fy = man.y, x = man.x;
       if (t === 'schlafen') return; // im Bett gezeichnet
       if (t === 'duschen') { // nur Kopf über dem Vorhang
-        sprite(KOPF, x, fy - 13, man.dir);
+        figur(x, fy - 13, man.dir, { kopfNur: true, mimik: blinzelt() ? 'zu' : 'froh', f: farben });
         return;
       }
-      if (man.klettern) { sprite([...KOPF_HINTEN, ...RUMPF, ...(Math.floor(man.schritt) % 2 ? BEINE_SCHRITT : BEINE)], x, fy, man.dir, farben); einsatzKleidung(x, fy, man.dir, false); return; }
+      if (man.klettern) { figur(x, fy, man.dir, { pose: 'geh', schritt: Math.floor(man.schritt) % 2, hinten: true, f: farben }); einsatzKleidung(x, fy, man.dir, false); return; }
       const sitzt = man.tut && man.tut.pose === 'sitz' && !man.laeuft;
       // Tanzen je nach Musik: Rock hüpft, Walzer wiegt sich, Disco mit Armen hoch
       const tanzt = t === 'musik' && !man.laeuft, stil = welt.musik;
@@ -952,10 +1121,9 @@ const texte = de
       if (tanzt && stil === 'rock') { hopp = Math.floor(welt.t * 7) % 2; arme = Math.floor(welt.t * 3.5) % 2 === 0; }
       else if (tanzt && stil === 'walzer') { dx = halb(Math.sin(welt.t * 2.2) * 3); dir = Math.cos(welt.t * 2.2) > 0 ? 1 : -1; schrittBein = Math.floor(welt.t * 2.2) % 2 === 0; }
       else if (tanzt) { hopp = Math.floor(welt.t * 4) % 2; dir = Math.floor(welt.t * 2) % 2 ? 1 : -1; arme = hopp === 1; dx = Math.floor(welt.t * 2) % 2 ? 1.5 : -1.5; }
-      const beine = sitzt ? BEINE_SITZ : (man.laeuft && Math.floor(man.schritt) % 2) || schrittBein ? BEINE_SCHRITT : BEINE;
-      const rumpf = arme ? RUMPF_HOCH : RUMPF;
-      const schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      sprite([...(redet(blase) ? KOPF_OFFEN : KOPF), ...rumpf, ...beine], x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, farben);
+      const geht = man.laeuft || schrittBein, schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
+      const haende = ['lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
+      figur(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, { pose: sitzt ? 'sitz' : geht ? 'geh' : 'steh', schritt: Math.floor(man.schritt) % 2, arme: haende, mimik: mannMimik(), f: farben });
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
       // Gegenstände in der Hand
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
@@ -1174,12 +1342,12 @@ const texte = de
       if (g.klein) { // zwei Kinder, kleiner
         const kids = [[x, fa], [x - 8 * (bs.dir || 1), { ...fa, t: '#5AA84A', T: '#7AC86A', c: '#3A7A2A', h: '#5A3A1A', H: '#7A5A3A' }]];
         if (FEST.halloween) { kids[0][1] = { ...fa, t: '#E87A1A', T: '#FF9A3A', c: '#A84A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; kids[1][1] = { ...fa, t: '#1A1A1A', T: '#3A3A3A', c: '#0A0A0A', p: '#1A1A1A', P: '#3A3A3A', q: '#0A0A0A' }; }
-        kids.forEach(([kx, kf], i) => sprite(groesser([...(i === 0 && redet(bs.blase) ? KOPF_OFFEN : KOPF), ...RUMPF, ...beine], 0.7), kx, fy, bs.dir, kf));
+        kids.forEach(([kx, kf], i) => figur(kx, fy, bs.dir, { pose: bs.laeuft ? 'geh' : 'steh', schritt: Math.floor(bs.schritt + i) % 2, mimik: i === 0 && redet(bs.blase) ? 'offen' : blinzelt(i * 1.7) ? 'zu' : 'froh', f: kf }, 0.7));
         if (FEST.halloween) { K(x + 3 * bs.dir, fy - 6, 3, 2.5, C.orange, '#FFA050', '#A85A20'); R(x - 8 * bs.dir - 2, fy - 19, 4, 2, C.schwarz); poly([[x - 8 * bs.dir - 1.5, fy - 19], [x - 8 * bs.dir, fy - 23], [x - 8 * bs.dir + 1.5, fy - 19]], C.schwarz); }
         else { b.fillStyle = '#E84A4A'; b.beginPath(); b.arc(x + 4 * bs.dir, fy - 1.2, 1.2, 0, Math.PI * 2); b.fill(); }
         return;
       }
-      sprite([...(redet(bs.blase) ? KOPF_OFFEN : KOPF), ...RUMPF, ...beine], x, fy, bs.dir, fa);
+      figur(x, fy, bs.dir, { pose: sitzt ? 'sitz' : bs.laeuft ? 'geh' : 'steh', schritt: Math.floor(bs.schritt) % 2, arme: sitzt ? 'vorn' : 'normal', mimik: redet(bs.blase) ? 'offen' : blinzelt(2.1) ? 'zu' : 'froh', f: fa });
       const kopfY = fy - (sitzt ? 16 : 19), d = bs.dir || 1;
       if (bs.art === 'post') { R(x - 3.5, kopfY, 7, 1.5, '#2A3A8A'); R(x + (d > 0 ? 1 : -5), kopfY + 1, 4, 0.5, '#1A2050'); K(x + (d > 0 ? -5 : 3), fy - 10, 3, 4, '#7A4A2A', '#9A6A3A', '#4A2A10'); }
       if (bs.art === 'paket' && ['kommt', 'klingelt', 'wartet', 'tuer'].includes(bs.phase)) { K(x + 2 * d - 2, fy - 12, 5, 4, '#B08850', '#D0A870', '#7A5A30'); R(x - 3.5, kopfY, 7, 1.2, '#5A3A1A'); }
@@ -1680,8 +1848,10 @@ const texte = de
           KK(x + 2, y + 8, w - 4, 3, HOLZ); R(x + 3, y + 11, 1.5, 3, HOLZ[2]); R(x + w - 4.5, y + 11, 1.5, 3, HOLZ[2]);
           R(x + 3, y + 5, w - 6, 3, '#E8E8F0'); R(x + 3, y + 7.5, w - 6, 0.5, '#B8B8C8'); // Matratze
           K(x + 3.5, y + 2.5, 9, 3, C.weiss, '#FFFFFF', '#C0C0D0'); Q(x + 6, y + 3.5, '#D8D8E8'); Q(x + 9, y + 4, '#D8D8E8'); // Kissen
-          if (schlaeft) {
-            R(x + 5, y - 0.5, 6, 4, C.haut); R(x + 5, y - 1, 6, 2, C.haar); R(x + 4.5, y - 0.5, 1, 3, C.haar); Q(x + 9.5, y + 1.5, C.schwarz); Q(x + 9, y + 1.5, C.schwarz); Q(x + 10.5, y + 2.5, '#C08A62');
+          if (schlaeft) { // Kopf auf dem Kissen: geschlossene Augen, Nase, leichtes Lächeln, Schlafmütze
+            b.fillStyle = C.haut; b.beginPath(); b.ellipse(x + 8, y + 1, 3, 2.4, 0, 0, Math.PI * 2); b.fill();
+            R(x + 5, y - 1.5, 3, 3, C.haar); R(x + 5.5, y - 1.75, 5, 1, '#3A5AA8'); R(x + 4, y - 2, 2, 1, '#3A5AA8'); R(x + 3.5, y - 2.25, 1, 1, C.weiss); // Mütze mit Bommel
+            R(x + 8.75, y + 0.5, 1.25, 0.25, '#3A2A1A'); R(x + 10.5, y + 1, 0.5, 0.75, '#C08A62'); R(x + 8.75, y + 2, 1, 0.25, '#A04030'); R(x + 7.5, y + 1.5, 0.75, 0.5, 'rgba(240,140,140,0.6)');
           }
           const dx = schlaeft ? 10.5 : 14.5, atmen = schlaeft ? halb(Math.sin(welt.t * 1.5) * 0.5) : 0;
           K(x + dx, y + 2 - atmen + (schlaeft ? 0 : 1), w - dx - 3, (schlaeft ? 6 : 5) + atmen, C.blau, '#6A7AE8', '#2A3488');
@@ -2399,7 +2569,7 @@ const texte = de
       log(tr('Der Piepser geht: Einsatz für die Feuerwehr!', 'The pager goes off: the fire brigade is called out!'));
       aufwecken(tr('Einsatz! Ich muss los!', "Call-out! I've got to go!"));
       man.tut = null; man.taetigkeit = null; man.warte = 0; man.folge = null;
-      man.alarm = { phase: 'zurTuer', zeit: 0, kleidung: false, wege: null };
+      man.alarm = { phase: 'zurTuer', zeit: 0, kleidung: false, wege: null, t0: spielzeit };
       setTimeout(() => { if (man.alarm) man.alarm.kleidung = true; }, 1500); // zieht unterwegs Jacke und Helm an
       man.ziel = { f: 1, x: 36, o: null, tun: 'alarmTuer' };
       sag(tr('Einsatz! Ich muss los!', "Call-out! I've got to go!"), 3);

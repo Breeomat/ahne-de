@@ -54,7 +54,10 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Test: `?wetter=regen&wind=30&richtung=270`. Zugang: 3× schnell auf „Brummis Ladestation“ tippen (`Brummi.astro`), Brummi gibt ab und zu den Hinweis.
 - „Haus-Männchen“ (öffentlich, Link im Seitenfuß): `/haus/` bzw. `/en/house/`, `src/components/Haus.astro`. Eigener
   Entwurf (keine Nachbildung eines bestehenden Spiels). Dreistöckiges Haus im Querschnitt, Pixel-Grafik (Spielkoordinaten 320×240, gezeichnet
-  in halben Pixeln auf 640×480, angezeigt 1280×960 ohne Glättung; Mauer, Dach und Wandeinrichtung einmal vorgezeichnet
+  in Viertelpixeln auf 1280×960, angezeigt 1:1 ohne Glättung; Figuren (Herr Hausmann, Gäste, Kinder, Minka) werden je
+  Haltung/Mimik/Farben einmal fein vorgezeichnet und zwischengespeichert (`figur()`, `figurMalen()`, `katzeBild()`):
+  Gesicht mit Augen, Brauen, Nase, Mund, Ohr, Mimik nach Laune (froh, müde, hungrig, traurig, erschrocken beim Alarm,
+  blinzeln, Mund offen beim Sprechen), Hemd mit Kragen, Knöpfen, Tasche, Gürtel, Hände; Möbel noch in halben Pixeln; Mauer, Dach und Wandeinrichtung einmal vorgezeichnet
   (`statisch()`), Spielfeld breiter als die Textspalte; Schrift und Sprechblasen scharf auf der großen Leinwand, Größe passt sich der Bildschirmbreite an).
   Männchen „Herr Hausmann“ (EN „Mr Hausmann“) mit Bedürfnissen lebt seinen Tag (kochen, essen, lesen, fernsehen, basteln, duschen, schlafen; Schlafenszeit
   22:30–6:30 Uhr), Sprechblasen (Wetter, Gradzahl, Jahreszeit/Fest, Laune – keine Termine, Wunsch des Seiteninhabers). Mitmachen: Gegenstände anklicken, Essen hinstellen, Licht, Anklopfen, Brief (Antwort aus
