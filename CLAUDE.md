@@ -180,7 +180,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Extras: Computer → auf dem Bildschirm läuft eine eigene kleine Animation (Küstenstadt im Sonnenuntergang, Sportwagen;
   bewusst keine Inhalte aus echten Spielen wie GTA – urheberrechtlich geschützt); Fernrohr → echter Sternenhimmel über
   Stockhausen zur aktuellen Uhrzeit (helle Sterne mit Koordinaten, Sternbilder, Mond mit Phase, vereinfachte Bahn);
-  Plattenspieler → Rock/Walzer/Disco, das Männchen tanzt passend. Ton (Knopf, standardmäßig aus): im Browser erzeugt
+  Plattenspieler → Rock/Walzer/Disco, das Männchen tanzt passend. Ton (Knopf „🔈 Ton an“ ganz vorn in der Anzeigeleiste über dem Haus, `.haus__tonknopf`, standardmäßig aus): im Browser erzeugt
   (Web Audio, kein Dienst): Schritte, Miauen, Fauchen, Schnurren, Klingel, Klopfen, Tür, Hundebellen, Regen, Donner,
   Kaminknistern, Feuerwerk, Brutzeln, Wasser, Waschmaschine, Tastatur, Fernseher, Schnarchen, Essen, Igel, Traktor,
   Schulbus-Hupe, Bäckerglocke, Martinshorn, Piepser, Staubsauger, Brummi-Summen, eigene kleine Melodien am Plattenspieler.

@@ -28,7 +28,7 @@ const texte = de
       beschreibung: 'Herr Hausmann und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
       hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. „Heranzoomen“ folgt ihm von Raum zu Raum. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       brummi: 'Brummi rufen', foto: 'Foto machen', alarm: 'Feuerwehr-Alarm', raffer: 'Zeitraffer (1 Tag in 2 Min.)', rafferAus: 'Zeitraffer beenden',
-      ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
+      ton: '🔈 Ton an', tonAus: '🔊 Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
       keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
       kalenderTitel: 'Jahreszeit und Feste', gMitmachen: 'Mitmachen', gKatze: 'Katze Minka', gExtras: 'Extras',
       feste: [['heute', 'Heute (echt)'], ['fruehling', 'Frühling'], ['sommer', 'Sommer'], ['herbst', 'Herbst'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'Nikolaus'], ['weihnachten', 'Weihnachten'], ['silvester', 'Silvester'], ['ostern', 'Ostern'], ['halloween', 'Halloween']],
@@ -50,7 +50,7 @@ const texte = de
       beschreibung: 'Mr Hausmann and his cat Minka in their house in Stockhausen. Watch, click on objects or join in.',
       hinweis: 'Click an object and Mr Hausmann will go there. “Zoom in” follows him from room to room. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       brummi: 'Call Brummi', foto: 'Take a photo', alarm: 'Fire brigade alarm', raffer: 'Time-lapse (1 day in 2 min)', rafferAus: 'Stop time-lapse',
-      ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
+      ton: '🔈 Sound on', tonAus: '🔊 Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
       keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
       kalenderTitel: 'Season and holidays', gMitmachen: 'Join in', gKatze: 'Minka the cat', gExtras: 'Extras',
       feste: [['heute', 'Today (real)'], ['fruehling', 'Spring'], ['sommer', 'Summer'], ['herbst', 'Autumn'], ['winter', 'Winter'], ['advent', 'Advent'], ['nikolaus', 'St Nicholas'], ['weihnachten', 'Christmas'], ['silvester', "New Year's Eve"], ['ostern', 'Easter'], ['halloween', 'Halloween']],
@@ -73,6 +73,7 @@ const texte = de
     <h1>{texte.titel}</h1>
     <p class="haus__intro">{texte.beschreibung}</p>
     <div class="haus__hud">
+      <button type="button" class="haus__tonknopf" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
       <span id="haus-uhr"></span>
       <span id="haus-wetter"></span>
       <span id="haus-energie"></span>
@@ -120,7 +121,6 @@ const texte = de
           <button type="button" data-aktion="schwerkraft">{texte.schwerkraft}</button>
           <button type="button" data-aktion="disco" data-an={texte.disco} data-aus={texte.discoAus} aria-pressed="false">{texte.disco}</button>
           <button type="button" data-aktion="chaos" class="haus__verboten">{texte.chaos}</button>
-          <button type="button" data-aktion="ton" data-an={texte.ton} data-aus={texte.tonAus} aria-pressed="false">{texte.ton}</button>
         </div>
       </div>
       <div class="haus__gruppe haus__gruppe--breit">
@@ -3864,6 +3864,8 @@ const texte = de
     }
     @media (max-width: 600px) { .haus__aktionen button, .haus__brief button { font-size: .78rem; padding: .3rem .5rem; } }
     .haus__aktionen button:hover, .haus__brief button:hover { background: #6C5EB5; }
+    .haus__tonknopf { font: inherit; font-size: .85rem; line-height: 1.2; padding: .35rem .7rem; border: 2px solid #6C5EB5; background: #352879; color: #E8E8FF; cursor: pointer; white-space: nowrap; }
+    .haus__tonknopf:hover, .haus__tonknopf.an { background: #6C5EB5; }
     .haus__brief { margin-top: .75rem; display: grid; gap: .4rem; }
     .haus__brief div { display: flex; gap: 8px; }
     .haus__brief input { flex: 1; min-width: 0; font: inherit; padding: .45rem .6rem; border: 2px solid #6C5EB5; background: #101030; color: #E8E8FF; }
