@@ -138,7 +138,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   sät/erntet/pflügt werktags 8–18 Uhr bei trockenem Wetter vor Wohn- und Arbeitszimmerfenster (nicht im Winter),
   Schulbus Mo–Fr gegen 7 und 13 Uhr, Bäckerwagen samstags 8–10 Uhr (Glocke bei Ton an), Lichter in den Dorfhäusern
   gehen nach Sonnenuntergang nach und nach an und spät wieder aus (`dorfFelder`, `dorfFahrzeuge`, `hausLicht`).
-  Nachts (`nachtUpdate`, alle 70–130 s): Igel läuft über die Wiese, Minka jagt eine Motte, Herr Hausmann holt sich
+  Nachts (`nachtUpdate`, alle 70–130 s): Igel läuft im Garten neben dem Haus bis zur Hauswand und kehrt um (nicht vor dem Keller), Minka jagt eine Motte, Herr Hausmann holt sich
   verschlafen ein Glas Milch und geht zurück ins Bett, bei Vollmond (echte Mondphase) schaut er einmal aus dem
   Schlafzimmerfenster. Der Mond am Himmel zeigt die echte Phase. Nachts plaudert er nicht.
   Foto (Knopf): Blitz, „Bitte lächeln!“, speichert das Bild mit Leiste (Name, Adresse, Datum) als PNG auf dem Gerät des
@@ -156,7 +156,7 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   Sprechen: jede Sprechblase klingt als kurze Fantasiesprache (Silbentöne, Tonhöhe je Figur, `STIMME`, `ton.plappern`),
   dazu bewegt sich der Mund (`KOPF_OFFEN`, `redet()`); Kinder hoch, Heizungsbauer tief, Brummi piepsig.
   Test: `?wetter=…` wie beim Drohnenflug, `?zeit=nacht|morgen|tag|abend`, `?datum=JJJJ-MM-TT`,
-  `?besuch=post|paket|nachbar|kaffee|nachbarin|freund|pizza|klempner|feger|kamerad|wanderer|kinder|schippen` (Besuch nach 3 s).
+  `?besuch=post|paket|nachbar|kaffee|nachbarin|freund|pizza|klempner|feger|kamerad|wanderer|kinder|schippen` (Besuch nach 3 s), `?igel=links|rechts`.
 - Logo: goldener Stempel „MA“ mit „Stockhausen · Vogelsberg“ im Ring, `src/components/Logo.astro` (Startseite neben dem
   Namen). Browser-Symbol vereinfacht ohne Ringtext: `public/favicon.svg`; `favicon-32.png`, `favicon-192.png` und
   `apple-touch-icon.png` (dunkler Grund) daraus per Playwright erzeugt.

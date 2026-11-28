@@ -1253,6 +1253,8 @@ const texte = de
     let besuch = null;
     welt.naechsterBesuch = params.get('besuch') ? 3 : 50 + Math.random() * 70;
     welt.letzteGaeste = [];
+    // Test: ?igel=links|rechts – der Igel kommt nach 2 s
+    if (params.get('igel')) setTimeout(() => { const links = params.get('igel') !== 'rechts'; welt.igel = { x: links ? -8 : 328, dir: links ? 1 : -1, wand: links ? 16 : 300, zurueck: false, pause: 0 }; }, 2000);
     // Test: ?tun=baden (oder eine andere Tätigkeit) – Herr Hausmann fängt nach 2 s damit an
     if (params.get('tun')) setTimeout(() => { const t = params.get('tun'), o = t === 'baden' ? O.wanne : OBJ.find((o2) => o2.act === t); if (o) geheZu(o, t); }, 2000);
     const hundDrin = () => besuch && besuch.hund && besuch.drin;
@@ -3184,7 +3186,12 @@ const texte = de
     }
     function nachtUpdate(dt) {
       const nacht = schlafenszeit() || tageszeit() === 'nacht';
-      if (welt.igel) { welt.igel.x += welt.igel.dir * 6 * dt; if (welt.igel.x < -10 || welt.igel.x > 330) welt.igel = null; }
+      if (welt.igel) { // läuft nur im Garten neben dem Haus: bis zur Hauswand, schnuppert kurz, kehrt um
+        const ig = welt.igel;
+        if (ig.pause > 0) ig.pause -= dt; else ig.x += ig.dir * 6 * dt;
+        if (!ig.zurueck && (ig.dir > 0 ? ig.x >= ig.wand : ig.x <= ig.wand)) { ig.x = ig.wand; ig.pause = 2.5; ig.dir *= -1; ig.zurueck = true; }
+        if (ig.x < -10 || ig.x > 330) welt.igel = null;
+      }
       if (welt.motte && welt.t > welt.motte.bis) welt.motte = null;
       if (!nacht || man.alarm || besuch || welt.t < welt.naechsteNacht) return;
       welt.naechsteNacht = welt.t + 70 + Math.random() * 60;
@@ -3195,7 +3202,7 @@ const texte = de
       const was = zufall(moeglich);
       if (was === 'igel') {
         const links = Math.random() < 0.5;
-        welt.igel = { x: links ? -8 : 328, dir: links ? 1 : -1 };
+        welt.igel = { x: links ? -8 : 328, dir: links ? 1 : -1, wand: links ? 16 : 300, zurueck: false, pause: 0 };
         log(tr('Im Garten raschelt ein Igel.', 'A hedgehog rustles through the garden.'));
       } else if (was === 'motte') {
         welt.motte = { bis: welt.t + 9 };
@@ -3210,7 +3217,7 @@ const texte = de
     }
     function nachtZeichnen() {
       if (welt.igel) { // Igel mit Stacheln, Schnauze und trippelnden Füßen
-        const ix = welt.igel.x, iy = 214, d = welt.igel.dir, schritt = Math.floor(welt.t * 6) % 2, kx = ix - 0.5 * d;
+        const ix = welt.igel.x, iy = 214, d = welt.igel.dir, schritt = welt.igel.pause > 0 ? 0 : Math.floor(welt.t * 6) % 2, kx = ix - 0.5 * d;
         R(ix - 1.5 + schritt * 0.5, iy - 0.5, 0.75, 0.5, '#3A2410'); R(ix + 1 - schritt * 0.5, iy - 0.5, 0.75, 0.5, '#3A2410');
         b.fillStyle = '#5A3A1E'; b.beginPath(); b.ellipse(kx, iy - 1.6, 3, 1.8, 0, 0, Math.PI * 2); b.fill();
         b.lineWidth = 0.35; for (let i = 0; i < 11; i++) { const a = Math.PI + (i / 10) * Math.PI; b.strokeStyle = i % 2 ? '#2A1A0A' : '#7A5A3A'; b.beginPath(); b.moveTo(kx + Math.cos(a) * 1.6, iy - 1.6 + Math.sin(a) * 1); b.lineTo(kx + Math.cos(a) * 3.4, iy - 1.6 + Math.sin(a) * 2.5); b.stroke(); }
