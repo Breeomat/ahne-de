@@ -3491,7 +3491,7 @@ const texte = de
       // im Zeitraffer laufen Herr Hausmann, Minka und Besuch fünfmal so schnell (Sprechblasen bleiben lesbar)
       if (!reduziert) { update(dt * (RAFFER.an ? 5 : 1)); plaudern(); }
       if (!sternePanel.hidden && now - sterneZuletzt > 30000) { sterneZuletzt = now; sterneZeichnen(); }
-      else welt.t += dt;
+      welt.t += dt;
       bild();
       g.imageSmoothingEnabled = false;
       const an = ansicht(dt);
@@ -3541,7 +3541,7 @@ const texte = de
     .haus__panel[hidden] { display: none; }
     .haus__panel h2 { margin: 0 0 .5rem; font-size: 1.1rem; color: #E8E8FF; background: none; -webkit-text-fill-color: #E8E8FF; }
     .haus__panel h2::before, .haus__panel h2::after { display: none; }
-    .haus__panel canvas { display: block; width: min(100%, 480px); height: auto; image-rendering: pixelated; touch-action: none; }
+    .haus__panel canvas { display: block; width: min(100%, 480px); height: auto; image-rendering: pixelated; } /* kein touch-action: none – sonst lässt sich über der Sternkarte auf dem Handy nicht wischen */
     .haus__panel p { color: #A8C8D8; margin: .5rem 0 0; }
     .haus__aktionen button.an { background: #6C5EB5; }
     .haus__aktionen button[hidden] { display: none; }
