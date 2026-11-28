@@ -26,7 +26,7 @@ const texte = de
   ? {
       titel: 'Haus-Männchen',
       beschreibung: 'Herr Hausmann und seine Katze Minka in ihrem Haus in Stockhausen. Zusehen, Gegenstände anklicken oder mitmachen.',
-      hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
+      hinweis: 'Klick auf einen Gegenstand, dann geht Herr Hausmann dorthin. „Heranzoomen“ folgt ihm von Raum zu Raum. Fernrohr und Plattenspieler öffnen ein kleines Extra, am Computer läuft ein Video. Wetter, Uhrzeit, Sterne und Feiertage sind echt.',
       brummi: 'Brummi rufen', foto: 'Foto machen', alarm: 'Feuerwehr-Alarm', raffer: 'Zeitraffer (1 Tag in 2 Min.)', rafferAus: 'Zeitraffer beenden',
       ton: 'Ton an', tonAus: 'Ton aus', musikTitel: 'Plattenspieler: Was soll laufen?', walzer: 'Walzer',
       keller: 'Im Keller laufen die beiden Wärmepumpen so, wie die echten gestern um diese Uhrzeit liefen. PV-Anlage und Stromspeicher sind simuliert (aus Sonnenstand und Wetter).', kellerLink: 'Echte Wärmepumpen-Daten',
@@ -35,6 +35,7 @@ const texte = de
       besuchTitel: 'Besuch einladen',
       gaeste: [['post', 'Postbote'], ['paket', 'Paketbotin'], ['nachbar', 'Nachbar mit Hund'], ['kaffee', 'Kaffeebesuch'], ['nachbarin', 'Nachbarin mit Kuchen'], ['freund', 'Freund zum Essen'], ['pizza', 'Pizzabote'], ['klempner', 'Heizungsbauer'], ['feger', 'Schornsteinfeger'], ['kamerad', 'Feuerwehrkamerad'], ['wanderer', 'Wanderin'], ['kinder', 'Nachbarskinder']], schippen: 'Schnee schippen',
       sterneTitel: 'Blick durchs Fernrohr: Himmel über Stockhausen',
+      einkaufen: 'Einkaufen schicken', zoom: 'Heranzoomen', zoomAus: 'Ganzes Haus',
       essen: 'Essen hinstellen', licht: 'Licht an/aus', klopfen: 'Anklopfen', brief: 'Brief schreiben', zeitung: 'Dorfzeitung',
       futter: 'Katze füttern', knaeuel: 'Wollknäuel werfen',
       briefPlatz: 'Was möchtest du Herrn Hausmann schreiben?', senden: 'Einwerfen',
@@ -46,7 +47,7 @@ const texte = de
   : {
       titel: 'House figure',
       beschreibung: 'Mr Hausmann and his cat Minka in their house in Stockhausen. Watch, click on objects or join in.',
-      hinweis: 'Click an object and Mr Hausmann will go there. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
+      hinweis: 'Click an object and Mr Hausmann will go there. “Zoom in” follows him from room to room. The telescope and record player open a little extra; the computer plays a video. Weather, time, stars and holidays are real.',
       brummi: 'Call Brummi', foto: 'Take a photo', alarm: 'Fire brigade alarm', raffer: 'Time-lapse (1 day in 2 min)', rafferAus: 'Stop time-lapse',
       ton: 'Sound on', tonAus: 'Sound off', musikTitel: 'Record player: what shall we play?', walzer: 'Waltz',
       keller: 'In the cellar the two heat pumps run just as the real ones did at this time yesterday. The solar panels and battery are simulated (from sun position and weather).', kellerLink: 'Real heat pump data (German)',
@@ -55,6 +56,7 @@ const texte = de
       besuchTitel: 'Invite a visitor',
       gaeste: [['post', 'Postman'], ['paket', 'Parcel courier'], ['nachbar', 'Neighbour with dog'], ['kaffee', 'Coffee visit'], ['nachbarin', 'Neighbour with cake'], ['freund', 'Friend for dinner'], ['pizza', 'Pizza courier'], ['klempner', 'Heating engineer'], ['feger', 'Chimney sweep'], ['kamerad', 'Fellow firefighter'], ['wanderer', 'Hiker'], ['kinder', 'Neighbours’ children']], schippen: 'Shovel snow',
       sterneTitel: 'Through the telescope: the sky over Stockhausen',
+      einkaufen: 'Send shopping', zoom: 'Zoom in', zoomAus: 'Whole house',
       essen: 'Serve a meal', licht: 'Lights on/off', klopfen: 'Knock', brief: 'Write a letter', zeitung: 'Village paper',
       futter: 'Feed the cat', knaeuel: 'Throw a ball of yarn',
       briefPlatz: 'What would you like to write to Mr Hausmann?', senden: 'Post it',
@@ -87,6 +89,7 @@ const texte = de
           <button type="button" data-aktion="klopfen">{texte.klopfen}</button>
           <button type="button" data-aktion="brief">{texte.brief}</button>
           <button type="button" data-aktion="zeitung">{texte.zeitung}</button>
+          <button type="button" data-aktion="einkaufen">{texte.einkaufen}</button>
         </div>
       </div>
       <div class="haus__gruppe">
@@ -106,6 +109,7 @@ const texte = de
       <div class="haus__gruppe">
         <p class="haus__gruppentitel">{texte.gExtras}</p>
         <div class="haus__aktionen">
+          <button type="button" data-aktion="zoom" data-an={texte.zoom} data-aus={texte.zoomAus} aria-pressed="false">{texte.zoom}</button>
           <button type="button" data-aktion="alarm">{texte.alarm}</button>
           <button type="button" data-aktion="raffer" data-an={texte.raffer} data-aus={texte.rafferAus} aria-pressed="false">{texte.raffer}</button>
           <button type="button" data-aktion="brummi">{texte.brummi}</button>
@@ -436,6 +440,7 @@ const texte = de
       { id: 'wp2', n: tr('Wärmepumpe 2', 'Heat pump 2'), f: 0, x: 53, w: 15, h: 18, act: 'pruefen', sx: 61 },
       { id: 'wwspeicher', n: tr('Warmwasserspeicher', 'Hot water tank'), f: 0, x: 74, w: 11, h: 19 },
       { id: 'akku', n: tr('Stromspeicher', 'Battery'), f: 0, x: 196, w: 20, h: 16, act: 'akkupruefen', sx: 206 },
+      { id: 'fahrrad', n: tr('Fahrrad', 'Bicycle'), f: 0, x: 104, w: 18, h: 11, act: 'fahrrad', sx: 100 },
       { id: 'gefrier', n: tr('Gefriertruhe', 'Chest freezer'), f: 0, x: 172, w: 20, h: 10, act: 'eis', sx: 182 },
       { id: 'wr', n: tr('Wechselrichter', 'Inverter'), f: 0, x: 222, w: 11, h: 19 },
       { id: 'waschm', n: tr('Waschmaschine', 'Washing machine'), f: 0, x: 248, w: 14, h: 14, act: 'waesche', sx: 244 },
@@ -445,7 +450,7 @@ const texte = de
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
     // Dauer der Tätigkeiten in Sekunden (auf Wunsch doppelt so lang wie anfangs, damit weniger los ist)
-    const DAUER = { eis: 6, spieluhr: 10, gymnastik: 14, umziehen: 6, baden: 24, rasieren: 8, drucken: 8, globus: 6, backen: 20, kaffeemaschine: 6, fische: 6, sessellesen: 22, puzzle: 18, eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { tee: 6, einraeumen: 5, fahrrad: 14, eis: 6, spieluhr: 10, gymnastik: 14, umziehen: 6, baden: 24, rasieren: 8, drucken: 8, globus: 6, backen: 20, kaffeemaschine: 6, fische: 6, sessellesen: 22, puzzle: 18, eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -455,6 +460,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
+      tee: (n) => { n.fun = Math.min(100, n.fun + 5); }, einraeumen: (n) => { n.fun = Math.min(100, n.fun + 5); }, fahrrad: (n) => { n.fun = Math.min(100, n.fun + 25); },
       eis: (n) => { n.hunger = Math.min(100, n.hunger + 20); n.fun = Math.min(100, n.fun + 10); }, spieluhr: (n) => { n.fun = Math.min(100, n.fun + 20); }, gymnastik: (n) => { n.fun = Math.min(100, n.fun + 15); n.hygiene = Math.max(0, n.hygiene - 10); },
       umziehen: (n) => { n.hygiene = Math.min(100, n.hygiene + 15); }, baden: (n) => { n.hygiene = 100; n.energy = Math.min(100, n.energy + 15); }, rasieren: (n) => { n.hygiene = Math.min(100, n.hygiene + 25); },
       drucken: (n) => { n.fun = Math.min(100, n.fun + 15); }, globus: (n) => { n.fun = Math.min(100, n.fun + 15); }, backen: () => {}, kaffeemaschine: (n) => { n.energy = Math.min(100, n.energy + 20); },
@@ -471,13 +477,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', fische: 'füttert die Fische im Aquarium.', spieluhr: 'zieht die Spieluhr auf.', eis: 'holt sich ein Eis aus der Gefriertruhe.', gymnastik: 'macht Morgengymnastik.', umziehen: 'zieht ein frisches Hemd an.', baden: 'nimmt ein Schaumbad.', rasieren: 'rasiert sich.', drucken: 'druckt Fotos aus.', globus: 'dreht am Globus.', backen: 'backt einen Kuchen.', kaffeemaschine: 'macht sich einen Kaffee.', sessellesen: 'liest im Ohrensessel.', puzzle: 'puzzelt am Couchtisch.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', fische: 'füttert die Fische im Aquarium.', spieluhr: 'zieht die Spieluhr auf.', eis: 'holt sich ein Eis aus der Gefriertruhe.', tee: 'kocht sich einen Kräutertee.', einraeumen: 'räumt die Einkäufe in den Kühlschrank.', fahrrad: 'repariert sein Fahrrad.', gymnastik: 'macht Morgengymnastik.', umziehen: 'zieht ein frisches Hemd an.', baden: 'nimmt ein Schaumbad.', rasieren: 'rasiert sich.', drucken: 'druckt Fotos aus.', globus: 'dreht am Globus.', backen: 'backt einen Kuchen.', kaffeemaschine: 'macht sich einen Kaffee.', sessellesen: 'liest im Ohrensessel.', puzzle: 'puzzelt am Couchtisch.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', fische: 'feeds the fish in the aquarium.', spieluhr: 'winds up the music box.', eis: 'gets an ice cream from the freezer.', gymnastik: 'does his morning exercises.', umziehen: 'puts on a fresh shirt.', baden: 'takes a bubble bath.', rasieren: 'has a shave.', drucken: 'prints some photos.', globus: 'spins the globe.', backen: 'bakes a cake.', kaffeemaschine: 'makes himself a coffee.', sessellesen: 'reads in the armchair.', puzzle: 'does a jigsaw at the coffee table.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', fische: 'feeds the fish in the aquarium.', spieluhr: 'winds up the music box.', eis: 'gets an ice cream from the freezer.', tee: 'makes himself some herbal tea.', einraeumen: 'puts the shopping in the fridge.', fahrrad: 'fixes his bicycle.', gymnastik: 'does his morning exercises.', umziehen: 'puts on a fresh shirt.', baden: 'takes a bubble bath.', rasieren: 'has a shave.', drucken: 'prints some photos.', globus: 'spins the globe.', backen: 'bakes a cake.', kaffeemaschine: 'makes himself a coffee.', sessellesen: 'reads in the armchair.', puzzle: 'does a jigsaw at the coffee table.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -676,6 +682,7 @@ const texte = de
     function waehle() {
       const n = man.n, tz = tageszeit();
       if ((schlafenszeit() && n.energy < 70) || n.energy < 15) return O.bett;
+      if (welt.krank > 0.2) { const rr = Math.random(); if (rr < 0.3) return O.bett; if (rr < 0.55) return { o: O.herd, tun: 'tee' }; if (rr < 0.75) return O.sofa; }
       const k = Object.entries(n).sort((a, b) => a[1] - b[1])[0];
       if (k[1] < 45) {
         if (k[0] === 'hunger') { const rr = Math.random(); return rr < 0.45 ? O.herd : rr < 0.6 ? O.ofen : rr < (WETTER.temp !== null && WETTER.temp >= 20 ? 0.8 : 0.68) ? O.gefrier : O.kuehl; }
@@ -686,7 +693,7 @@ const texte = de
       if (welt.teller) return O.tisch;
       if (welt.geschirr && Math.random() < 0.45) return O.spuele;
       if (!welt.feuer && !schlafenszeit() && (tageszeit() !== 'tag' || (WETTER.temp !== null && WETTER.temp < 6)) && Math.random() < 0.25) return O.kamin;
-      if (Math.random() < 0.4) return zufall([O.schreibtisch, O.werkbank, O.regal, O.tisch, O.stereo, O.wp1, O.wp2, O.akku, O.pflanze, O.sauger, O.schrank, O.kaffeemaschine, ...(welt.waschLauf > 0 || welt.waescheLeine > 0 ? [] : [O.waschm])]);
+      if (Math.random() < 0.4) return zufall([O.schreibtisch, O.werkbank, O.regal, O.tisch, O.stereo, O.wp1, O.wp2, O.akku, O.pflanze, O.sauger, O.schrank, O.kaffeemaschine, O.fahrrad, ...(welt.waschLauf > 0 || welt.waescheLeine > 0 ? [] : [O.waschm])]);
       return null;
     }
     function geheZu(o, tun = o.act) {
@@ -707,7 +714,7 @@ const texte = de
 
     // ---------------------------------------------------------------- Bewegung
     function laufeZu(tx, dt) {
-      const v = (man.alarm ? 55 : 26) * dt;
+      const v = (man.alarm && man.alarm.art !== 'einkauf' ? 55 : 26) * dt;
       if (Math.abs(tx - man.x) <= v) man.x = tx; else { man.dir = Math.sign(tx - man.x); man.x += man.dir * v; man.laeuft = true; }
       return man.x === tx;
     }
@@ -739,6 +746,9 @@ const texte = de
         backen: [['Zeit für einen Kuchen!', 'Ich backe einen Rührkuchen.'], ['Time for a cake!', "I'm baking a sponge cake."]],
         kaffeemaschine: [['Erst mal einen Kaffee.', 'Ohne Kaffee geht nichts.'], ['Coffee first.', 'Nothing works without coffee.']] }[z.tun];
       if (zs) sag(zufall(zs[DE ? 0 : 1]), 3);
+      if (z.tun === 'tee') sag(zufall(DE ? ['Ein heißer Tee hilft.', 'Kamille mit Honig, das tut gut.'] : ['A hot tea helps.', 'Camomile with honey, just the thing.']), 3);
+      if (z.tun === 'fahrrad') sag(zufall(DE ? ['Die Kette braucht etwas Öl.', 'Der Reifen hat zu wenig Luft.'] : ['The chain needs some oil.', 'The tyre needs a bit more air.']), 3);
+      if (z.tun === 'einraeumen') welt.kuehlAuf = DAUER.einraeumen;
       if (z.tun === 'eis') sag(WETTER.temp !== null && WETTER.temp >= 22 ? tr('Bei der Hitze ein Eis!', 'An ice cream in this heat!') : tr('Ein Eis geht immer.', "There's always room for ice cream."), 3);
       if (z.tun === 'globus') welt.globusV = 4;
       if (z.tun === 'fische') { welt.flocken = 6; sag(zufall(DE ? ['Futterzeit, ihr Fische!', 'Na, ihr Hungrigen?'] : ['Feeding time, fishies!', 'Hungry, are we?']), 3); }
@@ -770,9 +780,13 @@ const texte = de
       man.tut = null; man.taetigkeit = null;
       if (t === 'kochen') { welt.teller = true; geheZu(O.tisch, 'essen'); return; }
       if ((t === 'milch' || t === 'vollmond') && schlafenszeit()) { geheZu(O.bett); return; } // zurück ins Bett
+      if (t === 'essen' && welt.gericht === 'suppe') { welt.krank = Math.max(0, (welt.krank || 0) - 0.4); sag(tr('Eine warme Suppe – genau das Richtige!', 'A warm soup – just what I needed!'), 4); }
       if (t === 'essen') { welt.teller = false; welt.gericht = null; welt.geschirr = true; }
       if (t === 'abwaschen') welt.geschirr = false;
       if (t === 'eisenbahn') welt.zugNachlauf = 10;
+      if (t === 'tee') { welt.krank = Math.max(0, (welt.krank || 0) - 0.12); sag(tr('Ah, der Tee tut gut.', 'Ah, that tea is lovely.'), 3); }
+      if (t === 'fahrrad') sag(tr('Läuft wieder wie geschmiert!', 'Runs like clockwork again!'), 3);
+      if (t === 'einraeumen') { man.tueten = false; man.n.hunger = Math.min(100, man.n.hunger + 10); sag(tr('So, alles verstaut.', 'There, all put away.'), 3); }
       if (t === 'backen') { welt.teller = true; welt.gericht = 'kuchen'; if (ton.an()) ton.ding(); sag(tr('Der Kuchen ist fertig!', 'The cake is ready!'), 3); geheZu(O.tisch, 'essen'); return; }
       if (t === 'umziehen') { welt.hemd = ((welt.hemd || 0) + 1) % HEMDEN.length; sag(tr('So, frisches Hemd!', 'There, a fresh shirt!'), 3); }
       if (t === 'drucken') { welt.fotos = (welt.fotos ?? 2) >= 6 ? 3 : (welt.fotos ?? 2) + 1; sag(tr('Das kommt an die Pinnwand.', 'That goes on the pinboard.'), 3); }
@@ -812,6 +826,11 @@ const texte = de
       welt.fische = welt.fische || [{ x: 2, y: 3, dir: 1, c: '#FF8A2A', v: 1.2 }, { x: 5, y: 4.5, dir: -1, c: '#E8D040', v: 0.9 }, { x: 4, y: 2.5, dir: 1, c: '#4AA8FF', v: 1.5 }];
       if (welt.flocken > 0) welt.flocken -= dt;
       if (welt.wecker > 0) welt.wecker -= dt;
+      if (welt.krank > 0) { // Erkältung klingt langsam ab (im Bett schneller), dazwischen Niesen
+        welt.krank -= dt * 0.0012 * (man.taetigkeit === 'schlafen' ? 2 : 1);
+        if (welt.krank <= 0) { welt.krank = 0; log(tr('Herr Hausmann ist wieder gesund.', 'Mr Hausmann is well again.')); if (!man.alarm && man.taetigkeit !== 'schlafen') sag(tr('Endlich wieder gesund!', 'Finally feeling better!'), 4); }
+        else if (!man.alarm && man.taetigkeit !== 'schlafen' && alle('niesen', 40, dt)) { sag(zufall(DE ? ['Hatschi!', 'Hatschi! Hatschi!', 'Hatschi! … Oh je.'] : ['Atchoo!', 'Atchoo! Atchoo!', 'Atchoo! … Oh dear.']), 2); ton.niesen(); }
+      }
       welt.globusDreh = (welt.globusDreh || 0) + (welt.globusV || 0.15) * dt; if (welt.globusV > 0.15) welt.globusV = Math.max(0.15, welt.globusV - dt * 0.6);
       welt.fische.forEach((fi) => { fi.x += fi.dir * fi.v * dt; if (fi.x < 1.2 || fi.x > 6.8) { fi.dir *= -1; fi.x = Math.max(1.2, Math.min(6.8, fi.x)); } const zielY = welt.flocken > 0 ? 1.8 : 2.5 + (fi.v * 7 % 3); fi.y += (zielY - fi.y) * dt * 1.5; });
       // Modelleisenbahn: fährt beim Spielen, läuft danach noch kurz nach
@@ -844,7 +863,7 @@ const texte = de
         man.x = k.x0 + (k.x1 - k.x0) * k.p; man.y = k.y0 + (k.y1 - k.y0) * k.p;
         man.laeuft = true; man.schritt += dt * 7;
         if (k.p >= 1) { man.f = k.nach; man.y = FOOT[man.f]; man.klettern = null; }
-        if (man.alarm) { k.p = Math.min(1, k.p + dt * 0.9); } // im Einsatz doppelt so schnell die Treppe
+        if (man.alarm && man.alarm.art !== 'einkauf') { k.p = Math.min(1, k.p + dt * 0.9); } // im Einsatz doppelt so schnell die Treppe
         return;
       }
       if (man.tut && man.taetigkeit === 'saugen') { man.x = man.saugBasis + Math.sin(welt.t * 1.6) * 14; man.dir = Math.cos(welt.t * 1.6) >= 0 ? 1 : -1; man.schritt += dt * 6; if (ton.an() && Math.random() < dt * 4) ton.sauger(); }
@@ -860,7 +879,8 @@ const texte = de
         if (welt.dunkelSeit > 5) { welt.licht = true; welt.dunkelSeit = 0; sag(tr('So, wieder Licht.', 'There, lights back on.')); }
       } else welt.dunkelSeit = 0;
       if (man.warte > 0) { man.warte -= dt; return; }
-      if (!man.ziel && !RAFFER.an && !schlafenszeit()) { const h = stunde(); if (h >= 7 && h < 9.5 && welt.sportTag !== MD) { welt.sportTag = MD; geheZu(O.hanteln); } else if (h >= 7 && h < 10.5 && welt.rasurTag !== MD) { welt.rasurTag = MD; geheZu(O.spiegel); } }
+      if (!man.ziel && !man.alarm && !RAFFER.an && !besuch && welt.einkaufTag !== MD && wochentag() !== 0 && stunde() >= 9 && stunde() < 17 && !(welt.krank > 0.3) && man.taetigkeit !== 'schlafen' && Math.random() < dt * 0.004) einkaufStarten(false);
+      if (!man.ziel && !RAFFER.an && !schlafenszeit() && !(welt.krank > 0.2)) { const h = stunde(); if (h >= 7 && h < 9.5 && welt.sportTag !== MD) { welt.sportTag = MD; geheZu(O.hanteln); } else if (h >= 7 && h < 10.5 && welt.rasurTag !== MD) { welt.rasurTag = MD; geheZu(O.spiegel); } }
       if (!man.ziel && !RAFFER.an) { const h = stunde(); if (h >= 21.6 && h < 22.5 && welt.zaehneTag !== MD) { welt.zaehneTag = MD; geheZu(O.waschbecken, 'zaehne'); } }
       if (!man.ziel && katze.tun === 'warten' && welt.napf <= 0) man.ziel = { f: NAPF.f, x: NAPF.x + 7, o: null, tun: 'fuettern' };
       if (!man.ziel && Math.random() < 0.12 && !katze.klettern && !katze.sprung && katze.hoch <= 9 && !welt.knaeuel)
@@ -1033,6 +1053,7 @@ const texte = de
       const t = man.taetigkeit, n = man.n;
       if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast', 'eisenbahn', 'truhe', 'pferd', 'fische', 'puzzle', 'eis', 'spieluhr', 'globus', 'kaffeemaschine', 'backen', 'drucken', 'gymnastik'].includes(t)) return 'froh';
       if (t === 'sessellesen' && man.zeit < 9) return 'zu'; // nickt im Sessel ein
+      if (welt.krank > 0.3) return 'muede';
       if (n.energy < 30) return 'muede';
       if (n.hunger < 30) return 'hungrig';
       if (n.fun < 25) return 'traurig';
@@ -1185,14 +1206,21 @@ const texte = de
       else if (tanzt) { hopp = Math.floor(welt.t * 4) % 2; dir = Math.floor(welt.t * 2) % 2 ? 1 : -1; arme = hopp === 1; dx = Math.floor(welt.t * 2) % 2 ? 1.5 : -1.5; }
       if (t === 'gymnastik' && !man.laeuft) { arme = Math.floor(welt.t * 2.5) % 2 === 0; hopp = arme ? 1 : 0; } // Hampelmann
       const geht = man.laeuft || schrittBein, schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      const haende = ['eis', 'backen', 'kaffeemaschine', 'drucken', 'globus', 'umziehen', 'spieluhr', 'sessellesen', 'puzzle', 'fische', 'lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
+      const haende = ['tee', 'fahrrad', 'einraeumen', 'eis', 'backen', 'kaffeemaschine', 'drucken', 'globus', 'umziehen', 'spieluhr', 'sessellesen', 'puzzle', 'fische', 'lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
       figur(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, { pose: sitzt ? 'sitz' : geht ? 'geh' : 'steh', schritt: Math.floor(man.schritt) % 2, arme: haende, mimik: mannMimik(), f: farben });
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
+      if (welt.krank > 0.15) { // rote Nase und Schal
+        const kb = fy - (sitzt ? 3 : 0) - hopp, kxx = x + schaukel + dx;
+        R(dir > 0 ? kxx + 2.25 : kxx - 2.75, kb - 15.5, 0.5, 1, '#E8504A');
+        R(kxx - 2.25, kb - 12.75, 4.5, 1, '#3A6AC8'); R(kxx - 2.25, kb - 12.75, 4.5, 0.25, '#5A8AE8'); R(dir > 0 ? kxx - 2.5 : kxx + 1.5, kb - 12, 1, 2.75, '#3A6AC8'); R(dir > 0 ? kxx - 2.5 : kxx + 1.5, kb - 9.5, 1, 0.25, '#E8E8F0');
+      }
       // Gegenstände in der Hand
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
       if (t === 'sessellesen' && man.zeit < 9) zText.push({ t: 'z', x: x - 2 - ((welt.t * 0.4) % 1) * 4, y: fy - 22 - ((welt.t * 0.4) % 1) * 8, a: 1 - ((welt.t * 0.4) % 1), gross: 6 });
       if (t === 'lesen' || t === 'zeitung' || t === 'lesebrief' || t === 'sessellesen') R(hx, hy - 3, 4, 5, t === 'lesen' ? C.blau : C.weiss);
       if (t === 'naschen') R(hx, hy - 1, 3, 3, C.orange);
+      if (man.tueten) { R(hx - 0.5, hy - 0.5, 2.75, 3.25, '#C8A878'); R(hx - 0.5, hy - 0.5, 2.75, 0.25, '#A88858'); R(hx - 0.25, hy - 1.25, 0.25, 0.75, '#8A6A4A'); R(hx + 1.75, hy - 1.25, 0.25, 0.75, '#8A6A4A'); R(hx + 0.25, hy - 1.5, 0.75, 1, '#5AAA4A'); R(hx + 1.25, hy - 1, 0.75, 0.5, '#E8C040'); }
+      if (t === 'tee' && man.zeit < 2.5) { R(hx, hy - 1.5, 2, 1.5, '#F8F0E0'); R(hx + 0.25, hy - 1.5, 1.5, 0.25, '#C8902A'); }
       if (t === 'eis' && man.zeit < 3) { poly([[hx, hy - 1], [hx + 1.5, hy - 1], [hx + 0.75, hy + 1.5]], '#D8A050'); b.fillStyle = '#F8A8C0'; b.beginPath(); b.arc(hx + 0.75, hy - 1.5, 1, 0, Math.PI * 2); b.fill(); R(hx + 0.25, hy - 2.25, 0.5, 0.25, '#FFFFFF'); }
       if (t === 'rasieren' && !man.laeuft) { const fx = dir > 0 ? x + 0.25 : x - 2.75, ky = halb(fy) - 15; R(fx, ky, 2.5, 2, '#F8F8F8'); R(fx + 0.5, ky + 2, 1.5, 0.5, '#F8F8F8'); R(fx + (dir > 0 ? 2.25 : -0.25), ky + 0.25 + (Math.floor(welt.t * 3) % 2) * 0.5, 0.75, 1.75, '#3A7AE8'); }
       if (t === 'kaffeemaschine' && man.zeit < 2) { R(hx, hy - 1.5, 2, 1.5, C.weiss); R(hx + 0.25, hy - 1.5, 1.5, 0.25, '#6A3A1A'); }
@@ -1253,10 +1281,12 @@ const texte = de
     let besuch = null;
     welt.naechsterBesuch = params.get('besuch') ? 3 : 50 + Math.random() * 70;
     welt.letzteGaeste = [];
+    // Erkältung: an manchen kalten Tagen (Winter oder unter 4 °C) ist Herr Hausmann erkältet; Test: ?krank=1
+    { const kalt = JAHRESZEIT === 'winter' || (WETTER.temp !== null && WETTER.temp < 4), zahl = ((JAHR * 372 + MON * 31 + TAG) * 7919) % 97; welt.krank = params.get('krank') ? 1 : kalt && zahl % 5 === 0 ? 0.8 : 0; }
     // Test: ?igel=links|rechts – der Igel kommt nach 2 s
     if (params.get('igel')) setTimeout(() => { const links = params.get('igel') !== 'rechts'; welt.igel = { x: links ? -8 : 328, dir: links ? 1 : -1, wand: links ? 16 : 300, zurueck: false, pause: 0 }; }, 2000);
     // Test: ?tun=baden (oder eine andere Tätigkeit) – Herr Hausmann fängt nach 2 s damit an
-    if (params.get('tun')) setTimeout(() => { const t = params.get('tun'), o = t === 'baden' ? O.wanne : OBJ.find((o2) => o2.act === t); if (o) geheZu(o, t); }, 2000);
+    if (params.get('tun')) setTimeout(() => { const t = params.get('tun'), o = t === 'baden' ? O.wanne : OBJ.find((o2) => o2.act === t); if (t === 'einkaufen') einkaufStarten(true); else if (o) geheZu(o, t); }, 2000);
     const hundDrin = () => besuch && besuch.hund && besuch.drin;
     const WEG_RAUS = [[34, 208], [24, 208], [17, 214], [-25, 214]];
     function gastWaehlen() {
@@ -1632,6 +1662,17 @@ const texte = de
           for (const rx of [3.5, 19]) { b.fillStyle = '#1A1A1A'; b.beginPath(); b.arc(fx + rx, fy2 - 0.5, 1.4, 0, Math.PI * 2); b.fill(); b.fillStyle = '#A8A8B0'; b.beginPath(); b.arc(fx + rx, fy2 - 0.5, 0.6, 0, Math.PI * 2); b.fill(); }
           R(fx + 18, fy2 - 7.25, 1.5, 0.75, blink ? '#4A7AFF' : '#1A2A6A'); R(fx + 21.5, fy2 - 7.25, 1.5, 0.75, blink ? '#1A2A6A' : '#4A7AFF');
           if (blink) { b.fillStyle = 'rgba(80,120,255,0.25)'; b.beginPath(); b.arc(fx + 20, fy2 - 6.5, 8, 0, Math.PI * 2); b.fill(); }
+        }
+      }
+      if (welt.auto) { // Herr Hausmanns Auto auf der Dorfstraße (Einkaufsfahrt)
+        const p = (welt.t - welt.auto.t0) / 14, v = welt.auto.dir > 0;
+        if (p >= 0 && p <= 1) {
+          const x1 = v ? -16 + p * 352 : 336 - p * 352, ay = 158;
+          R(x1, ay - 3.75, 12, 2.75, '#3A6AB8'); R(x1, ay - 3.75, 12, 0.4, '#5A8AD8');
+          poly(v ? [[x1 + 1.5, ay - 3.75], [x1 + 3, ay - 6.5], [x1 + 7.5, ay - 6.5], [x1 + 10, ay - 3.75]] : [[x1 + 2, ay - 3.75], [x1 + 4.5, ay - 6.5], [x1 + 9, ay - 6.5], [x1 + 10.5, ay - 3.75]], '#3A6AB8');
+          R(x1 + (v ? 3.5 : 5), ay - 6, 1.75, 2, '#9AD8F0'); R(x1 + (v ? 5.75 : 7.25), ay - 6, 1.75, 2, '#9AD8F0'); R(x1 + (v ? 6 : 5.25), ay - 5.5, 0.75, 0.75, '#E8B890');
+          R(v ? x1 + 11.5 : x1, ay - 3, 0.5, 0.75, nachts ? '#FFF4C0' : '#F8F0D0'); R(v ? x1 : x1 + 11.5, ay - 3, 0.5, 0.75, '#C83A3A'); R(x1, ay - 1.5, 12, 0.4, '#2A2A30');
+          for (const rx of [2.75, 9.25]) { b.fillStyle = '#1A1A1A'; b.beginPath(); b.arc(x1 + rx, ay - 0.6, 1.1, 0, Math.PI * 2); b.fill(); b.fillStyle = '#A8A8B0'; b.beginPath(); b.arc(x1 + rx, ay - 0.6, 0.45, 0, Math.PI * 2); b.fill(); }
         }
       }
       dorfFahrzeuge();
@@ -2124,6 +2165,7 @@ const texte = de
           for (let i = 0; i < dw - 0.5; i += 2.5) for (let j = 0; j < dh - 1; j += 2) R(x + dx + 0.25 + i, dy + 0.25 + j, Math.min(2.25, dw - 0.5 - i), Math.min(1.75, dh - 0.75 - j), flicken[(Math.floor(i / 2.5) + Math.floor(j / 2)) % 4]);
           for (let i = 0; i < dw; i += 2.5) R(x + dx + i, dy, 0.25, dh, 'rgba(255,255,255,0.3)');
           R(x + dx, dy + dh - 0.5, dw, 0.5, '#2A3488'); R(x + dx, dy, 1.25, dh, '#F0F0F8'); // Umschlag
+          if (schlaeft && welt.krank > 0.15) { R(x + 24, dy + 0.5, 4, 2.25, '#E84A4A'); R(x + 24, dy + 0.5, 4, 0.25, '#F87A6A'); R(x + 28, dy + 1, 0.75, 1, '#C83A3A'); } // Wärmflasche
           if (schlaeft) for (let i = 0; i < 3; i++) { const t = (welt.t * 0.4 + i / 3) % 1; zText.push({ t: 'z', x: x + 12 + t * 10, y: y - 4 - t * 16, a: 1 - t, gross: 8 + t * 6 }); }
           break;
         }
@@ -2318,7 +2360,7 @@ const texte = de
         case 'herd': { // Herd mit Kochfeld, Bedienleiste und Backofen (beim Backen geht der Kuchen auf)
           const backt = an === 'backen';
           K(x, y + 2, w, 14, '#F0F0F4', '#FFFFFF', '#A8A8B4'); R(x - 0.25, y + 1.5, w + 0.5, 1, '#1A1A20');
-          for (let i = 0; i < 2; i++) R(x + 1.5 + i * 6.5, y + 1.75, 4, 0.5, an === 'kochen' && i === 0 ? '#E84A2A' : '#3A3A42');
+          for (let i = 0; i < 2; i++) R(x + 1.5 + i * 6.5, y + 1.75, 4, 0.5, (an === 'kochen' || an === 'tee') && i === 0 ? '#E84A2A' : '#3A3A42');
           R(x + 0.5, y + 2.75, w - 1, 1.75, '#D8D8E0'); for (let i = 0; i < 4; i++) { R(x + 1.25 + i * 1.5 + (i > 1 ? 4 : 0), y + 3.25, 1, 1, '#3A3A42'); R(x + 1.5 + i * 1.5 + (i > 1 ? 4 : 0), y + 3.25, 0.5, 0.25, '#8A8A92'); }
           R(x + w / 2 - 1.25, y + 3.25, 2.5, 1, '#101014'); R(x + w / 2 - 1, y + 3.5, 2, 0.5, backt || an === 'kochen' ? '#5AE86A' : '#3A6A3A');
           K(x + 1, y + 5, w - 2, 9.5, '#2A2A30', '#4A4A52', '#1A1A20'); R(x + 1.5, y + 5.5, w - 3, 0.5, METALL[1]);
@@ -2332,6 +2374,9 @@ const texte = de
           if (an === 'kochen') {
             K(x + 1, y - 1.5, 7, 3, METALL[0], METALL[1], METALL[2]); R(x + 0.25, y - 1, 0.75, 0.5, METALL[2]); R(x + 8, y - 1, 0.75, 0.5, METALL[2]); R(x + 1.5, y - 2, 6, 0.5, METALL[1]); R(x + 4.25, y - 2.5, 0.5, 0.5, '#2A2A30');
             for (let i = 0; i < 5; i++) { const t = (welt.t * 0.8 + i / 5) % 1; Q(x + 2 + i * 1.2 + Math.sin(t * 9) * 1.5, y - 3 - t * 12, `rgba(255,255,255,${1 - t})`); }
+          } else if (an === 'tee') { // Wasserkessel
+            R(x + 1.5, y - 1.5, 4.5, 3, '#C83A3A'); R(x + 1.75, y - 1.5, 4, 0.5, '#E85A5A'); poly([[x + 6, y], [x + 7.5, y - 1.5], [x + 7.75, y - 1], [x + 6, y + 0.75]], '#C83A3A'); R(x + 2.5, y - 2.5, 2.5, 0.5, '#2A2A30'); R(x + 2.5, y - 2.5, 0.4, 1, '#2A2A30'); R(x + 4.6, y - 2.5, 0.4, 1, '#2A2A30');
+            if (man.zeit < 4) for (let i = 0; i < 4; i++) { const t2 = (welt.t * 0.9 + i / 4) % 1; Q(x + 7.75 + Math.sin(t2 * 8) * 0.8 + t2 * 2, y - 2 - t2 * 8, `rgba(255,255,255,${0.9 - t2 * 0.9})`); }
           } else { R(x + 7.5, y + 0.5, 5, 1, '#3A3A42'); R(x + 12.5, y + 0.75, 2.5, 0.5, '#5A3A1A'); } // Pfanne
           break;
         }
@@ -2373,6 +2418,7 @@ const texte = de
             R(x + 3, y + 0.5, 9, 0.5, '#B8B8C0'); R(x + 3.5, y, 8, 0.5, C.weiss);
             const leer = an === 'essen' && man.zeit < 2;
             if (!leer && welt.gericht === 'pizza') { b.fillStyle = '#E8B050'; b.beginPath(); b.ellipse(x + 7.5, y - 1, 4, 1.3, 0, 0, Math.PI * 2); b.fill(); [[6, -1.2], [8.5, -0.8], [7.5, -1.6]].forEach(([dx, dy2]) => Q(x + dx, y + dy2, '#C83A2A')); Q(x + 9.5, y - 1.3, '#5AAA4A'); }
+            else if (!leer && welt.gericht === 'suppe') { b.fillStyle = '#E8E0D0'; b.beginPath(); b.ellipse(x + 7.5, y - 0.75, 3.5, 1.25, 0, 0, Math.PI); b.fill(); R(x + 4.25, y - 1.25, 6.5, 0.5, '#E8A040'); R(x + 5.5, y - 1.25, 0.75, 0.25, '#7ACA6A'); R(x + 8, y - 1.25, 0.75, 0.25, '#E86A3A'); for (let i = 0; i < 3; i++) { const t2 = (welt.t * 0.7 + i / 3) % 1; Q(x + 5.5 + i * 2, y - 2.5 - t2 * 6, `rgba(255,255,255,${0.8 - t2 * 0.8})`); } }
             else if (!leer && welt.gericht === 'kuchen') { poly([[x + 5, y - 0.5], [x + 10, y - 0.5], [x + 10, y - 3]], '#D8A050'); R(x + 5, y - 1.2, 5, 0.5, '#F0D8A0'); R(x + 9.5, y - 3, 0.5, 2.5, '#A86A2A'); }
             else if (!leer) { R(x + 5, y - 1.5, 5, 1.5, C.orange); Q(x + 6, y - 2, '#7ACA6A'); Q(x + 8, y - 2, '#C84A3A'); for (let i = 0; i < 2; i++) { const t = (welt.t * 0.7 + i / 2) % 1; Q(x + 6 + i * 2, y - 3 - t * 6, `rgba(255,255,255,${0.8 - t * 0.8})`); } }
             R(x + 12.5, y - 1, 0.5, 2, METALL[1]); // Gabel
@@ -2455,6 +2501,16 @@ const texte = de
           b.strokeStyle = 'rgba(255,255,255,0.7)'; b.lineWidth = 0.3; b.beginPath(); b.arc(x + w / 2, y + 8.5, 2.4, 3.6, 4.6); b.stroke();
           R(x + w / 2 - 4.75, y + 7.5, 0.5, 2, '#A8A8B0'); R(x + 1, y + h - 0.5, 1.5, 0.5, '#5A5A62'); R(x + w - 2.5, y + h - 0.5, 1.5, 0.5, '#5A5A62');
           break;
+        case 'fahrrad': { // Fahrrad im Keller: beim Reparieren dreht sich das Hinterrad, Werkzeug liegt daneben
+          const rep = an === 'fahrrad', r0 = 3.6, h1 = x + 4, h2 = x + 14, ry = fuss - r0 - 0.25;
+          [h1, h2].forEach((hx, i) => { b.strokeStyle = '#1A1A1A'; b.lineWidth = 0.7; b.beginPath(); b.arc(hx, ry, r0, 0, Math.PI * 2); b.stroke(); b.strokeStyle = '#A8A8B0'; b.lineWidth = 0.15; const dr = rep && i === 0 ? welt.t * 6 : 0.4; for (let k = 0; k < 8; k++) { const wk = dr + k * Math.PI / 4; b.beginPath(); b.moveTo(hx, ry); b.lineTo(hx + Math.cos(wk) * (r0 - 0.4), ry + Math.sin(wk) * (r0 - 0.4)); b.stroke(); } R(hx - 0.4, ry - 0.4, 0.8, 0.8, '#5A5A62'); });
+          b.strokeStyle = '#5A5A62'; b.lineWidth = 0.2; b.beginPath(); b.moveTo(h1, ry - 0.3); b.lineTo(x + 8.5, ry - 0.8); b.moveTo(h1, ry + 0.3); b.lineTo(x + 8.5, ry + 0.8); b.stroke(); // Kette
+          b.strokeStyle = '#C83A3A'; b.lineWidth = 0.6; b.beginPath(); b.moveTo(h1, ry); b.lineTo(x + 8.5, ry); b.lineTo(x + 6.5, ry - 5); b.lineTo(h1, ry); b.moveTo(x + 8.5, ry); b.lineTo(x + 12.5, ry - 5); b.lineTo(x + 6.5, ry - 5); b.moveTo(x + 12.5, ry - 5); b.lineTo(h2, ry); b.stroke();
+          R(x + 6.25, ry - 6.5, 0.5, 1.5, '#3A3A42'); R(x + 5, ry - 7, 3, 0.75, '#2A2A30'); R(x + 12.5, ry - 7, 0.5, 2, '#3A3A42'); R(x + 11.75, ry - 7.25, 2.5, 0.5, '#2A2A30');
+          b.fillStyle = '#8A8A92'; b.beginPath(); b.arc(x + 8.5, ry, 1, 0, Math.PI * 2); b.fill(); R(x + 8.25, ry + 0.75, 1.25, 0.4, '#2A2A30');
+          if (rep) { K(x + 17, fuss - 2, 4, 2, '#C83A2A', '#E85A4A', '#8A2018'); R(x + 16, fuss - 0.5, 2, 0.3, METALL[1]); R(x - 2.5, fuss - 2, 1.5, 2, '#3A8A3A'); R(x - 1, fuss - 2, 1, 0.3, '#3A8A3A'); }
+          break;
+        }
         case 'gefrier': { // Gefriertruhe: beim Eisholen geht der Deckel auf, kalter Dampf steigt
           const auf = an === 'eis' && man.zeit > 2;
           if (auf) {
@@ -2736,18 +2792,19 @@ const texte = de
       g.textBaseline = 'top';
       // Schriftgröße an die angezeigte Breite anpassen (auf dem Handy wird die Leinwand stark verkleinert)
       const k = Math.max(0.2, cv.clientWidth / cv.width), lp = Math.round(Math.max(17, 6.5 / k)), bp = Math.round(Math.max(22, 13 / k));
+      const sx = (x) => (x - ANS.x) * ANS.s * S, sy = (y) => (y - ANS.y) * ANS.s * S; // Spielkoordinaten → Leinwand (mit Zoom)
       g.font = `bold ${lp}px ui-monospace, Menlo, Consolas, monospace`;
       ROOMS.forEach((r) => {
         if (!r.n) return;
-        const x = (r.f === 3 ? 196 : r.id === 'keller' ? 96 : r.x1 + 3) * S, y = (r.f === 3 ? 60 : TOP[r.f] + 2) * S;
+        const x = sx(r.f === 3 ? 196 : r.id === 'keller' ? 96 : r.x1 + 3), y = sy(r.f === 3 ? 60 : TOP[r.f] + 2);
         g.fillStyle = 'rgba(0,0,0,0.45)'; g.fillText(r.n.toUpperCase(), x + 1, y + 1);
         g.fillStyle = 'rgba(240,240,220,0.85)'; g.fillText(r.n.toUpperCase(), x, y);
       });
-      zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, z.x * S, z.y * S); });
-      if (blase && spielzeit < blase.bis) sprechblase(blase.text, man.x * S, (man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)) * S, bp);
-      if (besuch && besuch.blase && spielzeit < besuch.blase.bis) sprechblase(besuch.blase.text, besuch.x * S, (besuch.y - (besuch.phase === 'drin' && besuch.g.drin === 'tisch' ? 20 : besuch.g.klein ? 17 : 24)) * S, bp);
-      if (welt.brummi && welt.brummi.blase && spielzeit < welt.brummi.blase.bis) sprechblase(welt.brummi.blase.text, welt.brummi.x * S, (welt.brummi.y - 6) * S, Math.round(bp * 0.85));
-      if (katze.blase && spielzeit < katze.blase.bis) sprechblase(katze.blase.text, katze.x * S, (katze.y - katze.hoch - 10) * S, Math.round(bp * 0.85));
+      zText.forEach((z) => { g.font = `bold ${Math.round(z.gross * 1.6)}px ui-monospace, monospace`; g.fillStyle = `rgba(240,240,255,${z.a})`; g.fillText(z.t, sx(z.x), sy(z.y)); });
+      if (blase && spielzeit < blase.bis) sprechblase(blase.text, sx(man.x), sy(man.y - (man.taetigkeit === 'schlafen' ? 18 : 24)), bp);
+      if (besuch && besuch.blase && spielzeit < besuch.blase.bis) sprechblase(besuch.blase.text, sx(besuch.x), sy(besuch.y - (besuch.phase === 'drin' && besuch.g.drin === 'tisch' ? 20 : besuch.g.klein ? 17 : 24)), bp);
+      if (welt.brummi && welt.brummi.blase && spielzeit < welt.brummi.blase.bis) sprechblase(welt.brummi.blase.text, sx(welt.brummi.x), sy(welt.brummi.y - 6), Math.round(bp * 0.85));
+      if (katze.blase && spielzeit < katze.blase.bis) sprechblase(katze.blase.text, sx(katze.x), sy(katze.y - katze.hoch - 10), Math.round(bp * 0.85));
     }
     function sprechblase(text, kx, ky, bp) {
       g.font = `600 ${bp}px system-ui, sans-serif`;
@@ -2783,7 +2840,7 @@ const texte = de
     }
     cv.addEventListener('click', (ev) => {
       const r = cv.getBoundingClientRect();
-      const sx = ((ev.clientX - r.left) / r.width) * W, sy = ((ev.clientY - r.top) / r.height) * H;
+      const sx = ANS.x + ((ev.clientX - r.left) / r.width) * W / ANS.s, sy = ANS.y + ((ev.clientY - r.top) / r.height) * H / ANS.s; // mit Zoom umgerechnet
       const ky = katze.y - katze.hoch;
       if (Math.abs(sx - katze.x) < 9 && sy > ky - 11 && sy < ky + 2) {
         kSag(katze.tun === 'schlafen' ? KSATZ.schnurr : zufall([KSATZ.miau, KSATZ.schnurr])); herz(katze.x, ky - 8); herz(katze.x + 2, ky - 6);
@@ -2801,8 +2858,12 @@ const texte = de
     const briefForm = document.getElementById('haus-brief'), zeitung = document.getElementById('haus-zeitung');
     document.querySelectorAll('[data-aktion]').forEach((k) => k.addEventListener('click', () => {
       const a = k.dataset.aktion;
-      if (a === 'essen') {
-        welt.teller = true; welt.gast = true; log(tr('Du stellst ein Essen auf den Tisch.', 'You put a meal on the table.'));
+      if (a === 'einkaufen') einkaufStarten(true);
+      else if (a === 'zoom') { ZOOM.an = !ZOOM.an; k.textContent = ZOOM.an ? k.dataset.aus : k.dataset.an; k.setAttribute('aria-pressed', String(ZOOM.an)); log(ZOOM.an ? tr('Die Kamera folgt Herrn Hausmann.', 'The camera follows Mr Hausmann.') : tr('Wieder das ganze Haus.', 'Back to the whole house.')); }
+      else if (a === 'essen') {
+        welt.teller = true; welt.gast = true;
+        if (welt.krank > 0.15) { welt.gericht = 'suppe'; log(tr('Du stellst eine warme Suppe auf den Tisch.', 'You put a warm soup on the table.')); }
+        else log(tr('Du stellst ein Essen auf den Tisch.', 'You put a meal on the table.'));
         aufwecken(tr('Riecht das nach Essen?', 'Do I smell food?')); geheZu(O.tisch, 'essen');
       } else if (a === 'licht') {
         welt.licht = !welt.licht; log(welt.licht ? tr('Du machst das Licht an.', 'You turn the light on.') : tr('Du machst das Licht aus.', 'You turn the light off.'));
@@ -2856,7 +2917,7 @@ const texte = de
       if (welt.t < naechstesPlaudern) return;
       naechstesPlaudern = welt.t + 50 + Math.random() * 40;
       if (man.alarm || schlafenszeit() || man.taetigkeit === 'schlafen' || (blase && spielzeit < blase.bis) || (besuch && ['wartet', 'tuer', 'rein', 'drin'].includes(besuch.phase))) return;
-      const t = neu(plauderSatz); if (t) sag(t);
+      const t = welt.krank > 0.15 && Math.random() < 0.6 ? zufall(DE ? ['Mir geht es nicht so gut.', 'Ich bleibe heute lieber drinnen.', 'Ein Tee wäre jetzt schön.', 'Meine Nase läuft und läuft …'] : ["I'm not feeling too good.", "I'd better stay in today.", 'A cup of tea would be nice.', 'My nose just keeps running …']) : neu(plauderSatz); if (t) sag(t);
     }
 
     // ---------------------------------------------------------------- Geräusche (im Browser erzeugt, standardmäßig aus)
@@ -2924,6 +2985,7 @@ const texte = de
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
         blubb: () => { piep(420, 0.08, 'sine', 0.02, 0, 700); piep(520, 0.06, 'sine', 0.015, 0.12, 820); },
         tick: () => rauschen(0.015, 0.05, 3000, 0, 'highpass'),
+        niesen: () => { piep(520, 0.12, 'triangle', 0.03, 0, 760); rauschen(0.28, 0.09, 2400, 0.14, 'highpass'); },
         spieluhr: () => [1047, 1319, 1568, 1319, 1175, 1397, 1760, 1397].forEach((n, i) => piep(n, 0.28, 'triangle', 0.03, i * 0.3)),
         drucker: () => { rauschen(0.5, 0.03, 900, 0, 'bandpass'); piep(220, 0.4, 'sawtooth', 0.01, 0.05); },
         wecker: () => { for (let i = 0; i < 8; i++) piep(1800, 0.05, 'square', 0.025, i * 0.09); },
@@ -3101,6 +3163,8 @@ const texte = de
 
     // ---------------------------------------------------------------- Feuerwehr-Alarm
     function alarmStarten() {
+      if (man.alarm && man.alarm.art === 'einkauf') { log(tr('Herr Hausmann ist gerade einkaufen.', 'Mr Hausmann is out shopping.')); return; }
+      if (welt.krank > 0.3 && !man.alarm) { ton.piepser(); log(tr('Der Piepser geht, aber Herr Hausmann ist erkältet und meldet sich ab.', "The pager goes off, but Mr Hausmann has a cold and calls in sick.")); sag(tr('Mit der Erkältung kann ich heute nicht mit.', "I can't go with this cold."), 4); return; }
       if (man.alarm) { log(tr('Herr Hausmann ist schon im Einsatz.', 'Mr Hausmann is already out on a call.')); return; }
       ton.piepser();
       log(tr('Der Piepser geht: Einsatz für die Feuerwehr!', 'The pager goes off: the fire brigade is called out!'));
@@ -3113,6 +3177,19 @@ const texte = de
       if (besuch && !besuch.drin) { besuch.blase = { text: tr('Oh, ein Einsatz! Viel Erfolg!', 'Oh, a call-out! Good luck!'), bis: spielzeit + 3 }; besuch.phase = 'geht'; besuch.wege = [[-25, 214]]; besuch.gespraech = null; }
       if (besuch && besuch.drin) { besuch.phase = 'raus'; besuch.wege = [...(besuch.y > 212 ? [[169, 239], [151, 208]] : []), [34, 208], [24, 208], [17, 214], [-25, 214]]; besuch.blase = { text: tr('Ich gehe dann mal. Viel Erfolg!', "I'll be off then. Good luck!"), bis: spielzeit + 3 }; welt.tuerAuf = 4; }
     }
+    // Einkaufsfahrt: Herr Hausmann geht zur Haustür hinaus, das Auto fährt auf der Dorfstraße weg und kommt zurück,
+    // dann bringt er die Tüten zum Kühlschrank. Nutzt den Ablauf des Alarms (man.alarm mit art 'einkauf').
+    function einkaufStarten(perKnopf) {
+      if (man.alarm) { log(man.alarm.art === 'einkauf' ? tr('Herr Hausmann ist schon beim Einkaufen.', 'Mr Hausmann is already out shopping.') : tr('Herr Hausmann ist gerade im Einsatz.', 'Mr Hausmann is out on a call.')); return; }
+      if (schlafenszeit() || man.taetigkeit === 'schlafen') { log(tr('Herr Hausmann schläft. Einkaufen geht später.', 'Mr Hausmann is asleep. Shopping can wait.')); return; }
+      if (welt.krank > 0.3) { sag(tr('Mit der Erkältung bleibe ich lieber zu Hause.', "With this cold I'd better stay home."), 3); return; }
+      welt.einkaufTag = MD;
+      man.tut = null; man.taetigkeit = null; man.warte = 0; man.folge = null;
+      man.alarm = { art: 'einkauf', phase: 'zurTuer', zeit: 0, kleidung: false, wege: null };
+      man.ziel = { f: 1, x: 36, o: null, tun: 'alarmTuer' };
+      sag(zufall(DE ? ['Ich fahre schnell einkaufen.', 'Der Kühlschrank ist fast leer – ab zum Einkaufen!'] : ['Just popping out to the shops.', 'The fridge is nearly empty – off to the shops!']), 3);
+      log(perKnopf ? tr('Du schickst Herrn Hausmann zum Einkaufen.', 'You send Mr Hausmann shopping.') : tr('Herr Hausmann fährt einkaufen.', 'Mr Hausmann drives to the shops.'));
+    }
     // gibt true zurück, solange der Alarm die Bewegung übernimmt (draußen, weg, zurück)
     function alarmUpdate(dt) {
       const a = man.alarm;
@@ -3124,6 +3201,15 @@ const texte = de
         man.schritt += dt * 12;
         return a.wege.length === 0;
       };
+      const einkauf = a.art === 'einkauf';
+      if (einkauf && a.phase === 'raus') { if (lauf(26)) { a.phase = 'weg'; a.zeit = 40; welt.auto = { t0: welt.t + 2, dir: 1 }; log(tr('Das Auto fährt los.', 'The car drives off.')); } return true; }
+      if (einkauf && a.phase === 'weg') {
+        a.zeit -= dt;
+        if (a.zeit < 15 && !a.zurueck) { a.zurueck = true; welt.auto = { t0: welt.t, dir: -1 }; }
+        if (a.zeit <= 0) { a.phase = 'rein'; man.x = -25; man.y = 214; man.f = 1; man.tueten = true; a.wege = [[17, 214], [24, 208], [44, 208]]; welt.tuerAuf = 4; log(tr('Herr Hausmann kommt mit vollen Einkaufstüten zurück.', 'Mr Hausmann comes back with full shopping bags.')); }
+        return true;
+      }
+      if (einkauf && a.phase === 'rein') { if (lauf(22)) { man.alarm = null; man.y = FOOT[1]; geheZu(O.kuehl, 'einraeumen'); sag(tr('Zurück! Mal sehen, ob ich alles habe.', "I'm back! Let's see if I got everything."), 3); } return true; }
       if (a.phase === 'raus') {
         if (lauf(55)) {
           a.phase = 'weg'; a.zeit = 36;
@@ -3142,6 +3228,7 @@ const texte = de
         if (lauf(22)) {
           man.alarm = null; man.y = FOOT[1];
           man.n.energy = Math.max(5, man.n.energy - 30); man.n.hygiene = Math.max(5, man.n.hygiene - 35); man.n.hunger = Math.max(5, man.n.hunger - 20);
+          if ((NASS || SCHNEE || (WETTER.temp !== null && WETTER.temp < 3)) && !welt.krank && Math.random() < 0.35) { welt.krank = 0.7; setTimeout(() => sag(tr('Hatschi! Da draußen habe ich mich wohl erkältet.', "Atchoo! I must have caught a cold out there."), 4), 5500); }
           sag(zufall(DE ? ['Einsatz beendet. Alle sind gesund!', 'Puh, geschafft. Jetzt erst mal duschen.', 'Nur ein kleiner Brand – schnell gelöscht.'] : ['Call-out over. Everyone is fine!', 'Phew, done. Shower first.', 'Just a small fire – quickly put out.']), 5);
           if (katze.f === 1) { kSag(KSATZ.miau); herz(katze.x, katze.y - katze.hoch - 8); }
         }
@@ -3374,6 +3461,26 @@ const texte = de
 
     // ---------------------------------------------------------------- Schleife
     let last = performance.now();
+    // Kamera: „Heranzoomen“ zeigt den Raum, in dem Herr Hausmann ist, doppelt so groß und folgt ihm weich
+    const ZOOM = { an: false, x: 0, y: 0, s: 1 };
+    let ANS = { x: 0, y: 0, s: 1 };
+    function ansicht(dt) {
+      let tx = 0, ty = 0, ts = 1;
+      const weg = man.alarm && man.alarm.phase !== 'zurTuer';
+      if (ZOOM.an && !weg) {
+        ts = 2; const vw = W / ts, vh = H / ts, f = man.klettern ? null : man.f;
+        let cx = man.x; const cy = f === null ? man.y - 15 : f === 3 ? 58 : f === 0 ? 222 : (TOP[f] + FOOT[f]) / 2 - 4;
+        const raum = ROOMS.find((r) => r.f === f && r.n && man.x >= r.x1 && man.x <= r.x2);
+        if (raum && raum.x2 - raum.x1 <= vw - 8) cx = (raum.x1 + raum.x2) / 2;
+        tx = Math.max(0, Math.min(W - vw, cx - vw / 2)); ty = Math.max(0, Math.min(H - vh, cy - vh / 2));
+      }
+      const k = Math.min(1, dt * 3);
+      ZOOM.s += (ts - ZOOM.s) * k; ZOOM.x += (tx - ZOOM.x) * k; ZOOM.y += (ty - ZOOM.y) * k;
+      if (Math.abs(ZOOM.s - ts) < 0.002) ZOOM.s = ts;
+      const zw = W / ZOOM.s, zh = H / ZOOM.s;
+      ANS = { x: Math.round(Math.max(0, Math.min(W - zw, ZOOM.x)) * F) / F, y: Math.round(Math.max(0, Math.min(H - zh, ZOOM.y)) * F) / F, s: ZOOM.s };
+      return ANS;
+    }
     function frame(now) {
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
@@ -3387,15 +3494,17 @@ const texte = de
       else welt.t += dt;
       bild();
       g.imageSmoothingEnabled = false;
-      g.drawImage(buf, 0, 0, cv.width, cv.height);
-      bildschirmVideo();
+      const an = ansicht(dt);
+      if (an.s === 1) g.drawImage(buf, 0, 0, cv.width, cv.height);
+      else g.drawImage(buf, an.x * F, an.y * F, W / an.s * F, H / an.s * F, 0, 0, cv.width, cv.height);
+      g.save(); g.setTransform(an.s, 0, 0, an.s, -an.x * S * an.s, -an.y * S * an.s); bildschirmVideo(); g.restore();
       schrift();
       hud();
       requestAnimationFrame(frame);
     }
     log(nacht0 ? tr('Herr Hausmann schläft. Pssst!', 'Mr Hausmann is asleep. Shhh!') : tr('Herr Hausmann ist wach.', 'Mr Hausmann is awake.'));
     const festTag = FEST.advent || FEST.weihnachten || FEST.silvester || FEST.neujahr || FEST.nikolaus || FEST.halloween || FEST.ostern;
-    if (!nacht0) setTimeout(() => sag(festTag ? festSatz() : wetterSatz()), 1200);
+    if (!nacht0) setTimeout(() => sag(welt.krank > 0 ? tr('Hatschi! Ich glaube, ich habe mich erkältet.', "Atchoo! I think I've caught a cold.") : festTag ? festSatz() : wetterSatz()), 1200);
     requestAnimationFrame(frame);
   </script>
   <style>

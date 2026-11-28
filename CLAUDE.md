@@ -114,6 +114,18 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   alle 5 Spielminuten wegen der Dorflichter), Bewegtes zeichnet `landMalen` je Ausschnitt; Garten in `GARTEN`
   (`gartenMalen`). Kopiert werden nur die sichtbaren Ränder ums Haus. Alte Zeichen-Sprites (`sprite`, `KOPF`, `BEINE`,
   `HUND`, `KATZE_*`) entfernt.
+  Erkältung (`welt.krank` 0…1): an manchen kalten Tagen (Winter oder unter 4 °C, je Datum festgelegt) oder nach einem
+  Einsatz bei Regen/Schnee/Kälte. Niest alle ~40 s, rote Nase und Schal, müde Mimik, legt sich oft hin, kocht Kräutertee
+  (`tee`, Wasserkessel auf dem Herd), Wärmflasche im Bett, sagt den Feuerwehr-Alarm ab, fährt nicht einkaufen. „Essen
+  hinstellen“ wird zur Suppe und hilft stark; klingt sonst von selbst ab (im Bett schneller). Test: `?krank=1`.
+  Einkaufsfahrt (Knopf „Einkaufen schicken“ oder einmal am Tag Mo–Sa 9–17 Uhr): geht zur Haustür hinaus (nutzt den
+  Ablauf von `man.alarm` mit `art: 'einkauf'`), sein blaues Auto fährt auf der Dorfstraße weg und zurück (`welt.auto`),
+  kommt mit Tüten wieder und räumt den Kühlschrank ein (`einraeumen`). Platz für eine Garage gibt es neben dem Haus nicht,
+  das Auto steht außerhalb des Bildes. Fahrrad im Keller (`fahrrad`: repariert, Hinterrad dreht sich, Werkzeug, Ölkanne).
+  Test: `?tun=einkaufen`, `?tun=fahrrad`.
+  Zoom (Knopf „Heranzoomen“/„Ganzes Haus“): zeigt den Raum, in dem Herr Hausmann ist, doppelt so groß und folgt ihm weich
+  (`ZOOM`, `ansicht()`, `ANS`); Schrift, Sprechblasen, Computer-Video und Klicks werden über `ANS` umgerechnet. Ist er
+  außer Haus, zeigt die Kamera das ganze Haus.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.
