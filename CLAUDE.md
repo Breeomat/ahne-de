@@ -79,6 +79,11 @@ Persönliche Seite von Marc Ahne unter https://www.ahne.de. Astro 5, statisch, H
   (Halloween: verkleidet, „Süßes oder Saures!“), bei Schnee schippt der Nachbar den Weg. Gespräche als Sprechblasen.
   Tempo (auf Wunsch ruhiger): Tätigkeiten doppelt so lang, Bedürfnisse sinken halb so schnell, kurze Pause nach jeder
   Tätigkeit, Plaudern alle 50–90 s.
+  Dachboden (neu, Viertelpixel): Holzwände mit Fugen, Maserung, Nägeln, Sparren, Kehlbalken und Stützen; Truhe (Herr
+  Hausmann stöbert: Fotoalbum, Teddy, Briefe), Plattenspieler mit Boxen, Werkbank mit Lochwand, Schraubstock, Lampe und
+  Drohne (Brummi lädt hier), Fernrohr mit Sternkarte, Schaukelstuhl mit Häkeldecke, Modelleisenbahn (Gleisoval, Häuschen,
+  Bäume, Zug mit Dampf; fährt beim Spielen und läuft nach, `welt.zug`), Schaukelpferd (wippt, auch wenn Minka darauf
+  sitzt). Töne: Pfeife, Rattern, Knarren, Quietschen.
   Hausarbeit (auch per Klick): Blumen gießen (Zimmerpflanze), Staubsaugen im Wohnzimmer (Sauger steht im Flur),
   Wäsche (Waschmaschine im Keller läuft, danach Wäscheleine im Keller), Abwaschen nach dem Essen (Geschirr auf der
   Spüle), abends gegen 22 Uhr Zähneputzen.

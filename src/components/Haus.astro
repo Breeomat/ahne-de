@@ -397,11 +397,13 @@ const texte = de
     // ---------------------------------------------------------------- Gegenstände
     // act: Tätigkeit beim Benutzen, sx: Standplatz des Männchens, pose: steh|sitz|lieg
     const OBJ = [
-      { id: 'stereo', n: tr('Plattenspieler', 'Record player'), f: 3, x: 74, w: 18, h: 12, act: 'musik', sx: 98 },
-      { id: 'werkbank', n: tr('Werkbank', 'Workbench'), f: 3, x: 102, w: 30, h: 14, act: 'basteln', sx: 117 },
-      { id: 'teleskop', n: tr('Fernrohr', 'Telescope'), f: 3, x: 178, w: 12, h: 18, act: 'sterne', sx: 190 },
-      { id: 'schaukel', n: tr('Schaukelstuhl', 'Rocking chair'), f: 3, x: 202, w: 16, h: 16, act: 'ausruhen', sx: 209, pose: 'sitz' },
-      { id: 'kisten', n: tr('Kisten', 'Boxes'), f: 3, x: 226, w: 16, h: 10 },
+      { id: 'truhe', n: tr('Alte Truhe', 'Old chest'), f: 3, x: 56, w: 16, h: 8, act: 'truhe', sx: 80 },
+      { id: 'stereo', n: tr('Plattenspieler', 'Record player'), f: 3, x: 84, w: 16, h: 12, act: 'musik', sx: 103 },
+      { id: 'werkbank', n: tr('Werkbank', 'Workbench'), f: 3, x: 108, w: 30, h: 14, act: 'basteln', sx: 123 },
+      { id: 'teleskop', n: tr('Fernrohr', 'Telescope'), f: 3, x: 176, w: 12, h: 18, act: 'sterne', sx: 188 },
+      { id: 'schaukel', n: tr('Schaukelstuhl', 'Rocking chair'), f: 3, x: 193, w: 16, h: 16, act: 'ausruhen', sx: 200, pose: 'sitz' },
+      { id: 'eisenbahn', n: tr('Modelleisenbahn', 'Model railway'), f: 3, x: 213, w: 28, h: 9, act: 'eisenbahn', sx: 226 },
+      { id: 'pferd', n: tr('Schaukelpferd', 'Rocking horse'), f: 3, x: 247, w: 16, h: 13, act: 'pferd', sx: 244 },
       { id: 'bett', n: tr('Bett', 'Bed'), f: 2, x: 34, w: 42, h: 14, act: 'schlafen', sx: 56, pose: 'lieg' },
       { id: 'nachttisch', n: tr('Nachttisch', 'Bedside table'), f: 2, x: 78, w: 9, h: 9 },
       { id: 'schrank', n: tr('Kleiderschrank', 'Wardrobe'), f: 2, x: 120, w: 22, h: 38 },
@@ -430,7 +432,7 @@ const texte = de
     ];
     const O = Object.fromEntries(OBJ.map((o) => [o.id, o]));
     // Dauer der Tätigkeiten in Sekunden (auf Wunsch doppelt so lang wie anfangs, damit weniger los ist)
-    const DAUER = { giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
+    const DAUER = { eisenbahn: 16, truhe: 10, pferd: 8, giessen: 8, saugen: 18, waesche: 5, abwaschen: 12, zaehne: 8, brummi: 5, gast: 999, auspacken: 4, nachlegen: 3, milch: 4, vollmond: 6, pruefen: 4, akkupruefen: 3, besuch: 999, kaffee: 999, fuettern: 2, streicheln: 8, schlafen: 80, musik: 16, basteln: 18, sterne: 16, ausruhen: 16, duschen: 12, waschen: 6, arbeiten: 20, lesen: 16, naschen: 3, kochen: 14, essen: 12, zeitung: 14, fernsehen: 20, feuer: 3, tuer: 5, brief: 3 };
     const WIRKUNG = {
       schlafen: (n) => { n.energy = 100; }, musik: (n) => { n.fun = Math.min(100, n.fun + 30); },
       basteln: (n) => { n.fun = Math.min(100, n.fun + 35); }, sterne: (n) => { n.fun = Math.min(100, n.fun + 30); },
@@ -440,6 +442,7 @@ const texte = de
       kochen: () => {}, essen: (n) => { n.hunger = 100; }, zeitung: (n) => { n.fun = Math.min(100, n.fun + 15); },
       fernsehen: (n) => { n.fun = Math.min(100, n.fun + 35); n.energy = Math.min(100, n.energy + 5); }, feuer: () => {}, tuer: () => {}, brief: () => {},
       fuettern: () => {}, streicheln: (n) => { n.fun = Math.min(100, n.fun + 20); },
+      eisenbahn: (n) => { n.fun = Math.min(100, n.fun + 35); }, truhe: (n) => { n.fun = Math.min(100, n.fun + 25); }, pferd: (n) => { n.fun = Math.min(100, n.fun + 15); },
       giessen: (n) => { n.fun = Math.min(100, n.fun + 8); }, saugen: (n) => { n.fun = Math.min(100, n.fun + 4); }, waesche: (n) => { n.hygiene = Math.min(100, n.hygiene + 10); },
       abwaschen: (n) => { n.hygiene = Math.min(100, n.hygiene + 5); }, zaehne: (n) => { n.hygiene = Math.min(100, n.hygiene + 20); }, brummi: (n) => { n.fun = Math.min(100, n.fun + 30); },
       gast: (n) => { n.fun = Math.min(100, n.fun + 20); }, auspacken: (n) => { n.fun = Math.min(100, n.fun + 25); }, nachlegen: () => {},
@@ -451,13 +454,13 @@ const texte = de
       ausruhen: 'ruht sich aus.', duschen: 'geht duschen.', waschen: 'wäscht sich die Hände.', arbeiten: 'setzt sich an den Computer.',
       lesen: 'nimmt ein Buch aus dem Regal.', naschen: 'holt sich etwas aus dem Kühlschrank.', kochen: 'kocht etwas.', essen: 'isst.',
       zeitung: 'liest die Dorfzeitung.', fernsehen: 'schaut fern.', feuer: 'macht Feuer im Kamin.', tuer: 'geht zur Tür.', brief: 'holt einen Brief.',
-      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
+      fuettern: 'füllt den Katzennapf.', streicheln: 'streichelt Minka.', besuch: 'öffnet die Tür.', kaffee: 'trinkt Kaffee mit dem Nachbarn.', pruefen: 'schaut nach der Wärmepumpe.', akkupruefen: 'schaut auf den Stromspeicher.', milch: 'holt sich verschlafen ein Glas Milch.', gast: 'zeigt dem Heizungsbauer die Wärmepumpen.', giessen: 'gießt die Blumen.', eisenbahn: 'lässt die Modelleisenbahn fahren.', truhe: 'stöbert in der alten Truhe.', pferd: 'schubst das alte Schaukelpferd an.', saugen: 'saugt Staub im Wohnzimmer.', waesche: 'stellt die Waschmaschine an.', abwaschen: 'spült das Geschirr ab.', zaehne: 'putzt sich die Zähne.', brummi: 'begrüßt Brummi.', auspacken: 'packt das Paket aus.', nachlegen: 'legt Holz im Kamin nach.', vollmond: 'schaut verschlafen aus dem Fenster.',
     } : {
       schlafen: 'goes to bed.', musik: 'puts on a record.', basteln: 'tinkers with a little drone.', sterne: 'looks through the telescope.',
       ausruhen: 'has a rest.', duschen: 'takes a shower.', waschen: 'washes his hands.', arbeiten: 'sits down at the computer.',
       lesen: 'takes a book from the shelf.', naschen: 'grabs a snack from the fridge.', kochen: 'cooks something.', essen: 'eats.',
       zeitung: 'reads the village paper.', fernsehen: 'watches TV.', feuer: 'lights the fireplace.', tuer: 'goes to the door.', brief: 'fetches a letter.',
-      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
+      fuettern: "fills the cat's bowl.", streicheln: 'strokes Minka.', besuch: 'opens the door.', kaffee: 'has coffee with the neighbour.', pruefen: 'checks the heat pump.', akkupruefen: 'checks the battery.', milch: 'sleepily fetches a glass of milk.', gast: 'shows the heating engineer the heat pumps.', giessen: 'waters the plants.', eisenbahn: 'runs the model railway.', truhe: 'rummages in the old chest.', pferd: 'gives the old rocking horse a push.', saugen: 'vacuums the living room.', waesche: 'starts the washing machine.', abwaschen: 'does the washing-up.', zaehne: 'brushes his teeth.', brummi: 'greets Brummi.', auspacken: 'unpacks the parcel.', nachlegen: 'puts more wood on the fire.', vollmond: 'sleepily looks out of the window.',
     };
 
     // ---------------------------------------------------------------- Zustand
@@ -482,7 +485,8 @@ const texte = de
       { id: 'bett', f: 2, x: 66, h: 9, tun: 'schlafen' },
       { id: 'fenster1', f: 1, x: 216, h: FOOT[1] - 177, tun: 'sitzen' },
       { id: 'fenster2', f: 2, x: 100, h: FOOT[2] - 123, tun: 'sitzen' },
-      { id: 'kisten', f: 3, x: 234, h: 10, tun: 'schlafen' },
+      { id: 'truhe', f: 3, x: 64, h: 8, tun: 'schlafen' },
+      { id: 'pferd', f: 3, x: 255, h: 7, tun: 'sitzen' },
       { id: 'kamin', f: 1, x: 248, h: 0, tun: 'schlafen', nur: () => welt.feuer },
       { id: 'teppich', f: 1, x: 190, h: 0, tun: 'putzen' },
       { id: 'flur', f: 1, x: 46, h: 0, tun: 'sitzen' },
@@ -670,7 +674,7 @@ const texte = de
         if (k[0] === 'hunger') return Math.random() < 0.6 ? O.herd : O.kuehl;
         if (k[0] === 'energy') return zufall([O.sofa, O.schaukel]);
         if (k[0] === 'hygiene') return Math.random() < 0.75 ? O.wanne : O.waschbecken;
-        return zufall(tz === 'nacht' || tz === 'abend' ? [O.teleskop, O.tv, O.stereo, O.regal] : [O.tv, O.stereo, O.werkbank, O.regal, O.tisch]);
+        return zufall(tz === 'nacht' || tz === 'abend' ? [O.teleskop, O.tv, O.stereo, O.regal, O.eisenbahn, O.truhe] : [O.tv, O.stereo, O.werkbank, O.regal, O.tisch, O.eisenbahn, O.truhe, O.pferd]);
       }
       if (welt.teller) return O.tisch;
       if (welt.geschirr && Math.random() < 0.45) return O.spuele;
@@ -719,6 +723,9 @@ const texte = de
       if (z.tun === 'musik' && (!welt.musikWahl || welt.t - welt.musikWahl > 30)) welt.musik = zufall(['rock', 'walzer', 'disco']);
       if (z.tun === 'tuer') { welt.tuerAuf = DAUER.tuer; sag(man.klopfer ? zufall(KLOPF) : tr('Mal sehen, ob Post da ist.', "Let's see if there's any mail.")); man.klopfer = false; }
       if (z.tun === 'saugen') man.saugBasis = man.x;
+      if (z.tun === 'eisenbahn') { sag(zufall(DE ? ['Alles einsteigen, bitte!', 'Tschu-tschu! Der Zug fährt ab.'] : ['All aboard!', 'Choo choo! The train is leaving.']), 3); setTimeout(() => ton.pfeife(), 400); }
+      if (z.tun === 'truhe') { ton.knarren(); setTimeout(() => sag(zufall(DE ? ['Ach, die alten Urlaubsfotos!', 'Mein erster Teddy – den hab ich ja noch!', 'Briefe von früher … schön.', 'Meine alten Schulhefte!'] : ['Oh, the old holiday photos!', 'My first teddy – I still have it!', 'Letters from long ago … lovely.', 'My old school exercise books!']), 4), 900); }
+      if (z.tun === 'pferd') { sag(tr('Damit habe ich als Kind gespielt.', 'I used to play with this as a child.'), 3); }
       if (z.tun === 'waesche') { welt.waschLauf = 28; sag(tr('Die Wäsche muss auch mal sein.', 'Laundry day.'), 3); }
       if (z.tun === 'giessen') sag(zufall(DE ? ['Die Pflanze hat Durst.', 'So, ein bisschen Wasser.'] : ['The plant is thirsty.', 'There, a little water.']), 3);
       if (z.tun === 'zaehne') sag(tr('Zähne putzen, dann ab ins Bett.', 'Brush my teeth, then off to bed.'), 3);
@@ -744,6 +751,7 @@ const texte = de
       if ((t === 'milch' || t === 'vollmond') && schlafenszeit()) { geheZu(O.bett); return; } // zurück ins Bett
       if (t === 'essen') { welt.teller = false; welt.gericht = null; welt.geschirr = true; }
       if (t === 'abwaschen') welt.geschirr = false;
+      if (t === 'eisenbahn') welt.zugNachlauf = 10;
       if (t === 'auspacken') welt.paket = false;
       if (t === 'schlafen') { if (!welt.licht) welt.licht = true; sag(tr('Ausgeschlafen!', 'Well rested!')); }
       if (t === 'brief' && welt.brief) {
@@ -771,6 +779,12 @@ const texte = de
       }
       nachtUpdate(dt);
       brummiUpdate(dt);
+      // Modelleisenbahn: fährt beim Spielen, läuft danach noch kurz nach
+      welt.zug = welt.zug || { pos: 0, v: 0 };
+      if (welt.zugNachlauf > 0) welt.zugNachlauf -= dt;
+      const zielV = man.taetigkeit === 'eisenbahn' ? 1.4 : welt.zugNachlauf > 0 ? 0.7 : 0;
+      welt.zug.v += (zielV - welt.zug.v) * Math.min(1, dt * 1.5); welt.zug.pos += welt.zug.v * dt;
+      if (ton.an() && welt.zug.v > 0.3 && alle('zug', 0.5 / welt.zug.v, dt)) ton.zug();
       if (welt.waschLauf > 0) { welt.waschLauf -= dt; if (welt.waschLauf <= 0) { welt.waescheLeine = 150; log(tr('Die Wäsche ist fertig und hängt im Keller zum Trocknen.', 'The laundry is done and hangs in the cellar to dry.')); } }
       if (welt.waescheLeine > 0) welt.waescheLeine -= dt;
       if (ton.an()) {
@@ -1019,7 +1033,7 @@ const texte = de
       if (man.alarm && man.alarm.t0 !== undefined && spielzeit - man.alarm.t0 < 3) return 'schreck';
       if (redet(blase)) return 'offen';
       const t = man.taetigkeit, n = man.n;
-      if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast'].includes(t)) return 'froh';
+      if (['streicheln', 'brummi', 'essen', 'musik', 'kaffee', 'fernsehen', 'basteln', 'auspacken', 'sterne', 'gast', 'eisenbahn', 'truhe', 'pferd'].includes(t)) return 'froh';
       if (n.energy < 30) return 'muede';
       if (n.hunger < 30) return 'hungrig';
       if (n.fun < 25) return 'traurig';
@@ -1122,13 +1136,14 @@ const texte = de
       else if (tanzt && stil === 'walzer') { dx = halb(Math.sin(welt.t * 2.2) * 3); dir = Math.cos(welt.t * 2.2) > 0 ? 1 : -1; schrittBein = Math.floor(welt.t * 2.2) % 2 === 0; }
       else if (tanzt) { hopp = Math.floor(welt.t * 4) % 2; dir = Math.floor(welt.t * 2) % 2 ? 1 : -1; arme = hopp === 1; dx = Math.floor(welt.t * 2) % 2 ? 1.5 : -1.5; }
       const geht = man.laeuft || schrittBein, schaukel = t === 'ausruhen' && man.tut === O.schaukel ? Math.round(Math.sin(welt.t * 3)) : 0;
-      const haende = ['lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
+      const haende = ['lesen', 'zeitung', 'lesebrief', 'arbeiten', 'abwaschen', 'giessen', 'naschen', 'milch', 'basteln', 'kochen', 'saugen', 'truhe', 'eisenbahn', 'pferd'].includes(t) ? 'vorn' : arme ? 'hoch' : 'normal';
       figur(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, { pose: sitzt ? 'sitz' : geht ? 'geh' : 'steh', schritt: Math.floor(man.schritt) % 2, arme: haende, mimik: mannMimik(), f: farben });
       einsatzKleidung(x + schaukel + dx, fy - (sitzt ? 3 : 0) - hopp, dir, sitzt);
       // Gegenstände in der Hand
       const hx = Math.round(x) + (dir > 0 ? 4 : -6), hy = Math.round(fy) - (sitzt ? 11 : 9);
       if (t === 'lesen' || t === 'zeitung' || t === 'lesebrief') R(hx, hy - 3, 4, 5, t === 'lesen' ? C.blau : C.weiss);
       if (t === 'naschen') R(hx, hy - 1, 3, 3, C.orange);
+      if (t === 'truhe' && man.zeit < DAUER.truhe - 1) { R(hx - 0.5, hy - 2.5, 4, 3, '#8A3A2A'); R(hx, hy - 2.25, 1.5, 2.5, '#F4F0E0'); R(hx + 1.75, hy - 2.25, 1.5, 2.5, '#F4F0E0'); R(hx + 0.25, hy - 1.75, 1, 1, '#5A8AE8'); }
       if (t === 'milch') { R(hx, hy - 2.5, 2, 3, '#F4F4F4'); R(hx, hy - 2.5, 2, 0.5, '#C8D8E8'); }
       if (t === 'giessen') { R(hx, hy - 1, 3.5, 2.5, '#3A8A5A'); R(hx + 3 * dir, hy - 2, 2 * dir, 0.5, '#3A8A5A'); for (let i = 0; i < 3; i++) Q(hx + 5 * dir, hy + ((welt.t * 20 + i * 3) % 9), C.cyan); }
       if (t === 'zaehne') { const kx = Math.round(x) + (dir > 0 ? 2 : -3); R(kx, halb(fy) - 15 + (Math.floor(welt.t * 8) % 2) * 0.5, 2.5, 0.5, '#4AA8FF'); Q(kx + (dir > 0 ? 2 : 0), halb(fy) - 15, C.weiss); }
@@ -1563,11 +1578,22 @@ const texte = de
         for (let y = top + 4; y < foot - 4; y += 4) for (let x = r.x1 + 1 + ((y / 4) % 2) * 2; x < r.x2; x += 4) Q(x, y, 'rgba(255,255,255,0.08)');
         R(r.x1, top, r.x2 - r.x1, 3, 'rgba(0,0,0,0.18)');
       } else {
-        for (let x = 40; x < 282; x += 6) { R(x, ROOF(x) + 0.5, 0.5, 88 - ROOF(x) - 0.5, 'rgba(0,0,0,0.25)'); R(x + 0.5, ROOF(x) + 0.5, 0.5, 88 - ROOF(x) - 0.5, 'rgba(255,255,255,0.06)'); }
-        for (let x = 46; x < 282; x += 23) Q(x + 2, 60 + (x % 7), 'rgba(0,0,0,0.5)'); // Astlöcher
-        // Dachbalken
+        // Bretter mit Fugen, Maserung, Astlöchern und Nägeln
+        for (let x = 40; x < 282; x += 6) {
+          const oben = ROOF(x) + 0.5, hoch = 88 - oben;
+          R(x, oben, 0.25, hoch, 'rgba(0,0,0,0.35)'); R(x + 0.25, oben, 0.25, hoch, 'rgba(255,255,255,0.08)');
+          for (let y = oben + 2; y < 87; y += 2.75) R(x + 1 + ((x * 3 + y * 7) % 3), y, 1.5 + ((x + y) % 2), 0.25, 'rgba(0,0,0,0.14)');
+          if (hoch > 8) { R(x + 2.75, 62, 0.25, 0.25, '#2A2A2E'); R(x + 2.75, 82, 0.25, 0.25, '#2A2A2E'); }
+        }
+        for (let x = 46; x < 282; x += 23) { b.fillStyle = 'rgba(60,35,15,0.6)'; b.beginPath(); b.ellipse(x + 2, 60 + (x % 7), 0.6, 0.35, 0, 0, Math.PI * 2); b.fill(); }
+        // Sparren entlang der Dachschräge, Kehlbalken und Stützen
+        b.strokeStyle = '#5A4028'; b.lineWidth = 1.6; b.beginPath(); b.moveTo(38, 86); b.lineTo(160, 29); b.lineTo(282, 86); b.stroke();
+        b.strokeStyle = 'rgba(255,255,255,0.12)'; b.lineWidth = 0.25; b.beginPath(); b.moveTo(38, 85.2); b.lineTo(160, 28.2); b.lineTo(282, 85.2); b.stroke();
         b.strokeStyle = '#4A3420'; b.lineWidth = 2; b.beginPath(); b.moveTo(100, 57); b.lineTo(220, 57); b.stroke();
         b.lineWidth = 1.5; b.beginPath(); b.moveTo(160, 28); b.lineTo(160, 57); b.stroke();
+        b.lineWidth = 1.2; b.beginPath(); b.moveTo(102, 57); b.lineTo(102, 88); b.moveTo(218, 57); b.lineTo(218, 88); b.stroke();
+        b.lineWidth = 0.8; b.beginPath(); b.moveTo(102, 66); b.lineTo(110, 57); b.moveTo(218, 66); b.lineTo(210, 57); b.stroke(); // Kopfbänder
+        for (const nx of [101.6, 217.6]) for (const ny of [60, 70, 80]) R(nx, ny, 0.5, 0.5, '#2A2A2E');
       }
       boden(r);
     }
@@ -1687,8 +1713,8 @@ const texte = de
       R(159.75, 30, 0.5, 18, C.dunkelgrau); R(158.5, 48, 2.5, 3, '#E8E0B0'); // Glühbirne Dachboden
       // Spinnennetz in der Dachecke
       b.strokeStyle = 'rgba(230,230,230,0.5)'; b.lineWidth = 0.5;
-      for (let i = 0; i < 4; i++) { b.beginPath(); b.moveTo(250, 88); b.lineTo(250 + 14 * Math.cos(-0.5 - i * 0.35), 88 + 14 * Math.sin(-0.5 - i * 0.35)); b.stroke(); }
-      for (let rr = 4; rr < 14; rr += 4) { b.beginPath(); b.arc(250, 88, rr, -1.6, -0.5); b.stroke(); }
+      for (let i = 0; i < 4; i++) { b.beginPath(); b.moveTo(272, 88); b.lineTo(272 + 10 * Math.cos(-0.5 - i * 0.35), 88 + 14 * Math.sin(-0.5 - i * 0.35)); b.stroke(); }
+      for (let rr = 4; rr < 14; rr += 4) { b.beginPath(); b.arc(272, 88, rr * 0.7, -1.6, -0.5); b.stroke(); }
       // Lichtschalter
       [[66, 186], [176, 186], [226, 126], [44, 126]].forEach(([x, y]) => { K(x, y, 2, 3, C.weiss, C.weiss, C.grau); Q(x + 0.75, y + 1, C.grau); });
     }
@@ -1794,54 +1820,108 @@ const texte = de
     function zeichneObjekt(o) {
       let x = o.x; const y = FOOT[o.f] - o.h, w = o.w, h = o.h, an = man.taetigkeit, fuss = FOOT[o.f];
       switch (o.id) {
-        case 'stereo': {
-          KK(x, y + 6, w, 6, HOLZ); R(x + 1, y + 8, w - 2, 0.5, HOLZ[2]);
-          KK(x + 1, y + 3.5, w - 6, 2.5, METALL);
-          b.fillStyle = C.schwarz; b.beginPath(); b.arc(x + 6, y + 4.5, 3.5, Math.PI, 0); b.fill(); // Platte
-          if (an === 'musik') { const wkl = welt.t * 6; Q(x + 6 + Math.cos(wkl) * 2, y + 3.5, '#5A5A60'); }
-          Q(x + 6, y + 3.5, C.rot);
-          R(x + 9, y + 2, 4, 0.5, METALL[1]); // Tonarm
-          for (let i = 0; i < 3; i++) Q(x + 14 + i * 1.2, y + 8, i === 1 && an === 'musik' ? C.gruen : C.gelb);
-          K(x + w - 4, y + 2, 4, 4, '#3A3A3E', '#5A5A5E', '#1A1A1E'); b.fillStyle = '#5A5A60'; b.beginPath(); b.arc(x + w - 2, y + 4, 1.2, 0, Math.PI * 2); b.fill();
-          if (an === 'musik') for (let i = 0; i < 3; i++) { const t = (welt.t * 0.5 + i / 3) % 1; const nx = x + 8 + Math.sin(t * 8 + i) * 4, ny = y - t * 22; R(nx, ny, 0.5, 3, C.weiss); R(nx - 1.5, ny + 2, 2, 1.5, C.weiss); R(nx, ny, 1.5, 0.5, C.weiss); }
+        case 'stereo': { // Plattenspieler auf einer Kommode, mit Boxen und Plattenstapel
+          const laeuft = an === 'musik';
+          KK(x, y + 6, w, 6, HOLZ); R(x + 1, y + 8.75, w - 2, 0.25, HOLZ[2]); R(x + 1, y + 10.5, w - 2, 0.25, HOLZ[2]); Q(x + w / 2 - 0.25, y + 9.5, C.gelb);
+          R(x + 0.5, y + 12, 1, 0.5, HOLZ[2]); R(x + w - 1.5, y + 12, 1, 0.5, HOLZ[2]);
+          K(x + 3, y + 3.5, 10, 2.5, '#3A3A42', '#5A5A62', '#1A1A22'); // Spieler
+          b.fillStyle = '#101014'; b.beginPath(); b.ellipse(x + 7, y + 3.75, 3.5, 0.9, 0, 0, Math.PI * 2); b.fill(); // Platte (schräg von oben)
+          b.strokeStyle = '#2A2A30'; b.lineWidth = 0.15; b.beginPath(); b.ellipse(x + 7, y + 3.75, 2.5, 0.6, 0, 0, Math.PI * 2); b.stroke();
+          R(x + 6.75, y + 3.5, 0.5, 0.5, laeuft ? ['#C83A3A', '#E8C040'][Math.floor(welt.t * 6) % 2] : '#C83A3A');
+          R(x + 10, y + 2.25, 0.25, 1.5, METALL[1]); R(x + 8.5, y + 2.25, 1.75, 0.25, METALL[1]); // Tonarm
+          for (const bx of [x, x + w - 3]) { K(bx, y + 1, 3, 5, '#2A2A30', '#4A4A52', '#101014'); b.fillStyle = '#5A5A62'; b.beginPath(); b.arc(bx + 1.5, y + 4, 0.9 + (laeuft && Math.floor(welt.t * 8) % 2 ? 0.2 : 0), 0, Math.PI * 2); b.fill(); R(bx + 1.25, y + 1.75, 0.5, 0.5, '#5A5A62'); }
+          R(x + 13.5, y + 4.75, 1.5, 1.25, '#5A8AE8'); R(x + 13.5, y + 4.25, 1.5, 0.5, '#E8C040'); // Plattenhüllen
+          if (laeuft) for (let i = 0; i < 3; i++) { const t = (welt.t * 0.5 + i / 3) % 1; const nx = x + 8 + Math.sin(t * 8 + i) * 4, ny = y - t * 20; R(nx, ny, 0.25, 2.5, C.weiss); R(nx - 1.25, ny + 2, 1.5, 1, C.weiss); R(nx, ny, 1.25, 0.25, C.weiss); }
           break;
         }
-        case 'werkbank': {
-          KK(x, y + 4, w, 2.5, HOLZ); R(x + 1, y + 6.5, 2, 7.5, HOLZ[2]); R(x + w - 3, y + 6.5, 2, 7.5, HOLZ[2]); R(x + 2, y + 10, w - 4, 1, HOLZ[2]);
-          // Werkzeug an der Wand
-          R(x + 2, y - 10, w - 4, 6, '#9A7A4A'); for (let i = 0; i < 6; i++) Q(x + 3 + i * 4, y - 9, '#6A4A2A');
-          R(x + 4, y - 8, 0.5, 3, METALL[1]); R(x + 3.5, y - 8.5, 1.5, 1, METALL[2]); // Schraubenzieher
-          R(x + 9, y - 8, 0.5, 3.5, HOLZ[0]); R(x + 8, y - 8.5, 2.5, 1, METALL[0]); // Hammer
-          R(x + 15, y - 8, 3, 2, '#C83A2A'); R(x + 20, y - 8, 0.5, 3, METALL[1]); R(x + 22, y - 8, 0.5, 3, METALL[1]);
-          // kleine Drohne, schwebt beim Basteln kurz
-          const dy = an === 'basteln' ? Math.round(Math.sin(welt.t * 3) * 4) / 2 - 2 : 0;
-          K(x + 11, y + 1 + dy, 8, 2, C.dunkelgrau, C.grau, '#2A2A2E'); R(x + 8, y + 0.5 + dy, 3.5, 0.5, METALL[1]); R(x + 18.5, y + 0.5 + dy, 3.5, 0.5, METALL[1]);
-          if (an === 'basteln') { R(x + 7, y + dy, 5, 0.5, 'rgba(220,220,220,0.6)'); R(x + 18, y + dy, 5, 0.5, 'rgba(220,220,220,0.6)'); }
-          Q(x + 15, y + 2.5 + dy, Math.floor(welt.t * 3) % 2 ? '#E04040' : '#40E040');
-          K(x + 24, y + 1, 4, 3, METALL[0], METALL[1], METALL[2]); // Lötkolbenständer
+        case 'werkbank': { // Werkbank mit Werkzeugwand, Schraubstock, Lampe und der kleinen Drohne
+          KK(x, y + 4, w, 2.5, HOLZ); for (let i = 1; i < w; i += 3.5) R(x + i, y + 4.75, 1.5, 0.25, HOLZ[2]);
+          R(x + 1, y + 6.5, 2, 7.5, HOLZ[2]); R(x + w - 3, y + 6.5, 2, 7.5, HOLZ[2]); R(x + 2, y + 10, w - 4, 1, HOLZ[2]);
+          K(x + 3, y + 11, 9, 2.5, '#C83A2A', '#E85A4A', '#8A2018'); R(x + 7, y + 11.5, 1, 0.5, METALL[1]); // Werkzeugkiste unten
+          R(x + 2, y - 10, w - 4, 6.5, '#9A7A4A'); for (let i = 0; i < 7; i++) for (let j = 0; j < 3; j++) R(x + 3 + i * 3.6, y - 9.5 + j * 2, 0.25, 0.25, '#5A4A2A'); // Lochwand
+          R(x + 4, y - 8.5, 0.5, 3, METALL[1]); R(x + 3.5, y - 9, 1.5, 0.75, '#E8C040'); // Schraubenzieher
+          R(x + 8.5, y - 8.5, 0.5, 3.5, HOLZ[0]); R(x + 7.5, y - 9, 2.5, 1, METALL[0]); // Hammer
+          R(x + 12, y - 8.5, 3, 2, '#C83A2A'); R(x + 12.5, y - 9, 2, 0.5, METALL[1]); // Zange
+          R(x + 17, y - 9, 0.25, 3.5, METALL[1]); R(x + 18, y - 9, 0.25, 3, METALL[1]); R(x + 19, y - 9, 0.25, 2.5, METALL[1]); // Schlüssel
+          b.strokeStyle = METALL[0]; b.lineWidth = 0.35; b.beginPath(); b.arc(x + 23, y - 7, 1.5, 0, Math.PI * 2); b.stroke(); // Kabelrolle
+          K(x + w - 6, y + 1.5, 4, 2.5, METALL[0], METALL[1], METALL[2]); R(x + w - 2.5, y + 2.5, 1.5, 0.5, METALL[2]); // Schraubstock
+          R(x + 1.5, y - 2.5, 0.5, 6.5, C.dunkelgrau); R(x + 1.5, y - 2.75, 4, 0.5, C.dunkelgrau); poly([[x + 4.5, y - 2.5], [x + 6.5, y - 2.5], [x + 6, y - 1], [x + 5, y - 1]], '#3A6AC8'); // Schreibtischlampe
+          if (an === 'basteln') { b.fillStyle = 'rgba(255,240,180,0.25)'; b.beginPath(); b.moveTo(x + 5, y - 1); b.lineTo(x + 2, y + 4); b.lineTo(x + 12, y + 4); b.lineTo(x + 6, y - 1); b.fill(); }
+          const dy = an === 'basteln' ? Math.round(Math.sin(welt.t * 3) * 8) / 4 - 2 : 0, dx = x + 4;
+          K(dx + 7, y + 1 + dy, 8, 2, C.dunkelgrau, C.grau, '#2A2A2E'); R(dx + 4, y + 0.5 + dy, 3.5, 0.5, METALL[1]); R(dx + 14.5, y + 0.5 + dy, 3.5, 0.5, METALL[1]);
+          if (an === 'basteln') { R(dx + 3, y + dy, 5, 0.25, 'rgba(220,220,220,0.6)'); R(dx + 14, y + dy, 5, 0.25, 'rgba(220,220,220,0.6)'); }
+          R(dx + 10.75, y + 2.25 + dy, 0.5, 0.5, Math.floor(welt.t * 3) % 2 ? '#E04040' : '#40E040');
+          if (an === 'basteln' && Math.floor(welt.t * 10) % 3 === 0) for (let i = 0; i < 3; i++) R(x + 9 + i * 0.5, y + 3 - i * 0.5, 0.25, 0.25, '#FFE070'); // Lötfunken
           break;
         }
-        case 'teleskop': {
-          R(x + 5, y + 8, 0.5, 10, C.dunkelgrau); R(x + 1, y + 17.5, 9, 0.5, C.dunkelgrau);
-          b.strokeStyle = C.dunkelgrau; b.lineWidth = 0.5; b.beginPath(); b.moveTo(x + 5, y + 9); b.lineTo(x + 1, y + 18); b.moveTo(x + 5, y + 9); b.lineTo(x + 9, y + 18); b.stroke();
-          b.strokeStyle = '#D0D0D8'; b.lineWidth = 3; b.beginPath(); b.moveTo(x + 9, y + 8); b.lineTo(x - 2, y + 0.5); b.stroke();
-          b.strokeStyle = '#7A7A88'; b.lineWidth = 1; b.beginPath(); b.moveTo(x + 9, y + 9); b.lineTo(x - 2, y + 1.5); b.stroke();
-          R(x - 3, y - 0.5, 2, 3, '#3A3A48'); R(x + 9, y + 7, 1.5, 2, '#3A3A48');
+        case 'teleskop': { // Fernrohr auf Dreibein mit Sternkarte daneben
+          b.strokeStyle = C.dunkelgrau; b.lineWidth = 0.4;
+          b.beginPath(); b.moveTo(x + 5, y + 9); b.lineTo(x + 1, y + 18); b.moveTo(x + 5, y + 9); b.lineTo(x + 9, y + 18); b.moveTo(x + 5, y + 9); b.lineTo(x + 5.5, y + 18); b.stroke();
+          R(x + 4.5, y + 8, 1.5, 1.5, METALL[2]);
+          b.strokeStyle = '#E0E0E8'; b.lineWidth = 3; b.beginPath(); b.moveTo(x + 9, y + 8); b.lineTo(x - 2, y + 0.5); b.stroke();
+          b.strokeStyle = '#8A8A98'; b.lineWidth = 0.75; b.beginPath(); b.moveTo(x + 9, y + 9.2); b.lineTo(x - 2, y + 1.7); b.stroke();
+          b.strokeStyle = '#C8A040'; b.lineWidth = 0.5; [2, 5.5].forEach((t) => { b.beginPath(); b.moveTo(x + 9 - t, y + 8 - t * 0.68 - 1.5); b.lineTo(x + 9 - t, y + 8 - t * 0.68 + 1.5); b.stroke(); });
+          R(x - 3.5, y - 0.75, 2, 3, '#2A2A38'); R(x + 9, y + 7, 1.5, 2, '#2A2A38'); R(x + 10.5, y + 7.5, 1, 1, METALL[1]);
+          K(x + 11, y + 15, 4, 3, '#1A2A5A', '#2A3A7A', '#0A1A3A'); for (let i = 0; i < 4; i++) R(x + 11.5 + (i * 7) % 3, y + 15.5 + (i * 5) % 2, 0.25, 0.25, C.weiss); // Sternkarte
           break;
         }
         case 'schaukel': {
           const sw = an === 'ausruhen' && man.tut === o ? Math.sin(welt.t * 3) : 0, sx = halb(sw);
-          KK(x + 2 + sx, y, 2.5, 12, HOLZ); KK(x + 2 + sx, y + 9, 12, 2.5, HOLZ); KK(x + 12 + sx, y + 6, 2, 6, HOLZ);
-          R(x + 4.5 + sx, y + 7, 8, 2, '#C84A5A'); for (let i = 0; i < 4; i++) Q(x + 5 + i * 2 + sx, y + 7.5, '#E87A8A');
-          for (let i = 0; i < 4; i++) R(x + 2.5 + sx, y + 1.5 + i * 2.5, 2, 0.5, HOLZ[2]);
+          KK(x + 2 + sx, y, 2.5, 12, HOLZ); for (let i = 0; i < 4; i++) R(x + 2.5 + sx, y + 1.5 + i * 2.5, 1.5, 0.25, HOLZ[2]);
+          KK(x + 2 + sx, y + 9, 12, 2.5, HOLZ); KK(x + 12 + sx, y + 6, 2, 6, HOLZ);
+          R(x + 4.5 + sx, y + 7, 8, 2, '#C84A5A'); for (let i = 0; i < 8; i++) R(x + 5 + i + sx, y + 7.5 + (i % 2) * 0.5, 0.5, 0.25, '#E87A8A'); // Kissen mit Muster
+          R(x + 2.5 + sx, y - 0.5, 2, 4, '#E8E0C8'); for (let i = 0; i < 3; i++) R(x + 2.75 + sx, y + i * 1.25, 1.5, 0.25, '#C84A5A'); // Häkeldecke
           b.strokeStyle = HOLZ[2]; b.lineWidth = 1; b.beginPath(); b.moveTo(x - 1 + sx, y + 14 - sw); b.quadraticCurveTo(x + 8 + sx, y + 17.5, x + 17 + sx, y + 14 + sw); b.stroke();
           break;
         }
-        case 'kisten':
-          KK(x, y + 2, 9, 8, ['#9A7040', '#C09060', '#6A4A28']); R(x + 0.5, y + 5.5, 8, 0.5, '#6A4A28'); R(x + 3.5, y + 4.5, 2, 1.5, '#D8C8A0');
-          KK(x + 8, y, 8, 10, ['#B08850', '#D0A870', '#7A5A30']); R(x + 8.5, y + 4, 7, 0.5, '#7A5A30'); R(x + 10, y + 6, 4, 2, '#E8E0C8'); Q(x + 11, y + 6.5, C.rot);
-          K(x + 2, y - 3, 12, 3, '#5A6A8A', '#7A8AAA', '#3A4A6A'); R(x + 7, y - 4, 2, 1, '#3A4A6A'); // alter Koffer
+        case 'truhe': { // alte Truhe mit Eisenbändern; beim Stöbern ist der Deckel offen
+          const offen = an === 'truhe';
+          KK(x, y + 2, w, h - 2, ['#7A4A2A', '#9A6A3A', '#4A2A10']);
+          for (const bx of [x + 2, x + w - 3]) R(bx, y + 2, 1, h - 2, '#5A5A62');
+          R(x, y + 4.5, w, 0.25, '#4A2A10'); K(x + w / 2 - 1, y + 3, 2, 2, '#C8A040', '#E8C060', '#8A6A20'); R(x + w / 2 - 0.25, y + 4, 0.5, 0.75, '#3A2A10');
+          if (offen) { // Deckel steht hoch, darin Fotoalbum, Briefe, Teddy
+            R(x, y - 5, w, 6.5, '#9A6A3A'); R(x, y - 5, w, 0.5, '#B88A5A'); for (const bx of [x + 2, x + w - 3]) R(bx, y - 5, 1, 6.5, '#5A5A62');
+            R(x + 1, y + 1.5, w - 2, 1, '#3A2010'); R(x + 3, y + 0.5, 4, 1.5, '#8A3A2A'); R(x + 8, y + 0.75, 3, 1.25, C.weiss); R(x + 12, y, 3, 2, '#C88A4A'); R(x + 12.5, y - 0.75, 2, 1, '#C88A4A');
+          } else { KK(x - 0.5, y, w + 1, 2.5, ['#8A5A2A', '#AA7A4A', '#5A3A1A']); for (const bx of [x + 2, x + w - 3]) R(bx, y, 1, 2.5, '#6A6A72'); }
           break;
+        }
+        case 'eisenbahn': { // Modelleisenbahn auf einer Platte: Gleisoval, Häuschen, Bäume, Zug mit Dampf
+          const cx = x + w / 2, top = y + 1;
+          R(x + 1, y + 3, 1.5, h - 3, HOLZ[2]); R(x + w - 2.5, y + 3, 1.5, h - 3, HOLZ[2]); R(x + 2, y + 6, w - 4, 0.75, HOLZ[2]);
+          K(x, top, w, 2.5, '#4E8A3A', '#6EAA5A', '#2E5A2A'); R(x, top + 2.5, w, 0.75, HOLZ[0]);
+          b.strokeStyle = '#7A7A80'; b.lineWidth = 0.35; b.beginPath(); b.ellipse(cx, top + 1.1, 12, 0.9, 0, 0, Math.PI * 2); b.stroke();
+          for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; R(cx + Math.cos(a) * 12 - 0.25, top + 1.1 + Math.sin(a) * 0.9 - 0.12, 0.5, 0.25, '#6A4A2A'); }
+          K(cx - 2, top - 1.5, 3, 2, '#E8D8B0', '#FFF0D0', '#A89870'); poly([[cx - 2.5, top - 1.5], [cx - 0.5, top - 3], [cx + 1.5, top - 1.5]], '#C83A2A'); R(cx - 1, top - 1, 0.5, 0.5, '#5A8AE8');
+          [[x + 3, '#2E6E2A'], [x + w - 4, '#3E8A36']].forEach(([tx, c]) => { R(tx + 0.75, top - 0.5, 0.5, 1, HOLZ[2]); poly([[tx, top - 0.5], [tx + 1, top - 3.5], [tx + 2, top - 0.5]], c); });
+          // Zug: Lok und zwei Wagen fahren das Oval entlang
+          const pos = welt.zug ? welt.zug.pos : 0;
+          for (let i = 2; i >= 0; i--) {
+            const a = pos - i * 0.32, zx = cx + Math.cos(a) * 12, zy = top + 1.1 + Math.sin(a) * 0.9, vorn = Math.sin(a) > 0;
+            const c = i === 0 ? '#1A1A1E' : i === 1 ? '#C83A2A' : '#2A5AA8';
+            b.globalAlpha = vorn ? 1 : 0.85;
+            R(zx - 1.25, zy - 1.5, 2.5, 1.5, c); R(zx - 1, zy, 0.5, 0.25, C.schwarz); R(zx + 0.5, zy, 0.5, 0.25, C.schwarz);
+            if (i === 0) { R(zx + (Math.cos(a + 1.57) > 0 ? 0.5 : -1), zy - 2.25, 0.5, 0.75, '#3A3A3A'); R(zx - 1, zy - 2, 1, 0.5, '#C83A2A'); }
+            b.globalAlpha = 1;
+          }
+          if (welt.zug && welt.zug.v > 0.2) for (let i = 0; i < 3; i++) { const t = (welt.t * 1.2 + i / 3) % 1, a = pos; R(cx + Math.cos(a) * 12 - t * 2, top - 2 - t * 5, 0.75 + t, 0.75 + t * 0.5, `rgba(240,240,240,${0.8 - t * 0.8})`); }
+          if (an === 'eisenbahn') { K(x + w - 6, top + 3.5, 3, 1.5, '#3A3A42', '#5A5A62', '#1A1A22'); R(x + w - 5, top + 3.75, 0.5, 0.5, C.rot); } // Trafo
+          break;
+        }
+        case 'pferd': { // Schaukelpferd: wippt, wenn jemand schaukelt (auch Minka)
+          const minkaDrauf = katze.f === 3 && Math.abs(katze.x - 255) < 3 && katze.hoch > 0 && !katze.sprung;
+          const amp = an === 'pferd' ? 0.25 : minkaDrauf ? 0.12 : 0, wk = Math.sin(welt.t * 3) * amp;
+          b.save(); b.translate(x + w / 2, FOOT[o.f] - 1); b.rotate(wk);
+          b.strokeStyle = '#8A5A2A'; b.lineWidth = 1; b.beginPath(); b.moveTo(-8, -1); b.quadraticCurveTo(0, 2.2, 8, -1); b.stroke();
+          b.fillStyle = '#6A4A2A'; [-4, 3].forEach((lx) => b.fillRect(lx, -6, 1, 5.5));
+          b.fillStyle = '#F0E8DC'; b.beginPath(); b.ellipse(0, -7, 5, 2.2, 0, 0, Math.PI * 2); b.fill(); // Körper
+          b.fillRect(3, -11, 2.5, 4.5); b.beginPath(); b.ellipse(5.8, -11, 2.3, 1.4, 0.3, 0, Math.PI * 2); b.fill(); // Hals und Kopf
+          b.fillStyle = '#8A5A2A'; b.fillRect(2.5, -12.5, 1.5, 5); b.fillRect(-6.5, -8, 1.5, 3.5); // Mähne, Schweif
+          b.fillStyle = '#C83A3A'; b.fillRect(-2, -9.5, 3.5, 1.5); b.fillStyle = '#E8C040'; b.fillRect(-0.5, -8, 0.5, 2); // Sattel, Steigbügel
+          b.fillStyle = '#101014'; b.fillRect(6.5, -11.5, 0.5, 0.5); b.fillRect(7.8, -10.5, 0.4, 0.4); // Auge, Nüster
+          b.fillStyle = '#C8A0A0'; b.fillRect(4.6, -12.6, 0.6, 1); // Ohr
+          b.restore();
+          break;
+        }
         case 'bett': {
           const schlaeft = an === 'schlafen';
           KK(x, y, 3, 14, HOLZ); KK(x + w - 3, y + 4, 3, 10, HOLZ); R(x + 0.5, y + 1, 2, 0.5, HOLZ[1]);
@@ -2395,6 +2475,10 @@ const texte = de
         miau: () => { piep(620, 0.45, 'sawtooth', 0.05, 0, 900); piep(900, 0.25, 'sawtooth', 0.04, 0.2, 520); },
         fauch: () => rauschen(0.5, 0.15, 3000, 0, 'highpass'),
         klingel: () => { piep(988, 0.6, 'sine', 0.2); piep(784, 0.9, 'sine', 0.2, 0.45); },
+        pfeife: () => { piep(880, 0.35, 'sine', 0.06); piep(1046, 0.35, 'sine', 0.05, 0.02); piep(880, 0.25, 'sine', 0.05, 0.45); },
+        zug: () => { rauschen(0.04, 0.06, 1800, 0, 'highpass'); rauschen(0.04, 0.05, 1800, 0.12, 'highpass'); },
+        knarren: () => { piep(140, 0.5, 'sawtooth', 0.03, 0, 95); },
+        quietschen: () => piep(900, 0.2, 'triangle', 0.02, 0, 700),
         sauger: () => rauschen(0.3, 0.05, 1200, 0, 'bandpass'),
         summen: () => piep(190 + Math.random() * 20, 0.22, 'sawtooth', 0.025),
         // Fantasiesprache: kurze Silbentöne passend zur Länge des Satzes, Tonhöhe je Stimme
@@ -2715,7 +2799,7 @@ const texte = de
     // fliegt durch das Rundfenster in den Dachboden, lädt auf der Werkbank, Herr Hausmann grüßt, Minka will sie fangen
     welt.brummi = null; welt.naechsterBrummi = 180 + Math.random() * 240;
     function brummiStarten(perKnopf) {
-      welt.brummi = { x: 340, y: 18, phase: 'anflug', wege: [[250, 10], [180, 28], [160, 46], [140, 62], [117, 74]], zeit: 0, blase: { text: tr('Bsss! Hallo Herr Hausmann!', 'Bzzz! Hello Mr Hausmann!'), bis: spielzeit + 3.5 }, akku: 20, summ: 0 };
+      welt.brummi = { x: 340, y: 18, phase: 'anflug', wege: [[250, 10], [180, 28], [160, 46], [140, 62], [123, 74]], zeit: 0, blase: { text: tr('Bsss! Hallo Herr Hausmann!', 'Bzzz! Hello Mr Hausmann!'), bis: spielzeit + 3.5 }, akku: 20, summ: 0 };
       log(perKnopf ? tr('Du rufst Brummi. Die Drohne summt heran.', 'You call Brummi. The drone buzzes over.') : tr('Brummi, die Drohne, kommt zu Besuch.', 'Brummi the drone comes to visit.'));
     }
     function brummiUpdate(dt) {
@@ -2804,6 +2888,7 @@ const texte = de
       if (welt.igel && alle('igel', 0.6, dt)) ton.rascheln();
       if (welt.kuehlAuf > 2.9 && alle('kuehl', 1, dt)) ton.klack();
       if (feldarbeit() && alle('traktor', 0.28, dt)) ton.traktor();
+      if ((t === 'pferd' || (katze.f === 3 && Math.abs(katze.x - 255) < 3 && katze.hoch > 0)) && alle('pferd', 1.05, dt)) ton.quietschen();
     }
 
     // ---------------------------------------------------------------- Schleife
